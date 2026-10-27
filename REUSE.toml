@@ -21,3 +21,29 @@ SPDX-License-Identifier = "Apache-2.0"
 path = "uv.lock"
 SPDX-FileCopyrightText = "2026 DX-Lab contributors"
 SPDX-License-Identifier = "Apache-2.0"
+
+# Mẫu PR: không đặt comment header để nội dung PR không bị chèn khối SPDX.
+[[annotations]]
+path = ".github/pull_request_template.md"
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# Định nghĩa ứng dụng Tầng 3 (BPMN, DMN, JSON Schema, process_model.json): Spiff Editor ghi lại toàn bộ tệp
+# khi lưu nên header dạng comment không giữ được; khai báo tập trung tại đây.
+[[annotations]]
+path = ["apps/**/*.bpmn", "apps/**/*.dmn", "apps/**/*.json"]
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Cấu hình triển khai dạng JSON (ví dụ realm Keycloak xuất ra): không chứa được comment.
+[[annotations]]
+path = "deploy/**/*.json"
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Dữ liệu mẫu do đội tự tạo. Dữ liệu bên thứ ba phải có annotation riêng, đặt SAU khối này,
+# giữ đúng giấy phép gốc và ghi nguồn trong DATA_SOURCES.yml.
+[[annotations]]
+path = "data/**"
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "CC-BY-4.0"

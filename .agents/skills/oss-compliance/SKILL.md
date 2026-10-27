@@ -130,7 +130,10 @@ Chạy theo thứ tự; mỗi mục ghi lại bằng chứng quan sát được,
 
 ## Khi thêm dependency hoặc tập dữ liệu mới
 
-1. Ghi lại: tên, phiên bản, nguồn, giấy phép, ngày lấy, checksum.
+1. Ghi lại: tên, phiên bản, nguồn, giấy phép, ngày lấy, checksum — vào `docs/DEPENDENCIES.md`.
+   "Dependency" gồm cả **image container** (ghim theo digest), **mô hình AI** (ví dụ mô hình embedding:
+   giấy phép theo model card, không theo thư viện chạy nó) và **bundle được đóng gói sẵn** trong thư viện
+   (ví dụ renderer JavaScript đi kèm Prefab).
 2. Đối chiếu giấy phép với mục "Giấy phép" trong `README.md`.
 3. Dữ liệu CC BY-SA khi chia sẻ: giữ attribution/notices/source URI mà upstream cung cấp,
    ghi rõ đã sửa gì; bản chuyển thể phải dùng giấy phép cùng License Elements hoặc
