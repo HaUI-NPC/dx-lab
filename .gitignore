@@ -23,3 +23,6 @@ docs/De_thi_*.pdf
 # .agents/skills/pptx là tài liệu độc quyền của Anthropic (xem LICENSE.txt trong
 # thư mục đó): cấm phân phối lại và cấm tạo bản phái sinh. Giữ ngoài repo công khai.
 .agents/skills/pptx/
+
+# Bộ agent skill nội bộ của đội (`dxlab-*`): phân phối riêng cho thành viên, không thuộc sản phẩm.
+.agents/skills/dxlab-*/
