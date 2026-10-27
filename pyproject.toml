@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Gốc workspace. Mỗi tầng là một gói riêng để ranh giới phụ thuộc được kiểm chứng bằng
+# trình quản lý gói: `core` không khai báo, nên không thể import, bất kỳ thứ gì của `portal`.
+[project]
+name = "dx-lab"
+version = "0.1.0"
+description = "DX-Lab HaUI – trạm điều hành số trên nền tảng DX-OS Open-Core"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE", "LICENSES/*"]
+keywords = ["dx-os", "open-core", "hpdi", "haui", "olp-2026"]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/HaUI-NPC/dx-lab"
+Repository = "https://github.com/HaUI-NPC/dx-lab"
+Issues = "https://github.com/HaUI-NPC/dx-lab/issues"
+Changelog = "https://github.com/HaUI-NPC/dx-lab/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["core", "portal"]
