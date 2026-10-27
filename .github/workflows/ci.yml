@@ -28,7 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # setup-uv chỉ phát hành tag đầy đủ (không có tag `v10`), ghim theo commit của v10.3.2.
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       - name: Build wheel và sdist cho mọi gói
         run: uv build --all-packages --out-dir dist
       - name: Cài từng gói vào môi trường riêng, import từ thư mục ngoài repo
