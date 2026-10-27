@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Đề xuất tính năng
+description: Đề xuất một thay đổi về chức năng
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Vấn đề cần giải quyết
+      description: Mô tả tình huống thực tế mà người dùng đang gặp khó khăn.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Đề xuất
+      description: Hành vi mong muốn, và cách người dùng nhận biết nó đã hoạt động.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Liên quan tới tầng nào của DX-OS?
+      options:
+        - Tầng 1 Open-Core — Identity/SSO, API Gateway, dữ liệu, workflow
+        - Human — đăng nhập, vai trò, knowledge hub
+        - Process — quy trình, trạng thái, phê duyệt, việc chờ xử lý
+        - Data — dashboard, tìm kiếm, provenance, REST API
+        - Intelligence — phân loại, ưu tiên, hỏi đáp tài liệu
+        - Tầng 3 — ứng dụng báo hỏng thiết bị phòng lab
+        - Khác hoặc chưa rõ
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Phương án đã cân nhắc
+      description: Cách làm thủ công hiện tại, hoặc giải pháp sẵn có mà bạn đã thử.

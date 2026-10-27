@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+blank_issues_enabled: false
+contact_links:
+  - name: Báo lỗ hổng bảo mật
+    url: https://github.com/HaUI-NPC/dx-lab/security/advisories/new
+    about: Dùng kênh riêng tư này cho lỗ hổng bảo mật. Không mở issue công khai.
+  - name: Hướng dẫn đóng góp
+    url: https://github.com/HaUI-NPC/dx-lab/blob/main/CONTRIBUTING.md
+    about: Quy trình gửi thay đổi, yêu cầu DCO sign-off và khai báo giấy phép.

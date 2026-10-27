@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+.DS_Store
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+dist/
+
+# Cấu hình chứa secret. Chỉ commit `.env.example`.
+.env
+
+# Ghi chú làm việc và kế hoạch nội bộ của đội, không thuộc sản phẩm phát hành.
+.local/
+
+# Đề thi tuyển chọn nội bộ HaUI: tài liệu của nhà trường, không phân phối lại.
+docs/De_thi_*.pdf
+
+# Công cụ hỗ trợ phát triển của bên thứ ba, KHÔNG phân phối kèm dự án.
+# .agents/skills/pptx là tài liệu độc quyền của Anthropic (xem LICENSE.txt trong
+# thư mục đó): cấm phân phối lại và cấm tạo bản phái sinh. Giữ ngoài repo công khai.
+.agents/skills/pptx/

@@ -1,0 +1,23 @@
+version = 1
+SPDX-PackageName = "DX-Lab"
+SPDX-PackageSupplier = "HaUI.NPC"
+SPDX-PackageDownloadLocation = "https://github.com/HaUI-NPC/dx-lab"
+
+# SKILL.md bắt buộc mở đầu bằng YAML frontmatter, nên không thể đặt comment header
+# phía trên; khai báo giấy phép tại đây.
+[[annotations]]
+path = ".agents/skills/**/SKILL.md"
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Cấu hình JSON cho công cụ hỗ trợ phát triển.
+[[annotations]]
+path = ".omp/*.json"
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Tệp khóa phụ thuộc do uv sinh tự động: header sẽ bị xóa mỗi lần chạy lại `uv lock`.
+[[annotations]]
+path = "uv.lock"
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "Apache-2.0"

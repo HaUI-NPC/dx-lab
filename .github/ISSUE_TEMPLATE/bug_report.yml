@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Báo lỗi
+description: Báo một hành vi sai so với tài liệu hoặc kỳ vọng
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nếu đây là **lỗ hổng bảo mật**, đừng mở issue công khai.
+        Xem [SECURITY.md](../blob/main/SECURITY.md).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: Hiện tượng
+      description: Điều gì đã xảy ra, và bạn mong đợi điều gì?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Các bước tái hiện
+      placeholder: |
+        1. Chạy lệnh ...
+        2. Mở màn hình ...
+        3. Quan sát thấy ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Môi trường
+      description: Hệ điều hành, phiên bản Python, commit hoặc bản phát hành đang dùng.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log hoặc thông báo lỗi
+      description: Dán log liên quan. Xóa mọi secret, token và dữ liệu cá nhân trước khi dán.
+      render: shell

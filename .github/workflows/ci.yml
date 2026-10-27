@@ -1,0 +1,67 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Quyền tối thiểu cho toàn bộ workflow (OpenSSF Security Baseline OSPS-AC-04).
+permissions:
+  contents: read
+
+jobs:
+  reuse:
+    name: Tuân thủ giấy phép (REUSE 3.3)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: reuse lint
+        uses: fsfe/reuse-action@v6
+
+  build:
+    name: Build từ mã nguồn, cài sạch, chạy ngoài cây mã
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Build wheel và sdist cho mọi gói
+        run: uv build --all-packages --out-dir dist
+      - name: Cài từng gói vào môi trường riêng, import từ thư mục ngoài repo
+        run: |
+          set -euo pipefail
+          for pkg in dxlab_core dxlab_portal; do
+            venv="$RUNNER_TEMP/venv-$pkg"
+            uv venv --python 3.12 "$venv"
+            uv pip install --python "$venv/bin/python" dist/"$pkg"-*.whl
+            (cd "$RUNNER_TEMP" && "$venv/bin/python" -c "import $pkg")
+          done
+
+  dco:
+    name: Ký nhận DCO
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Kiểm tra Signed-off-by trên từng commit của PR
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          status=0
+          while read -r sha; do
+            [ -z "$sha" ] && continue
+            author="$(git show -s --format='%an <%ae>' "$sha")"
+            if ! git show -s --format='%B' "$sha" | grep -qiF "Signed-off-by: $author"; then
+              echo "::error::Commit $sha thiếu 'Signed-off-by: $author'. Dùng: git commit -s"
+              status=1
+            fi
+          done < <(git rev-list "$BASE_SHA".."$HEAD_SHA")
+          exit $status
