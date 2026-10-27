@@ -26,12 +26,6 @@ Người chịu trách nhiệm cho dự án và người có quyền trên các 
 
 Công việc được giao theo issue; ai phụ trách việc gì xem người được gán trên từng issue.
 
-## Giảng viên hướng dẫn
-
-| Vai trò | Tên | Đơn vị |
-|---|---|---|
-| Giảng viên hướng dẫn đội | `<Họ tên>` | Trường CNTT & Truyền thông, Đại học Công nghiệp Hà Nội |
-
 ## Liên hệ bảo mật
 
 Kênh chính: GitHub private vulnerability reporting (tab `Security` → `Report a vulnerability`), đã bật trên repo.
@@ -64,5 +58,4 @@ Cả đội cùng chịu trách nhiệm, không giao riêng một người:
 - [x] Tạo organization `HaUI-NPC` và repo công khai `HaUI-NPC/dx-lab`.
 - [x] Bật GitHub private vulnerability reporting.
 - [x] Bật bảo vệ nhánh `main`.
-- [ ] Điền tên giảng viên hướng dẫn.
 - [ ] Bật xác thực đa yếu tố (MFA) cho mọi tài khoản có quyền trên repo.
