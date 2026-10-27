@@ -37,12 +37,18 @@ Chỉ sửa `core/` khi cần một năng lực nền tảng dùng chung cho m�
 
 ## Quy trình gửi thay đổi
 
-1. Tạo nhánh từ `main`: `feature/<mô-tả-ngắn>`, `fix/<mô-tả-ngắn>` hoặc `docs/<mô-tả-ngắn>`.
-2. Thực hiện thay đổi, kèm cập nhật tài liệu nếu hành vi thay đổi.
-3. Chạy kiểm tra cục bộ (xem mục dưới) và bảo đảm tất cả đều pass.
-4. Ghi một mục vào `CHANGELOG.md` phần `[Unreleased]` nếu thay đổi có ảnh hưởng tới người dùng.
-5. Mở Pull Request mô tả: vấn đề, cách giải quyết, cách kiểm chứng.
-6. PR cần ít nhất một review chấp thuận từ thành viên khác trước khi merge.
+Mọi thay đổi vào `main` đều đi qua Pull Request, kể cả của maintainer. Không ai đẩy thẳng `main`.
+
+1. Mỗi thay đổi gắn với một issue. Việc mới hoặc lỗi chưa có issue → mở issue trước.
+2. Tạo nhánh từ `main` mới nhất, đặt tên `<type>/<MÃ-VIỆC>-<mô-tả-ngắn>`, ví dụ `feat/CORE-03-definitions`,
+   `fix/POR-02-loi-form`. `type` lấy theo [quy ước commit](#quy-ước-commit-message).
+3. Chỉ sửa trong phạm vi issue. Thấy việc khác cần làm → mở issue mới, không gộp vào PR đang làm.
+4. Chạy kiểm tra cục bộ (xem mục dưới) và bảo đảm tất cả đều pass.
+5. Ghi một mục vào `CHANGELOG.md` phần `[Unreleased]` nếu thay đổi có ảnh hưởng tới người dùng.
+6. Mở PR theo mẫu (tự hiện khi tạo PR): issue được đóng (`Closes #…`), thay đổi gì, **lệnh đã chạy để kiểm chứng
+   và kết quả thật**, ảnh chụp nếu có giao diện. Mở ở dạng *draft*; CI xanh mới chuyển sang *ready for review*.
+7. Cần ít nhất một review chấp thuận của người khác tác giả. **Chỉ maintainer chính được merge** vào `main`
+   (xem [`MAINTAINERS.md`](MAINTAINERS.md)); dự án chỉ dùng kiểu gộp *rebase* để giữ nguyên từng commit.
 
 ## Yêu cầu bắt buộc với mỗi commit
 
@@ -52,7 +58,7 @@ Mọi commit phải có dòng `Signed-off-by`, xác nhận bạn có quyền h�
 mã đó theo [Developer Certificate of Origin 1.1](https://developercertificate.org/):
 
 ```bash
-git commit -s -m "fix(workflow): chặn đóng work order khi thiếu bằng chứng"
+git commit -s -m "fix(core): từ chối nghiệm thu khi người làm là người đã sửa (CORE-04b)"
 ```
 
 Lệnh `-s` tự thêm:
@@ -131,15 +137,18 @@ nằm ngoài repo. PR có kiểm tra fail sẽ không được merge.
 
 ## Quy ước commit message
 
-Dùng dạng `<type>(<scope>): <mô tả ngắn, thức mệnh lệnh>`.
+Dùng dạng `<type>(<scope>): <mô tả ngắn, thức mệnh lệnh> (<MÃ-VIỆC>)`. `MÃ-VIỆC` là mã trong tiêu đề issue,
+ví dụ `CORE-03`; bỏ trống nếu thay đổi không thuộc việc nào đã lên kế hoạch.
 
 Các `type` dùng trong dự án: `feat`, `fix`, `docs`, `refactor`, `test`, `build`, `ci`, `chore`.
+`scope` là thư mục hoặc mảng bị ảnh hưởng: `core`, `portal`, `mcp`, `apps`, `deploy`, `docs`, `ci`.
 
 ```text
-feat(workflow): chặn đóng yêu cầu sửa chữa khi thiếu ảnh minh chứng
+fix(core): từ chối nghiệm thu khi người làm là người đã sửa (CORE-04b)
 
-Yêu cầu chỉ chuyển sang ĐÃ KHẮC PHỤC khi có ít nhất một ảnh sau sửa chữa.
-Kiểm tra nằm ở Core nên mọi ứng dụng tầng trên đều chịu cùng ràng buộc.
+Bước nghiệm thu khai báo `dxlabExcludeActorsOf = repair`; Core so người hoàn thành bước
+với người đã làm bước sửa và trả 403 nếu trùng. Kiểm tra nằm ở Core nên mọi ứng dụng
+tầng trên đều chịu cùng ràng buộc.
 
 Signed-off-by: Tên Của Bạn <email@example.com>
 ```

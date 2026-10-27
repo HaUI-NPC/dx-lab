@@ -25,42 +25,49 @@ Sinh viên và giảng viên phát hiện thiết bị phòng lab hỏng (máy t
 nhưng thường báo qua tin nhắn hoặc lời nói. Yêu cầu dễ thất lạc, không ai theo dõi được ai đang
 xử lý, bao lâu thì xong, và tri thức sửa chữa nằm trong đầu một vài cán bộ kỹ thuật.
 
-DX-Lab số hóa một quy trình đầu-cuối: **báo hỏng → phân loại và ưu tiên → xử lý → phê duyệt
-(khi vượt ngưỡng chi phí) → nghiệm thu**, với lịch sử thay đổi đầy đủ.
+DX-Lab số hóa một quy trình đầu-cuối: **báo hỏng → định tuyến và xếp mức ưu tiên → kiểm tra, lập biên bản tình
+trạng → xác nhận nhu cầu và duyệt theo hạn mức (khi phát sinh chi phí) → sửa chữa → nghiệm thu**, với lịch sử
+thay đổi đầy đủ.
 
 ## Kiến trúc 3 tầng
 
 ```mermaid
 flowchart TB
-  subgraph T3["Tầng 3 – Ứng dụng nghiệp vụ"]
-    APP["Báo hỏng thiết bị phòng lab"]
+  subgraph T3["Tầng 3 – Ứng dụng nghiệp vụ (apps/)"]
+    APP["lab-repair: báo hỏng thiết bị phòng lab"]
+    APP2["room-booking: mượn phòng (chứng minh không sửa Core)"]
   end
-  subgraph T2["Tầng 2 – Không gian H-P-D-I (portal/)"]
+  subgraph T2["Tầng 2 – Không gian H-P-D-I"]
     H["Human"] --- P["Process"] --- D["Data"] --- I["Intelligence"]
+    POR["portal/ – giao diện web"]
+    MCP["mcp/ – thao tác bằng câu lệnh qua MCP"]
   end
   subgraph T1["Tầng 1 – DX-OS Open-Core, headless (core/)"]
     GW["API Gateway – Apache APISIX"]
     IDP["Identity/SSO – Keycloak"]
-    CORE["Core API – dữ liệu, workflow, audit"]
+    CORE["Core API – định nghĩa quy trình, workflow, dữ liệu, tìm kiếm, audit"]
     DB[("PostgreSQL")]
+    VEC[("zvec – chỉ mục ngữ nghĩa")]
   end
   APP --> T2
+  APP2 --> T2
   T2 -->|HTTP + token| GW
   T2 -. đăng nhập OIDC .-> IDP
   GW --> CORE
   CORE -. xác thực token .-> IDP
   CORE --> DB
+  CORE --> VEC
 ```
 
-Nguyên tắc: Tầng 1 không phục vụ giao diện và không biết ứng dụng nào đang gọi. Thêm một quy
-trình nghiệp vụ mới là khai báo định nghĩa quy trình cho Core, không sửa mã Core.
+Nguyên tắc: Tầng 1 không phục vụ giao diện và không biết ứng dụng nào đang gọi. Một ứng dụng Tầng 3 là một gói
+định nghĩa (quy trình BPMN, bảng luật DMN, form JSON Schema) nạp vào Core qua API, không sửa mã Core.
 
 | Không gian | Năng lực trong DX-Lab |
 |---|---|
-| H – Human | Đăng nhập SSO, vai trò (người báo hỏng, kỹ thuật viên, trưởng lab, quản trị), kho hướng dẫn sửa chữa |
-| P – Process | Quy trình có trạng thái, người tạo, người xử lý, thời hạn, lịch sử; danh sách việc chờ xử lý |
+| H – Human | Đăng nhập SSO, vai trò theo đơn vị (người báo hỏng, kỹ thuật viên, trưởng lab, trưởng khoa…), kho hướng dẫn sửa chữa, thao tác bằng câu lệnh tự nhiên qua MCP |
+| P – Process | Quy trình có trạng thái, người tạo, người xử lý, thời hạn, lịch sử; danh sách việc chờ xử lý; phê duyệt theo hạn mức |
 | D – Data | Nguồn dữ liệu thống nhất, provenance, tìm kiếm/lọc/thống kê, dashboard, REST API có OpenAPI |
-| I – Intelligence | Phân loại và đề xuất mức ưu tiên có giải thích; hỏi đáp hướng dẫn sửa chữa có trích dẫn |
+| I – Intelligence | Phân loại, định tuyến, xếp ưu tiên bằng bảng luật DMN kèm lý do; tìm hướng dẫn sửa chữa kết hợp từ khóa và ngữ nghĩa, có trích dẫn |
 
 ## Thành phần
 
@@ -68,10 +75,15 @@ trình nghiệp vụ mới là khai báo định nghĩa quy trình cho Core, kh�
 |---|---|---|---|
 | [FastAPI](https://fastapi.tiangolo.com/) | Core API (Tầng 1), máy chủ portal | MIT | Đã khai báo |
 | [SQLAlchemy](https://www.sqlalchemy.org/) | Truy cập dữ liệu của Core | MIT | Đã khai báo |
+| [psycopg](https://www.psycopg.org/) 3 | Driver PostgreSQL | LGPL-3.0 | Đã khai báo |
 | [Prefab](https://github.com/PrefectHQ/prefab) `prefab-ui==0.21.1` | Giao diện H-P-D-I viết bằng Python | Apache-2.0 | Đã khai báo |
-| [PostgreSQL](https://www.postgresql.org/) | Dữ liệu cấu trúc | PostgreSQL License | Dự kiến |
+| [SpiffWorkflow](https://github.com/sartography/SpiffWorkflow) | Chạy quy trình BPMN và bảng luật DMN | LGPL-3.0 | Dự kiến |
+| [PostgreSQL](https://www.postgresql.org/) | Dữ liệu cấu trúc, tìm kiếm toàn văn | PostgreSQL License | Dự kiến |
 | [Keycloak](https://www.keycloak.org/) | Identity, SSO, RBAC | Apache-2.0 | Dự kiến |
 | [Apache APISIX](https://apisix.apache.org/) | API Gateway | Apache-2.0 | Dự kiến |
+| [Authlib](https://authlib.org/), [PyJWT](https://pyjwt.readthedocs.io/) | Đăng nhập OIDC ở portal, kiểm tra token ở Core | BSD-3-Clause, MIT | Dự kiến |
+| [zvec](https://github.com/alibaba/zvec), [fastembed](https://github.com/qdrant/fastembed) | Chỉ mục và embedding cho tìm kiếm ngữ nghĩa | Apache-2.0 | Dự kiến |
+| [FastMCP](https://github.com/PrefectHQ/fastmcp) | MCP server cho người dùng cuối | Apache-2.0 | Dự kiến |
 
 Bảng đầy đủ kèm phiên bản và nguồn gốc của từng phụ thuộc sẽ có cùng bản phát hành đầu tiên.
 

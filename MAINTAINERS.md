@@ -6,30 +6,25 @@ SPDX-License-Identifier: CC-BY-4.0
 
 # Maintainers
 
-Danh sách người chịu trách nhiệm cho từng phần của dự án và người có quyền trên các tài
-nguyên nhạy cảm (repo settings, secrets, quyền phát hành).
+Người chịu trách nhiệm cho dự án và người có quyền trên các tài nguyên nhạy cảm
+(cài đặt repo, secret, quyền phát hành), theo `OSPS-GV-01.01` của
+[OpenSSF Security Baseline](https://baseline.openssf.org/versions/2025-02-25).
 
-> **Trạng thái: PLACEHOLDER.** Toàn bộ mục `<...>` bên dưới phải được thay bằng thông tin
-> thật trước khi công bố repo hoặc nộp bài. Xem [Việc phải hoàn tất](#việc-phải-hoàn-tất).
+## Maintainer chính
 
-## Maintainer
-
-| Vai trò | Tên | Liên hệ | GitHub | Phạm vi phụ trách |
-|---|---|---|---|---|
-| Lead / phát hành | `<Họ tên>` | `<email>` | `<@handle>` | Cắt release, gắn tag, duyệt merge cuối |
-| Open-Core (Tầng 1) | `<Họ tên>` | `<email>` | `@ngothetai` | `core/`, Keycloak, APISIX, workflow, dữ liệu |
-| Portal (Tầng 2/3) | `<Họ tên>` | `<email>` | `<@handle>` | `portal/`, giao diện H-P-D-I, ứng dụng báo hỏng |
-| Data, Intelligence | `<Họ tên>` | `<email>` | `<@handle>` | Dữ liệu mẫu, provenance, phân loại, hỏi đáp tài liệu |
-
-## Liên hệ bảo mật
-
-| Vai trò | Tên | Liên hệ |
+| GitHub | Vai trò | Phạm vi |
 |---|---|---|
-| Đầu mối bảo mật | `<Họ tên>` | `<email>` |
-| Dự phòng | `<Họ tên>` | `<email>` |
+| [@ngothetai](https://github.com/ngothetai) | Mentor đội HaUI.NPC, maintainer chính | Kiến trúc Open-Core, `core/`, định nghĩa quy trình trong `apps/`; review và **merge mọi PR**; cắt release |
 
-Quy trình báo cáo và cam kết thời gian phản hồi: [`SECURITY.md`](SECURITY.md).
-Kênh chính là GitHub private vulnerability reporting; các liên hệ trên là kênh dự phòng.
+## Thành viên đội thi
+
+| GitHub | Vai trò |
+|---|---|
+| [@datthanhngobn](https://github.com/datthanhngobn) | Thành viên |
+| [@kenchjm1991](https://github.com/kenchjm1991) | Thành viên |
+| [@truongnguyenk7z-ship-it](https://github.com/truongnguyenk7z-ship-it) | Thành viên |
+
+Công việc được giao theo issue; ai phụ trách việc gì xem người được gán trên từng issue.
 
 ## Giảng viên hướng dẫn
 
@@ -37,23 +32,28 @@ Kênh chính là GitHub private vulnerability reporting; các liên hệ trên l
 |---|---|---|
 | Giảng viên hướng dẫn đội | `<Họ tên>` | Trường CNTT & Truyền thông, Đại học Công nghiệp Hà Nội |
 
-## Quyền trên tài nguyên nhạy cảm
+## Liên hệ bảo mật
 
-Theo `OSPS-GV-01.01` của [OpenSSF Security Baseline](https://baseline.openssf.org/versions/2025-02-25),
-dự án công bố ai có quyền gì:
+Kênh chính: GitHub private vulnerability reporting (tab `Security` → `Report a vulnerability`), đã bật trên repo.
+Đầu mối xử lý: [@ngothetai](https://github.com/ngothetai). Quy trình và cam kết thời gian phản hồi:
+[`SECURITY.md`](SECURITY.md).
+
+## Quyền trên tài nguyên nhạy cảm
 
 | Tài nguyên | Ai có quyền |
 |---|---|
-| Admin repository (settings, branch protection) | `<Họ tên>` |
-| Quyền merge vào `main` | Toàn bộ maintainer, cần ít nhất một review không phải tác giả |
-| Tạo release và tag | `<Họ tên>` (lead) |
-| Secrets của CI | `<Họ tên>` (lead) |
+| Admin repository (cài đặt, bảo vệ nhánh) | @ngothetai |
+| Merge vào `main` | Chỉ @ngothetai; cần ít nhất một review chấp thuận của người khác tác giả và CI xanh |
+| Đẩy nhánh, mở PR | Mọi thành viên đội |
+| Tạo release và tag | @ngothetai |
+| Secret của CI | @ngothetai |
 
-Nguyên tắc: tối thiểu **hai người** có quyền admin để dự án không phụ thuộc một cá nhân.
+Bảo vệ nhánh `main` đang bật: bắt buộc PR, 1 review, 3 kiểm tra CI (REUSE, build sạch, DCO), áp cả với admin,
+lịch sử thẳng, cấm force-push và xóa nhánh, chỉ @ngothetai được merge.
 
 ## Trách nhiệm chung
 
-Không giao riêng cho một người — cả đội cùng chịu trách nhiệm:
+Cả đội cùng chịu trách nhiệm, không giao riêng một người:
 
 - Giấy phép và ghi nhận bản quyền (xem skill `oss-compliance`).
 - Tài liệu cài đặt và vận hành luôn khớp với hành vi thật.
@@ -61,11 +61,8 @@ Không giao riêng cho một người — cả đội cùng chịu trách nhiệ
 
 ## Việc phải hoàn tất
 
-Trước khi công bố repo hoặc nộp bài, thay toàn bộ placeholder:
-
-- [ ] Điền tên, email, GitHub handle thật vào các bảng trên.
-- [ ] Điền đầu mối bảo mật vào đây và kiểm tra [`SECURITY.md`](SECURITY.md) trỏ đúng.
-- [ ] Tạo organization `HaUI-NPC` và repo công khai `HaUI-NPC/dx-lab`.
-- [ ] Bật GitHub private vulnerability reporting trong tab `Security`.
-- [ ] Bật branch protection cho `main`: yêu cầu PR, yêu cầu CI pass, chặn force-push.
-- [ ] Bật xác thực đa yếu tố cho mọi tài khoản có quyền trên repo.
+- [x] Tạo organization `HaUI-NPC` và repo công khai `HaUI-NPC/dx-lab`.
+- [x] Bật GitHub private vulnerability reporting.
+- [x] Bật bảo vệ nhánh `main`.
+- [ ] Điền tên giảng viên hướng dẫn.
+- [ ] Bật xác thực đa yếu tố (MFA) cho mọi tài khoản có quyền trên repo.

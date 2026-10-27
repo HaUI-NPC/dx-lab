@@ -39,8 +39,8 @@ Trong phạm vi xử lý:
 
 Ngoài phạm vi:
 
-- Lỗ hổng của các dịch vụ nguồn mở bên thứ ba mà dự án tích hợp (PostgreSQL, Keycloak,
-  Apache APISIX, Ollama…). Vui lòng báo cho upstream tương ứng; nếu dự án
+- Lỗ hổng của các dịch vụ và thư viện nguồn mở bên thứ ba mà dự án tích hợp (PostgreSQL, Keycloak,
+  Apache APISIX, SpiffWorkflow, zvec…). Vui lòng báo cho upstream tương ứng; nếu dự án
   cần nâng phiên bản hoặc đổi cấu hình mặc định để giảm rủi ro, hãy mở issue công khai
   cho phần cấu hình đó.
 - Dữ liệu công khai của bên thứ ba dùng làm tập demo.

@@ -22,4 +22,13 @@ và dự án tuân theo [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0
 - CI GitHub Actions: `reuse lint`, build từng gói rồi cài vào môi trường sạch và import từ ngoài cây mã nguồn, kiểm tra DCO trên PR.
 - Mẫu báo lỗi, đề xuất tính năng và định tuyến báo cáo bảo mật cho bug tracker công khai.
 
+### Changed
+
+- Quy trình đóng góp: mọi thay đổi vào `main` qua Pull Request gắn với issue, tên nhánh theo mã việc, chỉ maintainer chính merge, chỉ gộp kiểu rebase.
+- `MAINTAINERS.md` ghi người phụ trách và quyền thực tế trên repo; README cập nhật kiến trúc và thành phần dự kiến.
+
+### Fixed
+
+- CI: ghim `astral-sh/setup-uv` theo commit của bản v10.3.2 (action không phát hành tag `v10`).
+
 [Unreleased]: https://github.com/HaUI-NPC/dx-lab/commits/main
