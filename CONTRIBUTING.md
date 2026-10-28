@@ -39,14 +39,19 @@ Chỉ sửa `core/` khi cần một năng lực nền tảng dùng chung cho m�
 
 Mọi thay đổi vào `main` đều đi qua Pull Request, kể cả của maintainer. Không ai đẩy thẳng `main`.
 
-1. Mỗi thay đổi gắn với một issue. Việc mới hoặc lỗi chưa có issue → mở issue trước.
+1. Mỗi thay đổi gắn với một issue. Việc mới hoặc lỗi chưa có issue → mở issue trước. Tiến độ theo dõi trên
+   [bảng việc](https://github.com/orgs/HaUI-NPC/projects/1): bắt đầu làm thì chuyển thẻ sang *Đang làm*; chờ
+   issue khác hoặc chờ quyết định thì chuyển *Bị chặn*, comment lý do và gắn nhãn `blocked` hoặc `needs-mentor`.
 2. Tạo nhánh từ `main` mới nhất, đặt tên `<type>/<MÃ-VIỆC>-<mô-tả-ngắn>`, ví dụ `feat/CORE-03-definitions`,
    `fix/POR-02-loi-form`. `type` lấy theo [quy ước commit](#quy-ước-commit-message).
-3. Chỉ sửa trong phạm vi issue. Thấy việc khác cần làm → mở issue mới, không gộp vào PR đang làm.
+3. Chỉ sửa trong phạm vi issue. Thấy việc khác cần làm → mở issue mới, không gộp vào PR đang làm. Cần làm khác
+   hợp đồng chung ([`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/AUTHZ.md`](docs/AUTHZ.md),
+   [`.env.example`](.env.example), mục [Quy ước](#quy-ước)) → dừng, comment trên issue, gắn nhãn `needs-mentor`.
 4. Chạy kiểm tra cục bộ (xem mục dưới) và bảo đảm tất cả đều pass.
 5. Ghi một mục vào `CHANGELOG.md` phần `[Unreleased]` nếu thay đổi có ảnh hưởng tới người dùng.
 6. Mở PR theo mẫu (tự hiện khi tạo PR): issue được đóng (`Closes #…`), thay đổi gì, **lệnh đã chạy để kiểm chứng
-   và kết quả thật**, ảnh chụp nếu có giao diện. Mở ở dạng *draft*; CI xanh mới chuyển sang *ready for review*.
+   và kết quả thật**, ảnh chụp nếu có giao diện. Mở ở dạng *draft*; CI xanh mới chuyển sang *ready for review* và
+   chuyển thẻ sang *Chờ review*.
 7. Cần ít nhất một review chấp thuận của người khác tác giả. **Chỉ maintainer chính được merge** vào `main`
    (xem [`MAINTAINERS.md`](MAINTAINERS.md)); dự án chỉ dùng kiểu gộp *rebase* để giữ nguyên từng commit.
 
@@ -153,7 +158,105 @@ tầng trên đều chịu cùng ràng buộc.
 Signed-off-by: Tên Của Bạn <email@example.com>
 ```
 
-## Kiểm thử
+## Quy ước
+
+Phần này cùng [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) là hợp đồng chung của dự án; đổi nó bằng PR riêng do
+maintainer chính duyệt.
+
+### Cấu trúc thư mục
+
+```text
+apps/      Gói ứng dụng Tầng 3: BPMN, DMN, JSON Schema, hướng dẫn (docs/ARCHITECTURE.md mục 7)
+core/      Gói dxlab-core: Core API headless và CLI dxlab (Tầng 1)
+portal/    Gói dxlab-portal: giao diện H-P-D-I và BFF đăng nhập (Tầng 2)
+mcp/       Gói dxlab-mcp: MCP server (Tầng 2)
+deploy/    compose.yaml, keycloak/realm.json, apisix/ (cấu hình standalone)
+data/      Dữ liệu mẫu do đội tạo và data/DATA_SOURCES.yml (nguồn, giấy phép của từng tệp)
+scripts/   up.sh, seed.sh, reset.sh, demo-e2e.sh, download-models.sh
+tools/     Công cụ phát triển, không thuộc sản phẩm (spiff-editor/)
+docs/      Tài liệu
+```
+
+Bên trong `core/`, mỗi mảng nghiệp vụ là một thư mục con cùng khuôn; CORE-01 tạo khung và mảng `health` làm mẫu:
+
+```text
+core/src/dxlab_core/
+  app.py         tạo ứng dụng FastAPI, gắn router và handler lỗi
+  config.py      đọc biến môi trường DXLAB_*
+  errors.py      ApiError và handler trả định dạng lỗi chung
+  db/            engine, session, Base; migrations/ của Alembic
+  auth/          xác thực JWT, Principal, dependency kiểm quyền (CORE-02)
+  audit/         ghi audit dùng chung
+  <mảng>/        health, definitions, workflows, tasks, records, documents, search, stats, delegations
+    router.py    chỉ lo HTTP: nhận, kiểm đầu vào, gọi service, trả schema
+    service.py   nghiệp vụ; không import FastAPI
+    models.py    bảng SQLAlchemy của mảng
+    schemas.py   model Pydantic vào / ra
+  cli/           lệnh dxlab (CLI-01)
+core/tests/      pytest, mỗi mảng một tệp test_<mảng>.py
+```
+
+`portal/src/dxlab_portal/` có `bff/` (đăng nhập, phiên, gọi API kèm token) và `pages/` (mỗi tab một module);
+POR-01 chốt chi tiết, các task portal sau theo khung đó.
+
+### Đặt tên API
+
+- Mọi route của core nằm dưới `/api`. Tài nguyên là danh từ số nhiều, chữ thường, nhiều từ thì nối bằng gạch ngang:
+  `/api/definitions`, `/api/workflows/{workflow_id}`.
+- Hành động không phải đọc / tạo / sửa / xóa: `POST /api/<tài-nguyên>/{id}/<động-từ>`, ví dụ
+  `/api/definitions/{definition_id}/activate`, `/api/tasks/{task_id}/complete`.
+- Tham số và trường JSON dùng `snake_case`. Id do core tạo là UUID; khóa nghiệp vụ giữ nguyên (mã ứng dụng, khóa
+  vai trò, đường dẫn đơn vị, id bước BPMN).
+- Danh sách nhận `limit` (mặc định 50, tối đa 200) và `offset`, trả `{"items": [...], "total": <số>}`.
+- Thời gian: ISO 8601, UTC, ví dụ `2026-10-29T08:30:00Z`. Portal hiển thị giờ Việt Nam dạng `29/10/2026 15:30`.
+- Tiền: số nguyên, đơn vị đồng; không dùng số thực.
+- Mỗi route khai báo `response_model` và `summary` tiếng Việt để Swagger UI đọc được.
+- Mã thành công: `200` đọc và hành động, `201` tạo mới, `204` xóa.
+
+### Định dạng lỗi
+
+Mọi lỗi của core, kể cả lỗi kiểm tra đầu vào của FastAPI, trả cùng một dạng:
+
+```json
+{
+  "error": {
+    "code": "FORBIDDEN_SCOPE",
+    "message": "Phiếu thuộc phòng ngoài phạm vi đơn vị của bạn.",
+    "details": {"layer": 2},
+    "request_id": "8d0b6c1e-4f5a-4a51-9a59-1c1f2f5e7a10"
+  }
+}
+```
+
+| HTTP | `code` | Khi nào |
+|---|---|---|
+| 401 | `UNAUTHENTICATED` | Thiếu token, token sai chữ ký, sai `iss` / `aud`, hết hạn |
+| 403 | `FORBIDDEN_ROLE`, `FORBIDDEN_SCOPE`, `FORBIDDEN_AUTHORITY`, `FORBIDDEN_SOD`, `FORBIDDEN_PERSONAL_DATA` | Bị chặn ở lớp 1 … 5 của [`docs/AUTHZ.md`](docs/AUTHZ.md); `details.layer` ghi số lớp |
+| 404 | `NOT_FOUND` | Không có đối tượng |
+| 409 | `CONFLICT` | Đối tượng đã đổi từ lúc đọc (khóa phiên bản), bước đã được người khác hoàn thành |
+| 422 | `VALIDATION_FAILED` | Dữ liệu sai model hoặc sai JSON Schema; `details.errors` là danh sách `{"path", "message"}` |
+| 422 | `DEFINITION_REJECTED` | Validator từ chối gói ứng dụng; `details.errors` là danh sách `{"file", "element", "message"}` |
+| 500 | `INTERNAL` | Lỗi không lường trước; chi tiết chỉ nằm trong log, tra theo `request_id` |
+
+- Client dựa vào `code`, không dựa vào `message`. Thêm mã lỗi mới thì thêm dòng vào bảng này trong cùng PR.
+- `message` là tiếng Việt có dấu, viết cho người dùng cuối; không chứa stack trace, câu SQL, token, dữ liệu cá nhân.
+- `request_id` lấy từ header `X-Request-Id` do APISIX gắn; không có thì core tự tạo, và trả lại trong header phản hồi.
+
+### Tiếng Việt và cách đặt tên
+
+| Thứ | Viết bằng |
+|---|---|
+| Giao diện, `message` của lỗi, tài liệu, `summary` của API, comment và docstring, mô tả commit / PR / issue | Tiếng Việt có dấu |
+| Tên module, hàm, biến, route, trường JSON, khóa vai trò, mã lỗi, id bước BPMN, biến DMN | Tiếng Anh, ASCII, `snake_case` (mã lỗi `UPPER_SNAKE`) |
+| Tên tool MCP | Tiếng Việt không dấu, `snake_case` (ví dụ `bao_hong`), vì người dùng đọc trực tiếp |
+| Log | Tiếng Anh ngắn, dạng `key=value`; không chứa token, secret, dữ liệu cá nhân |
+| Tên tệp | ASCII: `snake_case` cho Python, `kebab-case` cho tài liệu và tệp của ứng dụng |
+
+- Tên hiển thị của đơn vị, vai trò, bước quy trình không viết cứng trong mã; lấy từ Keycloak, BPMN, JSON Schema.
+- Căn cứ có mã bắt đầu bằng `GĐ-` luôn hiện kèm chữ "(giả định)".
+- Tệp mã hóa UTF-8, xuống dòng LF.
+
+### Kiểm thử
 
 Viết test cho hành vi mà người dùng quan sát được, khi một lỗi hợp lý sẽ làm test đó fail.
 Không viết test chỉ để "có test": không kiểm tra giá trị mặc định, không so khớp chuỗi
