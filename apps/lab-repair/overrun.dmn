@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="overrun_defs" name="overrun" namespace="dxlab">
   <decision id="cost_overrun" name="Chi phí thực tế có vượt chi phí đã duyệt không (E2)">
-    <description>docs/AUTHZ.md mục 5, luật E2. Chi phí đã duyệt là chi phí dự kiến tại lần duyệt gần nhất (estimated_cost_vnd); khi phải duyệt lại, bảng đặt estimated_cost_vnd bằng chi phí thực tế để authority tra lại.</description>
+    <description>docs/AUTHZ.md mục 5, luật E2. So sánh chi phí thực tế với số tiền được duyệt gần nhất; khi phải duyệt lại, đưa chi phí thực tế vào bảng thẩm quyền.</description>
     <decisionTable id="cost_overrun_t" hitPolicy="FIRST">
       <input id="cost_overrun_t_in1" label="Chi phí thực tế (đồng)">
         <inputExpression id="cost_overrun_t_ie1" typeRef="number">
@@ -14,7 +14,7 @@
       <rule id="cost_overrun_t_r1">
         <description>Vượt chi phí đã duyệt quá 10%: duyệt lại theo chi phí thực tế</description>
         <inputEntry id="cost_overrun_t_r1_i1">
-          <text>&gt; estimated_cost_vnd * 1.1</text>
+          <text>&gt; approved_amount_vnd * 1.1</text>
         </inputEntry>
         <outputEntry id="cost_overrun_t_r1_o1">
           <text>True</text>
