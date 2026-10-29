@@ -18,7 +18,7 @@ from SpiffWorkflow.util.task import TaskState
 
 from dxlab_core.audit.service import events_for, record
 from dxlab_core.auth.principal import Principal
-from dxlab_core.definitions.engine import form_of
+from dxlab_core.definitions.engine import form_of, user_task_specs
 from dxlab_core.definitions.service import active_version, files_of, loaded_package
 from dxlab_core.errors import ApiError, NotFound
 from dxlab_core.workflows import access
@@ -144,6 +144,19 @@ def summary(instance: Workflow) -> dict:
             "revision": instance.revision}
 
 
+def field_titles(definition: Any) -> dict[str, str]:
+    """Khóa dữ liệu → tiêu đề, lấy từ form của mọi bước người dùng (bước đầu thắng khi trùng khóa).
+    Trường không có trong form nào (đầu ra bảng luật, dữ liệu nội bộ) không có tiêu đề."""
+    files = files_of(definition)
+    titles: dict[str, str] = {}
+    for task_spec in user_task_specs(loaded_package(definition).spec):
+        schema, _ = form_of(task_spec, files)
+        for key, prop in schema.get("properties", {}).items():
+            if isinstance(prop, dict) and prop.get("title") and key not in titles:
+                titles[key] = str(prop["title"])
+    return titles
+
+
 def detail(session: Session, principal: Principal, instance: Workflow) -> dict:
     if not can_read(principal, instance):
         raise ApiError(403, "FORBIDDEN_SCOPE", "Bạn không được xem phiếu này.", {"layer": 2})
@@ -154,4 +167,5 @@ def detail(session: Session, principal: Principal, instance: Workflow) -> dict:
                           "at": e.occurred_at, "details": mask_history(instance, e.details)}
                          for e in events_for(session, "workflow", str(instance.id))
                          if e.action != "reporter_contact.read"]
+    result["field_titles"] = field_titles(instance.definition)
     return result
