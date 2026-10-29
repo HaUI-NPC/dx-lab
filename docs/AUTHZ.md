@@ -227,13 +227,16 @@ Người được ủy quyền dùng **tài khoản của chính mình**. Audit 
 
 - Xác thực hai bước (OTP của Keycloak) bắt buộc cho vai trò có `repair.approve` và cho `process_admin`, `rule_admin`,
   `process_owner`, `internal_auditor`, `system_admin`.
-- Phiên của tài khoản có xác thực hai bước hết hạn sau 30 phút không thao tác.
+- Phiên đăng nhập hết hạn sau 30 phút không thao tác. Keycloak chỉ đặt được thời hạn này cho cả realm, nên áp cho
+  mọi tài khoản, không riêng tài khoản có xác thực hai bước.
 - Mỗi người một tài khoản; không có tài khoản dùng chung.
 
 ## 11. Tài khoản demo — [GĐ], tên giả, không phải người thật
 
 Mọi tài khoản dùng chung mật khẩu đặt qua biến `DXLAB_DEMO_PASSWORD` ([`ARCHITECTURE.md`](ARCHITECTURE.md) mục 5),
-**chỉ dùng cho demo**. Cột "Nhóm" là đơn vị; tài khoản là thành viên nhóm con `<đơn vị>/<vai trò>`.
+**chỉ dùng cho demo**. Tài khoản phải xác thực hai bước được nạp sẵn một khóa OTP chung từ biến
+`DXLAB_DEMO_OTP_SECRET`, để script demo (`seed.sh`, `demo-e2e.sh`) đăng nhập không cần điện thoại. Cột "Nhóm" là
+đơn vị; tài khoản là thành viên nhóm con `<đơn vị>/<vai trò>`.
 
 | Username | Tên giả | Vai trò | Nhóm |
 |---|---|---|---|

@@ -171,7 +171,7 @@ core/      Gói dxlab-core: Core API headless và CLI dxlab (Tầng 1)
 portal/    Gói dxlab-portal: giao diện H-P-D-I và BFF đăng nhập (Tầng 2)
 mcp/       Gói dxlab-mcp: MCP server (Tầng 2)
 deploy/    compose.yaml, keycloak/realm.json, apisix/ (cấu hình standalone)
-data/      Dữ liệu mẫu do đội tạo và data/DATA_SOURCES.yml (nguồn, giấy phép của từng tệp)
+data/      Dữ liệu mẫu do đội tạo; nguồn, giấy phép của từng tệp ghi ở DATA_SOURCES.yml (gốc repo)
 scripts/   up.sh, seed.sh, reset.sh, demo-e2e.sh, download-models.sh
 tools/     Công cụ phát triển, không thuộc sản phẩm (spiff-editor/)
 docs/      Tài liệu
@@ -236,7 +236,11 @@ Mọi lỗi của core, kể cả lỗi kiểm tra đầu vào của FastAPI, tr
 | 409 | `CONFLICT` | Đối tượng đã đổi từ lúc đọc (khóa phiên bản), bước đã được người khác hoàn thành |
 | 422 | `VALIDATION_FAILED` | Dữ liệu sai model hoặc sai JSON Schema; `details.errors` là danh sách `{"path", "message"}` |
 | 422 | `DEFINITION_REJECTED` | Validator từ chối gói ứng dụng; `details.errors` là danh sách `{"file", "element", "message"}` |
+| 429 | `RATE_LIMITED` | Vượt giới hạn tần suất; do APISIX trả |
 | 500 | `INTERNAL` | Lỗi không lường trước; chi tiết chỉ nằm trong log, tra theo `request_id` |
+
+Lỗi do APISIX tự trả trước khi tới core (401 thiếu / sai token, 429) có thân phản hồi của gateway, không theo dạng
+trên: client dựa vào mã HTTP cho hai trường hợp này.
 
 - Client dựa vào `code`, không dựa vào `message`. Thêm mã lỗi mới thì thêm dòng vào bảng này trong cùng PR.
 - `message` là tiếng Việt có dấu, viết cho người dùng cuối; không chứa stack trace, câu SQL, token, dữ liệu cá nhân.
