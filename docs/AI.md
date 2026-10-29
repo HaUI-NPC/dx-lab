@@ -25,12 +25,13 @@ quyết định, có mã lý do. Tìm kiếm ngữ nghĩa (zvec) do CORE-08 làm
 
 ## Bộ dữ liệu
 
-`apps/lab-repair/eval/tickets.json`: 60 phiếu, mỗi phiếu gồm các trường người báo điền trên form `report`
-(`room_id`, `asset_id`, `asset_category`, `impact`, `safety_hazard`, `urgency`), mô tả tự do và nhãn tay:
+`apps/lab-repair/eval/tickets.json`: 60 phiếu tổng hợp với các trường `room_id`, `asset_id`, `asset_category`,
+`impact`, `safety_hazard`, `urgency`, mô tả tự do và nhãn do agent tạo. Các trường hợp `other` là đầu vào đối kháng
+trực tiếp cho DMN, không hợp lệ với enum biểu mẫu hiện hành; không thể gửi những phiếu đó qua form.
 
 | Nhãn | Giá trị |
 |---|---|
-| `true_category` | Loại thật của sự cố theo AUTHZ mục 6 (`computer`, `projector`, `network`, `printer`, `electrical`, `air_conditioner`, `lighting`, `furniture`, `plumbing`, `lab_equipment`, `other`) |
+| `true_category` | Loại thật của sự cố theo AUTHZ mục 6 (`computer`, `projector`, `network`, `electrical`, `air_conditioner`, `lighting`, `furniture`, `plumbing`, `lab_equipment`) |
 | `priority` | `P1` (nguy cơ an toàn, cả phòng không dùng được), `P2` (ảnh hưởng một phần buổi thực hành), `P3` (còn lại) |
 | `tech_unit`, `tech_role` | Đơn vị và vai trò kỹ thuật đáng lẽ phải nhận phiếu (`owner_faculty` là khoa sở hữu phòng) |
 
@@ -57,7 +58,7 @@ Bộ phiếu: 60 phiếu từ tickets.json
 | Đơn vị kỹ thuật (routing.dmn: tech_unit) | 57/60 = 95.0% |
 | Vai trò xử lý (routing.dmn: tech_role) | 50/60 = 83.3% |
 | Định tuyến đúng cả đơn vị và vai trò | 50/60 = 83.3% |
-| Người báo chọn đúng loại trên form (đầu vào, không phải do DMN) | 56/60 = 93.3% |
+| Loại được chọn khớp loại thật (đầu vào, không phải do DMN) | 47/60 = 78.3% |
 
 Ma trận nhầm lẫn mức ưu tiên (hàng = nhãn tay, cột = DMN):
 
@@ -79,7 +80,7 @@ Ma trận nhầm lẫn mức ưu tiên (hàng = nhãn tay, cột = DMN):
 | Dòng `REPORTER_URGENT` (`urgency` = `high` hoặc `critical` → P2) | T53, T54 | Người báo ghi "gấp" cho việc nhỏ, bị xếp P2 thay vì P3. Mentor quyết có giữ dòng này không: bỏ thì giảm xếp thừa nhưng mất tín hiệu khẩn của người báo |
 | Nhãn mơ hồ | T30 | Điều hòa kêu to không mất mát; người gán nhãn xếp P2 vì ảnh hưởng nghe giảng, DMN xếp P3. Cần người rà nhãn |
 | Loại `other` được chọn cho thiết bị thuộc loại khác | T23, T40, T59 (máy tính), T32 (điện) | Dòng "Còn lại" của `routing.dmn` gửi tới Ban CSVC / `facility_officer`. T23, T40, T59 đi **sai đơn vị** (đáng lẽ TT CNTT); T32 đúng đơn vị, sai vai trò |
-| Loại thật chưa có trong enum của form (`furniture`, `plumbing`) nên người báo phải chọn `other` | T12, T27, T44, T46, T49, T56 | Đúng đơn vị (Ban CSVC), vai trò `facility_officer` thay vì `facility_technician`; theo AUTHZ mục 6 chuyên viên sẽ định tuyến lại, nên coi là hành vi thiết kế chứ không phải lỗi luật |
+| `other` đối kháng cho loại `furniture`, `plumbing` | T12, T27, T44, T46, T49, T56 | Form hiện hành không chấp nhận `other`; đây chỉ là kiểm tra dòng dự phòng DMN, không phải các phiếu gửi qua form |
 
 Kết quả nguyên văn của script cho các ca sai:
 
@@ -90,7 +91,7 @@ Ca sai (17 phiếu):
   ưu tiên: nhãn P1, DMN P3 (DEFAULT)
   → mô tả có nguy cơ an toàn nhưng người báo không đánh dấu safety_hazard
   → urgency=normal, impact=single, safety_hazard=False: «Máy tính giảng viên bốc khói nhẹ ở phần nguồn rồi tắt.»
-- T07 [lab-a10-201, loại chọn lab_instrument]
+- T07 [lab-a10-201, loại chọn lab_equipment]
   ưu tiên: nhãn P1, DMN P2 (REPORTER_URGENT)
   → mô tả có nguy cơ an toàn nhưng người báo không đánh dấu safety_hazard
   → urgency=high, impact=single, safety_hazard=False: «Đồng hồ vạn năng vỡ vỏ, lộ dây bên trong, có nguy cơ giật khi đo.»
@@ -104,14 +105,14 @@ Ca sai (17 phiếu):
   → urgency=normal, impact=single, safety_hazard=False: «Bộ đổi nguồn của AP WiFi nóng chảy nhựa, có khói, đã ngắt điện.»
 - T12 [lab-a1-306, loại chọn other]
   định tuyến: nhãn /haui/ban-csvc / facility_technician, DMN /haui/ban-csvc / facility_officer
-  → loại thật plumbing chưa có trong form nên rơi vào dòng còn lại của routing.dmn
+  → người báo chọn loại other (loại thật plumbing)
 - T23 [lab-a1-306, loại chọn other]
   định tuyến: nhãn /haui/tt-cntt / it_technician, DMN /haui/ban-csvc / facility_officer
   → người báo chọn loại other (loại thật computer)
 - T27 [lab-a1-306, loại chọn other]
   định tuyến: nhãn /haui/ban-csvc / facility_technician, DMN /haui/ban-csvc / facility_officer
-  → loại thật furniture chưa có trong form nên rơi vào dòng còn lại của routing.dmn
-- T30 [lab-a1-305, loại chọn hvac]
+  → người báo chọn loại other (loại thật furniture)
+- T30 [lab-a1-305, loại chọn air_conditioner]
   ưu tiên: nhãn P2, DMN P3 (DEFAULT)
   → giá trị urgency/impact người báo chọn dẫn tới mức khác nhãn
   → urgency=normal, impact=single, safety_hazard=False: «Điều hòa kêu to bất thường suốt buổi, ảnh hưởng nghe giảng.»
@@ -123,24 +124,24 @@ Ca sai (17 phiếu):
   → người báo chọn loại other (loại thật computer)
 - T44 [lab-a10-201, loại chọn other]
   định tuyến: nhãn /haui/ban-csvc / facility_technician, DMN /haui/ban-csvc / facility_officer
-  → loại thật furniture chưa có trong form nên rơi vào dòng còn lại của routing.dmn
+  → người báo chọn loại other (loại thật furniture)
 - T46 [lab-a1-601, loại chọn other]
   định tuyến: nhãn /haui/ban-csvc / facility_technician, DMN /haui/ban-csvc / facility_officer
-  → loại thật plumbing chưa có trong form nên rơi vào dòng còn lại của routing.dmn
+  → người báo chọn loại other (loại thật plumbing)
 - T49 [lab-a1-306, loại chọn other]
   định tuyến: nhãn /haui/ban-csvc / facility_technician, DMN /haui/ban-csvc / facility_officer
-  → loại thật furniture chưa có trong form nên rơi vào dòng còn lại của routing.dmn
+  → người báo chọn loại other (loại thật furniture)
 - T53 [lab-a1-306, loại chọn computer]
   ưu tiên: nhãn P3, DMN P2 (REPORTER_URGENT)
   → giá trị urgency/impact người báo chọn dẫn tới mức khác nhãn
   → urgency=high, impact=single, safety_hazard=False: «Máy số 4 khởi động chậm, em báo gấp vì sắp thi giữa kỳ.»
-- T54 [lab-a1-601, loại chọn printer]
+- T54 [lab-a1-601, loại chọn computer]
   ưu tiên: nhãn P3, DMN P2 (REPORTER_URGENT)
   → giá trị urgency/impact người báo chọn dẫn tới mức khác nhãn
   → urgency=high, impact=single, safety_hazard=False: «Máy in hết mực đen, em cần in báo cáo ngay chiều nay.»
 - T56 [lab-a10-201, loại chọn other]
   định tuyến: nhãn /haui/ban-csvc / facility_technician, DMN /haui/ban-csvc / facility_officer
-  → loại thật furniture chưa có trong form nên rơi vào dòng còn lại của routing.dmn
+  → người báo chọn loại other (loại thật furniture)
 - T59 [lab-a1-306, loại chọn other]
   định tuyến: nhãn /haui/tt-cntt / it_technician, DMN /haui/ban-csvc / facility_officer
   → người báo chọn loại other (loại thật computer)
@@ -148,13 +149,8 @@ Ca sai (17 phiếu):
 
 Gợi ý chỉ để mentor cân nhắc, chưa áp dụng:
 
-- Thêm vào enum `asset_category` của form `report` các loại còn thiếu so với AUTHZ mục 6 (`lighting`, `furniture`, `plumbing`) để giảm nhóm lỗi `other` (10 trên 17 ca sai).
+- Form hiện hành dùng danh mục AUTHZ và không chấp nhận `other`; các ca `other` chỉ đánh giá nhánh dự phòng của DMN.
 - Cân nhắc dòng `REPORTER_URGENT`.
-- Mọi `asset_category` trong phiếu thuộc enum của form `report` ở #56; `routing.dmn` nhận cả tên danh mục của form (`hvac`,
-  `lab_instrument`) lẫn của AUTHZ (`air_conditioner`, `lab_equipment`).
-
-Khi #55 (APP-03) đổi `category` của dữ liệu mẫu theo AUTHZ mục 6, `printer` được đề nghị chuyển thành `computer`; `routing.dmn`
-hiện vẫn có dòng riêng cho `printer` (về `/haui/tt-cntt`), nên cả hai cách đều định tuyến giống nhau.
 
 ## Bộ 20 câu hỏi tìm kiếm
 
