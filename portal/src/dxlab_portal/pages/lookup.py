@@ -35,6 +35,6 @@ def render() -> None:
                     with Card():
                         with CardContent():
                             with Column(gap=2):
-                                Link(item.document.title, href=item.href)
+                                Link(item.document.title, href=item.href, target="_self")
                                 Text(item.snippet_text)
                                 Muted(item.provenance)
