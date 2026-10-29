@@ -9,10 +9,13 @@ description = "Tầng 2/3 – giao diện H-P-D-I và ứng dụng báo hỏng t
 requires-python = ">=3.12"
 license = "Apache-2.0"
 dependencies = [
+    "authlib>=1.6",
     "fastapi>=0.115",
     "httpx>=0.27",
+    "itsdangerous>=2.2",
     # Prefab còn ở giai đoạn pre-1.0: bản minor có thể phá vỡ API, nên ghim chính xác.
     "prefab-ui==0.21.1",
+    "pydantic-settings>=2.6",
     "uvicorn>=0.30",
 ]
 
