@@ -206,7 +206,7 @@ OpenAPI do FastAPI sinh là mô tả chính thức; bảng dưới chỉ để b
 
 | Đường dẫn | Việc | Task |
 |---|---|---|
-| `/api/health` | Trạng thái core và kết nối database; không cần token | CORE-01 |
+| `/api/health` | Trạng thái core, database, chỉ mục và cache mô hình; không cần token | CORE-01, CORE-08 |
 | `/api/me` | Người đang gọi: tên, đơn vị, vai trò tách từ token | CORE-02 |
 | `/api/definitions` | Nạp gói ứng dụng, kiểm tra, phiên bản, duyệt áp dụng | CORE-03 |
 | `/api/workflows` | Tạo và xem một lượt chạy quy trình (ví dụ một phiếu báo hỏng); trạng thái = id bước BPMN | CORE-04a |
@@ -219,6 +219,20 @@ OpenAPI do FastAPI sinh là mô tả chính thức; bảng dưới chỉ để b
 
 Core chạy migration Alembic khi khởi động. Chỉ core có quyền vào database; dữ liệu mẫu nạp qua API, không ghi thẳng
 vào bảng.
+
+`/api/health` trả `search_index: "ok" | "error"` và `embedding_model: "ok" | "missing"`. Thiếu cache mô hình
+không làm Core dừng: tìm kiếm chuyển sang FTS; Core không tự tải mô hình khi xử lý yêu cầu.
+`scripts/download-models.sh` là bước tải có chủ đích của người vận hành.
+
+Danh mục dùng `GET/PUT /api/records/{app_id}/{record_type}/{key}`; khi duyệt một phiên bản ứng dụng, Core đăng ký
+JSON Schema từ `records/<record_type>-record.json`. Bản ghi có `data`, `source`, `license`, `source_ref` và thông tin
+người/thời điểm tạo, sửa. Ban CSVC và người thiết kế quy trình được ghi danh mục; người đã đăng nhập được đọc.
+
+Tài liệu dùng `POST /api/documents` dạng multipart (`file`, `app_id`, `kind`, `title`, `source`, `license`;
+`source_ref` và `workflow_id` tùy chọn), tối đa 20 MB/tệp; `GET /api/documents/{id}` đọc metadata và
+`GET /api/documents/{id}/content` tải byte gốc. Tệp được lưu theo SHA-256, không dùng tên tải lên làm đường dẫn.
+SOP/tài liệu chung do Ban CSVC hoặc người thiết kế quy trình nạp; báo giá cho phép kỹ thuật viên nạp thêm.
+Tài liệu gắn phiếu và kết quả tìm kiếm phải qua kiểm quyền của người gọi, không dùng token quản trị.
 
 ## 7. Gói ứng dụng (Tầng 3)
 
@@ -233,6 +247,7 @@ apps/
     <tên>.dmn                 bảng luật
     <bước>-schema.json        form của bước (JSON Schema)
     <bước>-uischema.json      bố cục form
+    records/                  <record_type>-record.json: schema danh mục của ứng dụng
     docs/                     hướng dẫn sửa chữa, SOP (Markdown)
     eval/                     bộ đánh giá luật và tìm kiếm
 ```
@@ -249,6 +264,8 @@ Quy ước bên trong tệp (dạng Spiff, để editor giữ nguyên khi lưu):
 | Trường dữ liệu cá nhân | `"x-personal-data": true` trên thuộc tính trong `*-schema.json` |
 | Con số nghiệp vụ (hạn mức, SLA, ngưỡng) | Chỉ nằm trong `.dmn`; BPMN đọc kết quả của bảng luật |
 | Trạng thái hiển thị | Id của bước BPMN đang chờ, hoặc id của điểm kết thúc |
+| Dữ liệu khởi tạo | `data_defaults` trong `process_model.json`; chỉ người được nạp quy trình thay đổi được, không lấy từ output do client gửi |
+| Liên kết danh mục | `record_bindings` trong `process_model.json`: mỗi mục có `type`, `key_field`, `fields` (trường nguồn → trường runtime); `app_id` tùy chọn chỉ rõ danh mục dùng chung |
 
 Validator của core (dùng chung cho `/api/definitions` và `dxlab validate`) từ chối gói có `scriptTask`, pre/post
 script, điều kiện ngoài dạng trên, user task không có lane hay lane không phải vai trò đã biết, form tham chiếu không
