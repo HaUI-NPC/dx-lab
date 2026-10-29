@@ -133,4 +133,4 @@ jobs:
       - name: pytest toàn workspace
         run: uv run --locked --all-packages pytest -ra
       - name: Kiểm tra gói ứng dụng
-        run: uv run --locked dxlab validate apps/
+        run: uv run --locked --all-packages dxlab validate apps/
