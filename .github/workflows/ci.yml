@@ -66,3 +66,69 @@ jobs:
             fi
           done < <(git rev-list "$BASE_SHA".."$HEAD_SHA")
           exit $status
+
+  gitleaks:
+    name: Quét secret (gitleaks)
+    runs-on: ubuntu-latest
+    env:
+      # Không dùng gitleaks/gitleaks-action (bắt license với tài khoản tổ chức): chạy thẳng bản nhị phân
+      # của bản phát hành chính thức, ghim phiên bản và sha256 (gitleaks_8.30.1_checksums.txt).
+      GITLEAKS_VERSION: "8.30.1"
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  # gitleaks_8.30.1_linux_x64.tar.gz
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Cài gitleaks (kiểm sha256 trước khi giải nén)
+        run: |
+          set -euo pipefail
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$archive" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$archive" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/gitleaks"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/gitleaks" gitleaks
+          echo "$RUNNER_TEMP/gitleaks" >> "$GITHUB_PATH"
+      - name: Quét secret trong toàn bộ commit của PR (hoặc toàn lịch sử khi push/dispatch)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          gitleaks version
+          log_opts=()
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            # Mọi commit PR đưa vào, kể cả commit đã bị sửa/xóa secret ở commit sau.
+            log_opts=(--log-opts="${BASE_SHA}..${HEAD_SHA}")
+          fi
+          # --redact: không in giá trị secret ra log công khai. Phát hiện bất kỳ → thoát mã 1.
+          gitleaks git --config .gitleaks.toml --redact --verbose "${log_opts[@]}" .
+
+  pytest:
+    name: Kiểm thử (pytest)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+        env:
+          POSTGRES_USER: dxlab
+          POSTGRES_PASSWORD: dxlab-ci-only
+          POSTGRES_DB: dxlab_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U dxlab -d dxlab_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # Cơ sở dữ liệu dùng một lần của job này, chỉ nghe trên runner; test của core đọc biến này.
+      DXLAB_TEST_DATABASE_URL: postgresql+psycopg://dxlab:dxlab-ci-only@localhost:5432/dxlab_test
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+      - name: pytest toàn workspace
+        run: uv run --locked --all-packages pytest -ra
