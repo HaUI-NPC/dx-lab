@@ -33,3 +33,7 @@ class HistoryEvent(BaseModel):
 class WorkflowDetail(WorkflowOut):
     data: dict[str, Any]
     history: list[HistoryEvent]
+    field_titles: dict[str, str] = Field(
+        default_factory=dict,
+        description="Tiêu đề hiển thị của các trường dữ liệu lấy từ form của gói; trường không có tiêu đề là dữ liệu nội bộ của engine.",
+    )

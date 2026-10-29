@@ -108,3 +108,14 @@ def test_restore_keeps_task_data_when_json_object_order_is_lost(client, headers_
         restored = service.restore(instance)
         (task,) = service.ready_tasks(restored)
         assert (task.data["cost"], task.data["level"]) == (3500000, "high")
+
+
+def test_detail_titles_form_fields_but_not_rule_outputs(client, headers_for):
+    activate(client, headers_for, task_package())
+    created = client.post("/api/workflows", headers=headers_for("sv.an"),
+                          json={"app_id": "mini", "data": {"cost": 3500000}}).json()
+
+    detail = client.get(f"/api/workflows/{created['workflow_id']}", headers=headers_for("sv.an")).json()
+
+    assert detail["data"]["level"] == "high"
+    assert detail["field_titles"] == {"cost": "Chi phí"}
