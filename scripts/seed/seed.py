@@ -103,7 +103,7 @@ def publish_and_activate(client: Client) -> None:
                    DXLAB_OIDC_ISSUER=client.issuer)
         try:
             result = subprocess.run(
-                ["uv", "run", "dxlab", "publish", str(APP_DIR)],
+                ["uv", "run", "--package", "dxlab-core", "dxlab", "publish", str(APP_DIR)],
                 cwd=ROOT, env=env, text=True, capture_output=True, check=False,
             )
         except FileNotFoundError as error:
