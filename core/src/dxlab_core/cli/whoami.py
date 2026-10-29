@@ -7,12 +7,12 @@
 import argparse
 
 from dxlab_core.cli.api import api_request
-from dxlab_core.cli.context import Context
+from dxlab_core.cli.context import Context, invoke
 
 
 def register(subparsers: "argparse._SubParsersAction[argparse.ArgumentParser]") -> None:
     parser = subparsers.add_parser("whoami", help="cho biết tài khoản, vai trò và đơn vị đang đăng nhập")
-    parser.set_defaults(handler=run)
+    parser.set_defaults(func=lambda args: invoke(run, args))
 
 
 def run(args: argparse.Namespace, ctx: Context) -> int:

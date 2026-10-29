@@ -9,7 +9,7 @@ import importlib
 import sys
 from collections.abc import Sequence
 
-COMMANDS = ["validate"]
+COMMANDS = ["login", "logout", "whoami", "publish", "validate"]
 
 
 def build_parser() -> argparse.ArgumentParser:

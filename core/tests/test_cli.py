@@ -18,7 +18,7 @@ import httpx
 import pytest
 
 from dxlab_core.cli import main
-from dxlab_core.cli.context import CliSettings, Context
+from dxlab_core.cli.context import CliSettings, Context, use_context
 from dxlab_core.cli.tokens import get_access_token
 
 ISSUER = "http://kc.test/realms/dxlab"
@@ -63,7 +63,8 @@ class Env:
         )
 
     def run(self, *argv: str) -> int:
-        return main(list(argv), ctx=self.ctx)
+        with use_context(self.ctx):
+            return main(list(argv))
 
     def form(self, request: httpx.Request) -> dict[str, str]:
         return {k: v[0] for k, v in parse_qs(request.content.decode()).items()}
@@ -425,6 +426,8 @@ def make_app(tmp_path: Path, name: str = "lab-repair") -> Path:
     (app / "forms" / ".swp").write_text("ẩn", encoding="utf-8")
     (app / ".hidden").mkdir()
     (app / ".hidden" / "x.json").write_text("{}", encoding="utf-8")
+    (app / "eval").mkdir()
+    (app / "eval" / "measure.py").write_text("print()", encoding="utf-8")
     (app / "lab-repair.bpmn").write_text("<definitions>Sửa chữa</definitions>", encoding="utf-8")
     (app / "forms" / "report-schema.json").write_text('{"type": "object"}', encoding="utf-8")
     (app / "forms" / "report-uischema.json").write_text("{}", encoding="utf-8")

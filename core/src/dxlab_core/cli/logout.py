@@ -6,14 +6,14 @@
 
 import argparse
 
-from dxlab_core.cli.context import CliError, Context
+from dxlab_core.cli.context import CliError, Context, invoke
 from dxlab_core.cli.oidc import end_session
 from dxlab_core.cli.tokens import delete_token, load_token
 
 
 def register(subparsers: "argparse._SubParsersAction[argparse.ArgumentParser]") -> None:
     parser = subparsers.add_parser("logout", help="đăng xuất và xóa token đã lưu")
-    parser.set_defaults(handler=run)
+    parser.set_defaults(func=lambda args: invoke(run, args))
 
 
 def run(args: argparse.Namespace, ctx: Context) -> int:
