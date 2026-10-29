@@ -9,8 +9,10 @@ description = "Tầng 1 – DX-OS Open-Core headless: định danh, dữ liệu,
 requires-python = ">=3.12"
 license = "Apache-2.0"
 dependencies = [
+    "alembic>=1.20.1",
     "fastapi>=0.115",
     "psycopg[binary]>=3.2",
+    "pydantic-settings>=2.16.2",
     "sqlalchemy>=2.0",
     "uvicorn>=0.30",
 ]
@@ -18,3 +20,8 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+]
