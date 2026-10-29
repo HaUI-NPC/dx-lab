@@ -8,6 +8,8 @@ from importlib.metadata import version
 
 from fastapi import FastAPI
 
+from dxlab_core.auth.router import router as auth_router
+from dxlab_core.auth.tokens import TokenVerifier
 from dxlab_core.config import Settings, get_settings
 from dxlab_core.db import make_engine, make_sessionmaker
 from dxlab_core.errors import ErrorResponse, install_error_handlers
@@ -33,11 +35,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.settings = settings
     app.state.engine = make_engine(settings.database_url)
     app.state.sessionmaker = make_sessionmaker(app.state.engine)
+    app.state.token_verifier = TokenVerifier(settings)
 
     install_error_handlers(app)
     app.add_middleware(RequestIdMiddleware)
 
     app.include_router(health_router, prefix=API_PREFIX)
+    app.include_router(auth_router, prefix=API_PREFIX)
     return app
 
 
