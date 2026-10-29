@@ -35,7 +35,7 @@ SPDX-License-Identifier: CC-BY-4.0
 4. Kiểm tra cầu chì: chuyển thang đo sang Ohm, cắm que đỏ vào cổng `V/Ohm` và cắm que đen lần lượt vào cổng `mA/uA` và `A`. Nếu hiển thị `OL` nghĩa là cầu chì tương ứng đã bị đứt, cần mở nắp thay cầu chì đúng trị số và cấp an toàn (CAT III/IV).
 
 ### Bước 2: Kiểm tra và bù tụ cho que đo dao động ký (Oscilloscope)
-1. Cắm đầu nối BNC của que đo vào cổng `CH1` của dao động ký, kẹp kẹp cá sấu nối mát vào chân tiếp địa (GND terminal) của máy.
+1. Cắm đầu nối BNC của que đo vào cổng `CH1` của dao động ký, kẹp cá sấu nối mát vào chân tiếp địa (GND terminal) của máy.
 2. Móc đầu đo vào chốt xung chuẩn kiểm tra tích hợp trên mặt máy (chốt xuất tín hiệu xung vuông chuẩn 1kHz / 3Vp-p).
 3. Nhấn phím `Auto` hoặc `AutoSet` trên bảng điều khiển dao động ký để máy tự động bắt điểm kích hoạt Trigger và điều chỉnh thang đo `Time/Div`, `Volt/Div`.
 4. Quan sát dạng sóng xung vuông trên màn hình:
