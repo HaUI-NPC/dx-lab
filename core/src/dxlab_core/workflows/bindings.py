@@ -12,9 +12,12 @@ from dxlab_core.errors import ApiError
 
 
 def apply_record_bindings(session: Session, app_id: str, metadata: dict, data: dict[str, Any]) -> None:
+    if not metadata.get("record_bindings"):
+        return
     # Record là tài nguyên độc lập; tra trong cùng transaction với việc tạo phiếu.
     from dxlab_core.records.service import get_record
 
+    bound_room = False
     for binding in metadata.get("record_bindings", []):
         key = data.get(binding["key_field"])
         if not isinstance(key, str) or not key:
@@ -24,8 +27,9 @@ def apply_record_bindings(session: Session, app_id: str, metadata: dict, data: d
             if source not in record.data:
                 raise ApiError(422, "VALIDATION_FAILED", "Đối tượng liên kết thiếu thuộc tính bắt buộc.")
             data[destination] = record.data[source]
+            bound_room = bound_room or destination == "room_unit"
     room = data.get("room_unit")
-    if room is not None:
+    if bound_room:
         if not isinstance(room, str) or not room.startswith("/") or len(room.strip("/").split("/")) < 4:
             raise ApiError(422, "VALIDATION_FAILED", "Đường dẫn đơn vị phòng không hợp lệ.")
         data["owner_faculty"] = room.rsplit("/", 1)[0]

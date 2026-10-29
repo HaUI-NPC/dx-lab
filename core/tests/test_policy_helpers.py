@@ -55,3 +55,23 @@ def test_bound_room_overrides_untrusted_value(monkeypatch):
     assert data["room_unit"] == "/org/school/faculty/room"
     assert data["owner_faculty"] == "/org/school/faculty"
     assert data["owner_school"] == "/org/school"
+
+
+def test_export_requires_auditor_and_reason_without_logging_data(monkeypatch):
+    import pytest
+    from dxlab_core.auth.principal import Principal, RoleAssignment
+    from dxlab_core.errors import ApiError
+    from dxlab_core.workflows import privacy
+
+    events = []
+    monkeypatch.setattr(privacy, "record", lambda *args, **kwargs: events.append(kwargs))
+    auditor = Principal("audit", "Audit", (RoleAssignment("internal_auditor", "/org/audit"),))
+    other = Principal("other", "Other", ())
+    workflow = SimpleNamespace(id="id", data={"phone": "sensitive"})
+    with pytest.raises(ApiError) as denied:
+        privacy.export_personal_data(None, other, workflow, "kiểm tra")
+    assert denied.value.code == "FORBIDDEN_PERSONAL_DATA"
+    with pytest.raises(ApiError):
+        privacy.export_personal_data(None, auditor, workflow, " ")
+    assert privacy.export_personal_data(None, auditor, workflow, "kiểm tra") == workflow.data
+    assert events[0]["details"] == {"reason": "kiểm tra"}
