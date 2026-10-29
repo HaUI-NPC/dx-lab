@@ -18,7 +18,8 @@
       "title": "Cán bộ nghiệm thu",
       "description": "Họ và tên cán bộ quản lý phòng lab hoặc lãnh đạo đơn vị nghiệm thu",
       "minLength": 2,
-      "maxLength": 100
+      "maxLength": 100,
+      "x-personal-data": true
     },
     "acceptor_role": {
       "type": "string",
