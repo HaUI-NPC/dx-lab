@@ -25,6 +25,7 @@ from dxlab_portal.pages.forms.render import initial_state, render_form
 from dxlab_portal.pages.forms.spec import FormSpec, build_form
 
 APP_ID = "lab-repair"
+NS = "report"
 SUBMIT_URL = f"/ui/forms/start/{APP_ID}"
 
 
@@ -41,7 +42,7 @@ def _spec(result: CoreResult) -> FormSpec | None:
 
 def state(result: CoreResult) -> dict[str, Any]:
     spec = _spec(result)
-    return initial_state(spec) if spec else {}
+    return initial_state(spec, NS) if spec else {}
 
 
 def render(result: CoreResult) -> None:
@@ -61,6 +62,7 @@ def render(result: CoreResult) -> None:
                 return
             render_form(
                 spec,
+                ns=NS,
                 submit_url=SUBMIT_URL,
                 submit_label="Gửi phiếu báo hỏng",
                 success_title="Đã gửi phiếu báo hỏng",

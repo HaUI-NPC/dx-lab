@@ -18,3 +18,5 @@ class PageContext:
     access_token: str
     core: CoreClient
     tab: str
+    task_id: str = ""
+    workflow_id: str = ""

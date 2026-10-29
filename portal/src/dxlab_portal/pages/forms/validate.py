@@ -11,6 +11,7 @@ Giá trị từ trình duyệt thường là chuỗi, nên số và ngày đư�
 from __future__ import annotations
 
 import datetime
+import json
 import re
 from typing import Any
 
@@ -44,6 +45,14 @@ def _coerce(form_field: FormField, raw: Any) -> tuple[Any, str | None]:
         return (str(raw).lower() == "true"), None
     if raw is None or (isinstance(raw, str) and not raw.strip()):
         return None, None
+    if form_field.kind == "array":
+        try:
+            value = json.loads(raw) if isinstance(raw, str) else raw
+        except (ValueError, TypeError):
+            return None, f"{title} phải là danh sách JSON hợp lệ."
+        if not isinstance(value, list):
+            return None, f"{title} phải là danh sách."
+        return value, None
     text = str(raw).strip()
     if form_field.kind == "integer":
         if not _INTEGER.match(text):
@@ -72,6 +81,12 @@ def _check(form_field: FormField, value: Any) -> str | None:
     """Kiểm ràng buộc của schema cho một giá trị đã chuyển kiểu; trả thông báo lỗi đầu tiên."""
     schema = form_field.schema
     title = form_field.title
+    if form_field.kind == "array":
+        if len(value) < schema.get("minItems", 0):
+            return f"{title} chưa có đủ mục."
+        if "maxItems" in schema and len(value) > schema["maxItems"]:
+            return f"{title} có quá nhiều mục."
+        return None
     if form_field.kind in ("select", "radio"):
         allowed = {o.value for o in form_field.options}
         if str(value) not in allowed:
