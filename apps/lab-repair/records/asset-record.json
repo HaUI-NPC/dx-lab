@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaUI-NPC/dx-lab/apps/lab-repair/records/asset-record.json",
+  "title": "Tài sản, thiết bị",
+  "description": "Một bản ghi trong danh mục tài sản (data/assets.json). Khóa bản ghi là trường id. category theo danh mục định tuyến của docs/AUTHZ.md mục 6. Dữ liệu mẫu là giả định.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "code",
+    "name",
+    "category",
+    "room_id",
+    "room_code",
+    "org_path",
+    "tech_unit_path",
+    "model",
+    "serial_number",
+    "purchase_year",
+    "warranty_expiry",
+    "original_value_vnd",
+    "current_value_vnd",
+    "status",
+    "specifications"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Mã định danh",
+      "description": "Khóa bản ghi, ví dụ AST-PC-305-01.",
+      "pattern": "^[A-Z0-9]+(-[A-Z0-9]+)*$"
+    },
+    "code": {
+      "type": "string",
+      "title": "Mã tài sản",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "title": "Tên tài sản",
+      "minLength": 1
+    },
+    "category": {
+      "title": "Loại thiết bị",
+      "description": "Quyết định đơn vị kỹ thuật qua routing.dmn.",
+      "oneOf": [
+        {
+          "const": "computer",
+          "title": "Máy tính và thiết bị CNTT"
+        },
+        {
+          "const": "projector",
+          "title": "Máy chiếu"
+        },
+        {
+          "const": "network",
+          "title": "Thiết bị mạng"
+        },
+        {
+          "const": "electrical",
+          "title": "Hệ thống điện"
+        },
+        {
+          "const": "air_conditioner",
+          "title": "Điều hòa"
+        },
+        {
+          "const": "lighting",
+          "title": "Chiếu sáng"
+        },
+        {
+          "const": "furniture",
+          "title": "Bàn ghế, nội thất"
+        },
+        {
+          "const": "plumbing",
+          "title": "Cấp thoát nước"
+        },
+        {
+          "const": "lab_equipment",
+          "title": "Thiết bị thí nghiệm chuyên dùng"
+        }
+      ]
+    },
+    "room_id": {
+      "type": "string",
+      "title": "Mã phòng chứa tài sản",
+      "description": "Trùng id của một bản ghi phòng.",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "room_code": {
+      "type": "string",
+      "title": "Mã phòng hiển thị",
+      "minLength": 1
+    },
+    "org_path": {
+      "type": "string",
+      "title": "Đường dẫn đơn vị của phòng",
+      "pattern": "^/haui(/[a-z0-9]+(-[a-z0-9]+)*)+$"
+    },
+    "tech_unit_path": {
+      "type": "string",
+      "title": "Đơn vị kỹ thuật",
+      "description": "Đường dẫn nhóm của đơn vị phụ trách kỹ thuật.",
+      "pattern": "^/haui(/[a-z0-9]+(-[a-z0-9]+)*)+$"
+    },
+    "model": {
+      "type": "string",
+      "title": "Model"
+    },
+    "serial_number": {
+      "type": "string",
+      "title": "Số seri"
+    },
+    "purchase_year": {
+      "type": "integer",
+      "title": "Năm mua",
+      "minimum": 1990,
+      "maximum": 2100
+    },
+    "warranty_expiry": {
+      "type": "string",
+      "title": "Hạn bảo hành",
+      "format": "date"
+    },
+    "original_value_vnd": {
+      "type": "integer",
+      "title": "Nguyên giá (đồng)",
+      "minimum": 0
+    },
+    "current_value_vnd": {
+      "type": "integer",
+      "title": "Giá trị còn lại (đồng)",
+      "minimum": 0
+    },
+    "status": {
+      "title": "Trạng thái",
+      "oneOf": [
+        {
+          "const": "in_use",
+          "title": "Đang sử dụng"
+        },
+        {
+          "const": "under_repair",
+          "title": "Đang sửa chữa"
+        },
+        {
+          "const": "retired",
+          "title": "Đã thanh lý hoặc ngừng dùng"
+        }
+      ]
+    },
+    "specifications": {
+      "type": "object",
+      "title": "Thông số kỹ thuật",
+      "description": "Các cặp tên thông số và giá trị, tùy loại thiết bị.",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "integer",
+          "number",
+          "boolean"
+        ]
+      }
+    },
+    "basis": {
+      "type": "string",
+      "title": "Căn cứ",
+      "description": "Mã căn cứ, ví dụ GĐ-TC-2026 (giả định)."
+    },
+    "data_note": {
+      "type": "string",
+      "title": "Ghi chú dữ liệu",
+      "description": "Ví dụ: Số liệu giả định, không phải tài sản thật của HaUI."
+    }
+  }
+}
