@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Phiếu giữ nguyên luật khi phiên bản mới được duyệt; form không cho giả mạo output luật."""
+import json
 from test_definitions import PGD_MINH, QT_SON, package, upload
 
 
@@ -37,3 +38,56 @@ def test_cannot_inject_server_outputs_or_read_another_report(client, headers_for
     denied = client.get(f"/api/workflows/{created.json()['workflow_id']}", headers=headers_for("gv.binh"))
     assert denied.status_code == 403
     assert denied.json()["error"]["code"] == "FORBIDDEN_SCOPE"
+
+
+def task_package(exclude_reporter=False):
+    files = package()
+    files["mini.bpmn"] = files["mini.bpmn"].replace(b'name="approver"', b'name="it_technician"')
+    if exclude_reporter:
+        files["mini.bpmn"] = files["mini.bpmn"].replace(
+            b'<spiffworkflow:property name="formJsonSchemaFilename" value="approve-schema.json" />',
+            b'<spiffworkflow:property name="formJsonSchemaFilename" value="approve-schema.json" />'
+            b'<spiffworkflow:property name="dxlabExcludeActorsOf" value="report" />')
+    metadata = json.loads(files["process_model.json"])
+    metadata["data_defaults"] = {"room_unit": "/haui/tt-cntt"}
+    files["process_model.json"] = json.dumps(metadata).encode()
+    return files
+
+
+def test_queue_scope_validation_transition_and_duplicate_completion(client, headers_for):
+    activate(client, headers_for, task_package())
+    created = client.post("/api/workflows", headers=headers_for("sv.an"),
+                          json={"app_id": "mini", "data": {"cost": 3500000}}).json()
+    technician = headers_for("ktv.cuong", ["/haui/tt-cntt/it_technician"])
+    outsider = headers_for("other", ["/haui/sict/it_technician"])
+    assert client.get("/api/tasks", headers=outsider).json() == {"items": [], "total": 0}
+    queue = client.get("/api/tasks", headers=technician).json()
+    task_id = queue["items"][0]["task_id"]
+    assert queue["total"] == 1
+    wrong_scope = client.post(f"/api/tasks/{task_id}/complete", headers=outsider, json={"data": {"ok": True}})
+    assert wrong_scope.status_code == 403
+    assert wrong_scope.json()["error"]["code"] == "FORBIDDEN_SCOPE"
+    invalid = client.post(f"/api/tasks/{task_id}/complete", headers=technician, json={"data": {"level": "low"}})
+    assert invalid.status_code == 422
+    completed = client.post(f"/api/tasks/{task_id}/complete", headers=technician, json={"data": {"ok": True}})
+    assert completed.status_code == 200, completed.text
+    assert completed.json()["status"] == "approved"
+    repeated = client.post(f"/api/tasks/{task_id}/complete", headers=technician, json={"data": {"ok": True}})
+    assert repeated.status_code == 409
+    assert client.get("/api/tasks", headers=technician).json()["total"] == 0
+    history = client.get(f"/api/workflows/{created['workflow_id']}", headers=headers_for("sv.an")).json()["history"]
+    assert [(e["action"], e["actor"]) for e in history] == [("report.create", "sv.an"), ("task.complete", "ktv.cuong")]
+
+
+def test_actor_exclusion_applies_to_direct_completion_not_only_queue(client, headers_for):
+    activate(client, headers_for, task_package(exclude_reporter=True))
+    technician = headers_for("ktv.cuong", ["/haui/tt-cntt/it_technician"])
+    created = client.post("/api/workflows", headers=technician,
+                          json={"app_id": "mini", "data": {"cost": 3500000}})
+    assert created.status_code == 201
+    assert client.get("/api/tasks", headers=technician).json()["total"] == 0
+    another = headers_for("ktv.other", ["/haui/tt-cntt/it_technician"])
+    task_id = client.get("/api/tasks", headers=another).json()["items"][0]["task_id"]
+    denied = client.post(f"/api/tasks/{task_id}/complete", headers=technician, json={"data": {"ok": True}})
+    assert denied.status_code == 403
+    assert denied.json()["error"]["code"] == "FORBIDDEN_SOD"
