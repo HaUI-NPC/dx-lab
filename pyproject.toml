@@ -28,4 +28,4 @@ dev = ["pytest>=8.3"]
 package = false
 
 [tool.uv.workspace]
-members = ["core", "portal"]
+members = ["core", "portal", "mcp"]
