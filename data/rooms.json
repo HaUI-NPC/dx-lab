@@ -1,0 +1,72 @@
+[
+  {
+    "id": "lab-a1-305",
+    "code": "A1-305",
+    "name": "Phòng thực hành máy tính A1-305",
+    "building": "Nhà A1",
+    "floor": 3,
+    "org_path": "/haui/sict/khmt/lab-a1-305",
+    "unit_name": "Khoa Khoa học máy tính",
+    "school_name": "Trường Công nghệ thông tin và Truyền thông",
+    "manager_role": "lab_manager",
+    "capacity": 40,
+    "status": "active",
+    "description": "Phòng thực hành chuyên ngành Khoa học máy tính, trang bị máy trạm thực hành lập trình và tính toán."
+  },
+  {
+    "id": "lab-a1-306",
+    "code": "A1-306",
+    "name": "Phòng thực hành máy tính A1-306",
+    "building": "Nhà A1",
+    "floor": 3,
+    "org_path": "/haui/sict/khmt/lab-a1-306",
+    "unit_name": "Khoa Khoa học máy tính",
+    "school_name": "Trường Công nghệ thông tin và Truyền thông",
+    "manager_role": "lab_manager",
+    "capacity": 40,
+    "status": "active",
+    "description": "Phòng thực hành lập trình ứng dụng và hệ thống phân tán."
+  },
+  {
+    "id": "lab-a1-601",
+    "code": "A1-601",
+    "name": "Phòng thực hành mạng A1-601",
+    "building": "Nhà A1",
+    "floor": 6,
+    "org_path": "/haui/sict/mmt/lab-a1-601",
+    "unit_name": "Khoa Mạng máy tính và Truyền thông",
+    "school_name": "Trường Công nghệ thông tin và Truyền thông",
+    "manager_role": "lab_manager",
+    "capacity": 35,
+    "status": "active",
+    "description": "Phòng thực hành thiết kế, cấu hình mạng và an toàn thông tin."
+  },
+  {
+    "id": "lab-a10-201",
+    "code": "A10-201",
+    "name": "Phòng thí nghiệm điện A10-201",
+    "building": "Nhà A10",
+    "floor": 2,
+    "org_path": "/haui/truong-dien-dien-tu/khoa-dien/lab-a10-201",
+    "unit_name": "Khoa Điện",
+    "school_name": "Trường Điện – Điện tử",
+    "manager_role": "lab_manager",
+    "capacity": 30,
+    "status": "active",
+    "description": "Phòng thí nghiệm đo lường điện, khí cụ điện và mạch vi điều khiển."
+  },
+  {
+    "id": "lab-csvc-storage",
+    "code": "CSVC-KHO-01",
+    "name": "Kho vật tư và thiết bị Ban Cơ sở vật chất",
+    "building": "Nhà A2",
+    "floor": 1,
+    "org_path": "/haui/ban-csvc",
+    "unit_name": "Ban Cơ sở vật chất",
+    "school_name": "Đại học Công nghiệp Hà Nội",
+    "manager_role": "facility_director",
+    "capacity": 15,
+    "status": "active",
+    "description": "Kho tiếp nhận, phân loại và lưu trữ thiết bị, vật tư sửa chữa tập trung toàn trường."
+  }
+]
