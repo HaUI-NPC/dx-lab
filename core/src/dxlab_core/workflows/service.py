@@ -4,6 +4,7 @@
 
 """Runtime Spiff: chỉ dữ liệu form được ghi; trạng thái và spec luôn do server giữ."""
 import json
+import re
 import uuid
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -29,13 +30,38 @@ from dxlab_core.workflows.models import Workflow
 SERIALIZER = BpmnWorkflowSerializer(BpmnWorkflowSerializer.configure(SPIFF_CONFIG))
 
 
+_REQUIRED = re.compile(r"^'(.+)' is a required property$")
+_MESSAGES = {
+    "enum": "Giá trị không nằm trong danh sách cho phép.",
+    "const": "Giá trị không nằm trong danh sách cho phép.",
+    "oneOf": "Giá trị không nằm trong danh sách cho phép.",
+    "anyOf": "Giá trị không nằm trong danh sách cho phép.",
+    "type": "Sai kiểu dữ liệu.",
+    "minLength": "Quá ngắn.",
+    "maxLength": "Quá dài.",
+    "minimum": "Nhỏ hơn mức cho phép.",
+    "maximum": "Lớn hơn mức cho phép.",
+    "pattern": "Sai định dạng.",
+    "format": "Sai định dạng.",
+}
+
+
+def _form_issue(error: Any) -> dict[str, str]:
+    """Lỗi JSON Schema thành `{path, message}` đúng hợp đồng: path chỉ vào trường lỗi, message tiếng Việt."""
+    path = [str(part) for part in error.absolute_path]
+    if error.validator == "required":
+        if match := _REQUIRED.match(error.message):
+            path.append(match.group(1))
+        return {"path": ".".join(path), "message": "Thiếu trường bắt buộc."}
+    return {"path": ".".join(path), "message": _MESSAGES.get(error.validator, "Giá trị không hợp lệ.")}
+
+
 def validate_form(schema: dict, data: dict) -> dict:
     # Không cho client chèn output DMN hay trạng thái phân quyền ngoài form.
     unknown = set(data) - set(schema.get("properties", {}))
     issues = [{"path": k, "message": "Trường không thuộc form của bước này."} for k in sorted(unknown)]
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
-    issues.extend({"path": ".".join(map(str, error.absolute_path)), "message": error.message}
-                  for error in validator.iter_errors(data))
+    issues.extend(_form_issue(error) for error in validator.iter_errors(data))
     if issues:
         raise ApiError(422, "VALIDATION_FAILED", "Dữ liệu form chưa hợp lệ.", {"errors": issues})
     return dict(data)
