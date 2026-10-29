@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="triage_defs" name="triage" namespace="dxlab">
+  <decision id="triage" name="Phân loại và xếp ưu tiên">
+    <description>Thời hạn tính theo giờ lịch, chưa trừ ngày nghỉ; thời gian chờ duyệt vẫn tính vào hạn hoàn tất. Mọi con số là giả định (GĐ) của đội.</description>
+    <decisionTable id="triage_t" hitPolicy="FIRST">
+      <input id="triage_t_in1" label="Nguy cơ mất an toàn">
+        <inputExpression id="triage_t_ie1" typeRef="boolean">
+          <text>safety_hazard</text>
+        </inputExpression>
+      </input>
+      <input id="triage_t_in2" label="Mức ảnh hưởng">
+        <inputExpression id="triage_t_ie2" typeRef="string">
+          <text>impact</text>
+        </inputExpression>
+      </input>
+      <input id="triage_t_in3" label="Mức khẩn của người báo">
+        <inputExpression id="triage_t_ie3" typeRef="string">
+          <text>urgency</text>
+        </inputExpression>
+      </input>
+      <output id="triage_t_out1" label="Mức ưu tiên" name="priority" typeRef="string" />
+      <output id="triage_t_out2" label="Mã lý do" name="priority_reason" typeRef="string" />
+      <output id="triage_t_out3" label="Kiểm tra trong (giờ)" name="inspect_within_hours" typeRef="number" />
+      <output id="triage_t_out4" label="Hoàn tất trong (giờ)" name="complete_within_hours" typeRef="number" />
+      <rule id="triage_t_r1">
+        <description>P1: nguy cơ an toàn điện, cháy nổ</description>
+        <inputEntry id="triage_t_r1_i1">
+          <text>True</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r1_i2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r1_i3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="triage_t_r1_o1">
+          <text>"P1"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r1_o2">
+          <text>"SAFETY_RISK"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r1_o3">
+          <text>4</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r1_o4">
+          <text>24</text>
+        </outputEntry>
+      </rule>
+      <rule id="triage_t_r2">
+        <description>P1: cả phòng không dùng được</description>
+        <inputEntry id="triage_t_r2_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r2_i2">
+          <text>"whole_room"</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r2_i3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="triage_t_r2_o1">
+          <text>"P1"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r2_o2">
+          <text>"ROOM_BLOCKED"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r2_o3">
+          <text>4</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r2_o4">
+          <text>24</text>
+        </outputEntry>
+      </rule>
+      <rule id="triage_t_r3">
+        <description>P2: ảnh hưởng một phần buổi thực hành</description>
+        <inputEntry id="triage_t_r3_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r3_i2">
+          <text>"partial_session"</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r3_i3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="triage_t_r3_o1">
+          <text>"P2"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r3_o2">
+          <text>"SESSION_PARTIAL"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r3_o3">
+          <text>24</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r3_o4">
+          <text>72</text>
+        </outputEntry>
+      </rule>
+      <rule id="triage_t_r4">
+        <description>P2: người báo đánh giá rất khẩn</description>
+        <inputEntry id="triage_t_r4_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r4_i2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r4_i3">
+          <text>"critical"</text>
+        </inputEntry>
+        <outputEntry id="triage_t_r4_o1">
+          <text>"P2"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r4_o2">
+          <text>"REPORTER_URGENT"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r4_o3">
+          <text>24</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r4_o4">
+          <text>72</text>
+        </outputEntry>
+      </rule>
+      <rule id="triage_t_r5">
+        <description>P2: người báo đánh giá khẩn</description>
+        <inputEntry id="triage_t_r5_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r5_i2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r5_i3">
+          <text>"high"</text>
+        </inputEntry>
+        <outputEntry id="triage_t_r5_o1">
+          <text>"P2"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r5_o2">
+          <text>"REPORTER_URGENT"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r5_o3">
+          <text>24</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r5_o4">
+          <text>72</text>
+        </outputEntry>
+      </rule>
+      <rule id="triage_t_r6">
+        <description>P3: còn lại</description>
+        <inputEntry id="triage_t_r6_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r6_i2">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="triage_t_r6_i3">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="triage_t_r6_o1">
+          <text>"P3"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r6_o2">
+          <text>"DEFAULT"</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r6_o3">
+          <text>48</text>
+        </outputEntry>
+        <outputEntry id="triage_t_r6_o4">
+          <text>120</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
