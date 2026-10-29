@@ -1,0 +1,554 @@
+{
+  "realm": "dxlab",
+  "displayName": "DX-Lab",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "editUsernameAllowed": false,
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "vi",
+    "en"
+  ],
+  "defaultLocale": "vi",
+  "groups": [
+    {
+      "name": "haui",
+      "attributes": {
+        "display_name": [
+          "Đại học Công nghiệp Hà Nội"
+        ]
+      },
+      "subGroups": [
+        {
+          "name": "ban-giam-doc",
+          "attributes": {
+            "display_name": [
+              "Ban Giám đốc"
+            ]
+          },
+          "subGroups": [
+            {
+              "name": "vice_president",
+              "attributes": {
+                "display_name": [
+                  "Phó Giám đốc phụ trách cơ sở vật chất"
+                ]
+              },
+              "subGroups": []
+            },
+            {
+              "name": "president",
+              "attributes": {
+                "display_name": [
+                  "Giám đốc Đại học"
+                ]
+              },
+              "subGroups": []
+            },
+            {
+              "name": "process_owner",
+              "attributes": {
+                "display_name": [
+                  "Chủ quy trình"
+                ]
+              },
+              "subGroups": []
+            }
+          ]
+        },
+        {
+          "name": "ban-csvc",
+          "attributes": {
+            "display_name": [
+              "Ban Cơ sở vật chất"
+            ]
+          },
+          "subGroups": [
+            {
+              "name": "facility_technician",
+              "attributes": {
+                "display_name": [
+                  "Cán bộ kỹ thuật Ban CSVC"
+                ]
+              },
+              "subGroups": []
+            },
+            {
+              "name": "facility_officer",
+              "attributes": {
+                "display_name": [
+                  "Chuyên viên Ban CSVC"
+                ]
+              },
+              "subGroups": []
+            },
+            {
+              "name": "facility_director",
+              "attributes": {
+                "display_name": [
+                  "Trưởng Ban CSVC"
+                ]
+              },
+              "subGroups": []
+            },
+            {
+              "name": "rule_admin",
+              "attributes": {
+                "display_name": [
+                  "Người soạn bảng luật"
+                ]
+              },
+              "subGroups": []
+            }
+          ]
+        },
+        {
+          "name": "ban-khtc",
+          "attributes": {
+            "display_name": [
+              "Ban Kế hoạch – Tài chính"
+            ]
+          },
+          "subGroups": [
+            {
+              "name": "finance_officer",
+              "attributes": {
+                "display_name": [
+                  "Chuyên viên Ban KH-TC"
+                ]
+              },
+              "subGroups": []
+            }
+          ]
+        },
+        {
+          "name": "ban-dbcl-ksnb",
+          "attributes": {
+            "display_name": [
+              "Ban Đảm bảo chất lượng – Kiểm soát nội bộ"
+            ]
+          },
+          "subGroups": [
+            {
+              "name": "internal_auditor",
+              "attributes": {
+                "display_name": [
+                  "Chuyên viên kiểm soát nội bộ"
+                ]
+              },
+              "subGroups": []
+            }
+          ]
+        },
+        {
+          "name": "tt-cntt",
+          "attributes": {
+            "display_name": [
+              "Trung tâm Công nghệ thông tin"
+            ]
+          },
+          "subGroups": [
+            {
+              "name": "it_technician",
+              "attributes": {
+                "display_name": [
+                  "Cán bộ kỹ thuật TT CNTT"
+                ]
+              },
+              "subGroups": []
+            },
+            {
+              "name": "process_admin",
+              "attributes": {
+                "display_name": [
+                  "Cán bộ thiết kế quy trình"
+                ]
+              },
+              "subGroups": []
+            },
+            {
+              "name": "system_admin",
+              "attributes": {
+                "display_name": [
+                  "Quản trị hệ thống"
+                ]
+              },
+              "subGroups": []
+            }
+          ]
+        },
+        {
+          "name": "sict",
+          "attributes": {
+            "display_name": [
+              "Trường Công nghệ thông tin và Truyền thông"
+            ]
+          },
+          "subGroups": [
+            {
+              "name": "khmt",
+              "attributes": {
+                "display_name": [
+                  "Khoa Khoa học máy tính"
+                ]
+              },
+              "subGroups": [
+                {
+                  "name": "lab-a1-305",
+                  "attributes": {
+                    "display_name": [
+                      "Phòng thực hành máy tính A1-305"
+                    ]
+                  },
+                  "subGroups": [
+                    {
+                      "name": "lab_manager",
+                      "attributes": {
+                        "display_name": [
+                          "Trưởng phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    },
+                    {
+                      "name": "lab_technician",
+                      "attributes": {
+                        "display_name": [
+                          "Kỹ thuật viên phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    }
+                  ]
+                },
+                {
+                  "name": "lab-a1-306",
+                  "attributes": {
+                    "display_name": [
+                      "Phòng thực hành máy tính A1-306"
+                    ]
+                  },
+                  "subGroups": [
+                    {
+                      "name": "lab_manager",
+                      "attributes": {
+                        "display_name": [
+                          "Trưởng phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    },
+                    {
+                      "name": "lab_technician",
+                      "attributes": {
+                        "display_name": [
+                          "Kỹ thuật viên phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    }
+                  ]
+                },
+                {
+                  "name": "faculty_head",
+                  "attributes": {
+                    "display_name": [
+                      "Trưởng khoa"
+                    ]
+                  },
+                  "subGroups": []
+                },
+                {
+                  "name": "faculty_deputy",
+                  "attributes": {
+                    "display_name": [
+                      "Phó trưởng khoa"
+                    ]
+                  },
+                  "subGroups": []
+                },
+                {
+                  "name": "lab_technician",
+                  "attributes": {
+                    "display_name": [
+                      "Kỹ thuật viên phòng thí nghiệm"
+                    ]
+                  },
+                  "subGroups": []
+                }
+              ]
+            },
+            {
+              "name": "mmt",
+              "attributes": {
+                "display_name": [
+                  "Khoa Mạng máy tính và Truyền thông"
+                ]
+              },
+              "subGroups": [
+                {
+                  "name": "lab-a1-601",
+                  "attributes": {
+                    "display_name": [
+                      "Phòng thực hành mạng A1-601"
+                    ]
+                  },
+                  "subGroups": [
+                    {
+                      "name": "lab_manager",
+                      "attributes": {
+                        "display_name": [
+                          "Trưởng phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    },
+                    {
+                      "name": "lab_technician",
+                      "attributes": {
+                        "display_name": [
+                          "Kỹ thuật viên phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    }
+                  ]
+                },
+                {
+                  "name": "faculty_head",
+                  "attributes": {
+                    "display_name": [
+                      "Trưởng khoa"
+                    ]
+                  },
+                  "subGroups": []
+                },
+                {
+                  "name": "faculty_deputy",
+                  "attributes": {
+                    "display_name": [
+                      "Phó trưởng khoa"
+                    ]
+                  },
+                  "subGroups": []
+                },
+                {
+                  "name": "lab_technician",
+                  "attributes": {
+                    "display_name": [
+                      "Kỹ thuật viên phòng thí nghiệm"
+                    ]
+                  },
+                  "subGroups": []
+                }
+              ]
+            },
+            {
+              "name": "school_head",
+              "attributes": {
+                "display_name": [
+                  "Hiệu trưởng trường thành viên"
+                ]
+              },
+              "subGroups": []
+            }
+          ]
+        },
+        {
+          "name": "truong-dien-dien-tu",
+          "attributes": {
+            "display_name": [
+              "Trường Điện – Điện tử"
+            ]
+          },
+          "subGroups": [
+            {
+              "name": "khoa-dien",
+              "attributes": {
+                "display_name": [
+                  "Khoa Điện"
+                ]
+              },
+              "subGroups": [
+                {
+                  "name": "lab-a10-201",
+                  "attributes": {
+                    "display_name": [
+                      "Phòng thí nghiệm điện A10-201"
+                    ]
+                  },
+                  "subGroups": [
+                    {
+                      "name": "lab_manager",
+                      "attributes": {
+                        "display_name": [
+                          "Trưởng phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    },
+                    {
+                      "name": "lab_technician",
+                      "attributes": {
+                        "display_name": [
+                          "Kỹ thuật viên phòng thí nghiệm"
+                        ]
+                      },
+                      "subGroups": []
+                    }
+                  ]
+                },
+                {
+                  "name": "faculty_head",
+                  "attributes": {
+                    "display_name": [
+                      "Trưởng khoa"
+                    ]
+                  },
+                  "subGroups": []
+                },
+                {
+                  "name": "faculty_deputy",
+                  "attributes": {
+                    "display_name": [
+                      "Phó trưởng khoa"
+                    ]
+                  },
+                  "subGroups": []
+                },
+                {
+                  "name": "lab_technician",
+                  "attributes": {
+                    "display_name": [
+                      "Kỹ thuật viên phòng thí nghiệm"
+                    ]
+                  },
+                  "subGroups": []
+                }
+              ]
+            },
+            {
+              "name": "school_head",
+              "attributes": {
+                "display_name": [
+                  "Hiệu trưởng trường thành viên"
+                ]
+              },
+              "subGroups": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "dxlab-portal",
+      "name": "DX-Lab Portal",
+      "description": "BFF đăng nhập của portal (authorization code + PKCE)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${DXLAB_PORTAL_CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "fullScopeAllowed": false,
+      "rootUrl": "${DXLAB_PORTAL_PUBLIC_URL}",
+      "baseUrl": "${DXLAB_PORTAL_PUBLIC_URL}",
+      "redirectUris": [
+        "${DXLAB_PORTAL_PUBLIC_URL}/auth/callback",
+        "http://localhost:8001/auth/callback"
+      ],
+      "webOrigins": [
+        "${DXLAB_PORTAL_PUBLIC_URL}",
+        "http://localhost:8001"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "${DXLAB_PORTAL_PUBLIC_URL}/*##http://localhost:8001/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-dxlab-core",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "dxlab-core",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "true",
+            "claim.name": "groups",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "dxlab-cli",
+      "name": "DX-Lab CLI",
+      "description": "CLI và MCP: device authorization grant; direct access grant chỉ cho script demo",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": false,
+      "attributes": {
+        "oauth2.device.authorization.grant.enabled": "true",
+        "oauth2.device.code.lifespan": "600",
+        "oauth2.device.polling.interval": "5"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-dxlab-core",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "dxlab-core",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "true",
+            "claim.name": "groups",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ]
+}
