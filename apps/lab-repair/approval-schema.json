@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Phê duyệt phương án và chi phí sửa chữa",
+  "description": "Form phê duyệt của cấp có thẩm quyền căn cứ theo hạn mức quy định tại authority.dmn",
+  "type": "object",
+  "required": [
+    "approver_name",
+    "approver_role",
+    "signing_type",
+    "decision",
+    "approved_amount_vnd",
+    "approval_date",
+    "approval_comment"
+  ],
+  "properties": {
+    "approver_name": {
+      "type": "string",
+      "title": "Họ và tên người duyệt",
+      "description": "Người có thẩm quyền hoặc người được ủy quyền hợp pháp",
+      "minLength": 2,
+      "maxLength": 100
+    },
+    "approver_role": {
+      "type": "string",
+      "title": "Chức danh / Vai trò phê duyệt",
+      "enum": [
+        "faculty_head",
+        "faculty_deputy",
+        "school_head",
+        "vice_president",
+        "president"
+      ]
+    },
+    "signing_type": {
+      "type": "string",
+      "title": "Hình thức ký phê duyệt",
+      "description": "Căn cứ thẩm quyền tại AUTHZ.md mục 9",
+      "enum": [
+        "direct",
+        "kt",
+        "tuq"
+      ],
+      "default": "direct"
+    },
+    "delegation_number": {
+      "type": "string",
+      "title": "Số giấy ủy quyền (Bắt buộc nếu ký TUQ.)",
+      "description": "Số văn bản ủy quyền có hiệu lực trong hệ thống",
+      "maxLength": 50
+    },
+    "decision": {
+      "type": "string",
+      "title": "Quyết định phê duyệt",
+      "enum": [
+        "approved",
+        "rejected",
+        "request_revision"
+      ],
+      "default": "approved"
+    },
+    "approved_amount_vnd": {
+      "type": "integer",
+      "title": "Số tiền duyệt chi (VNĐ, đã gồm VAT)",
+      "description": "Không vượt quá hạn mức thẩm quyền của cấp duyệt",
+      "minimum": 0
+    },
+    "approval_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Ngày phê duyệt"
+    },
+    "approval_comment": {
+      "type": "string",
+      "title": "Ý kiến phê duyệt / chỉ đạo thực hiện",
+      "description": "Ghi chú chỉ đạo về đơn vị thực hiện, thời gian hoàn thành hoặc lý do từ chối",
+      "minLength": 5,
+      "maxLength": 1000
+    }
+  }
+}

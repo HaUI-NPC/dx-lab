@@ -1,0 +1,67 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "1. Thông tin cán bộ quản lý phòng",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/lab_manager_name",
+              "label": "Trưởng phòng thí nghiệm"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/confirm_date",
+              "label": "Ngày xác nhận"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "2. Đánh giá nhu cầu sử dụng",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/need_confirmed",
+              "label": "Xác nhận nhu cầu sửa chữa"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/urgency_level",
+              "label": "Mức độ ưu tiên"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/replacement_procurement_requested",
+          "label": "Đề xuất chuyển mua sắm mới gửi Ban CSVC"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "3. Ý kiến đề xuất chi tiết",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/manager_comment",
+          "label": "Ý kiến của Trưởng phòng lab",
+          "options": {
+            "multi": true,
+            "rows": 3
+          }
+        }
+      ]
+    }
+  ]
+}

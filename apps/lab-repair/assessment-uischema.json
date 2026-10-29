@@ -1,0 +1,92 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "1. Thông tin kiểm tra kỹ thuật",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/technician_name",
+              "label": "Kỹ thuật viên phụ trách"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/inspection_date",
+              "label": "Ngày kiểm tra"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/fault_cause",
+          "label": "Nguyên nhân hư hỏng",
+          "options": {
+            "multi": true,
+            "rows": 3
+          }
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "2. Phương án và ước tính chi phí",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/action_type",
+              "label": "Phương án xử lý đề xuất"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/estimated_cost_vnd",
+              "label": "Tổng chi phí dự kiến (VNĐ)"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/is_emergency",
+          "label": "Tình huống khẩn cấp an toàn (E4)"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/replaced_parts",
+          "label": "Linh kiện / vật tư cần thay thế"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "3. Danh sách báo giá đính kèm",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/quotes",
+          "label": "Hồ sơ báo giá"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "4. Kết luận và đề xuất",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/technician_recommendation",
+          "label": "Ý kiến đề xuất của kỹ thuật viên",
+          "options": {
+            "multi": true,
+            "rows": 3
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "1. Thông tin cán bộ nghiệm thu (Tuân thủ SoD-2)",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/acceptor_name",
+              "label": "Cán bộ nghiệm thu"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/acceptor_role",
+              "label": "Vai trò người nghiệm thu"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/acceptance_date",
+          "label": "Ngày nghiệm thu"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "2. Đánh giá chất lượng và kết luận nghiệm thu",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/operational_status",
+              "label": "Tình trạng vận hành thiết bị"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/acceptance_result",
+              "label": "Kết luận nghiệm thu"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/acceptance_notes",
+          "label": "Ý kiến nghiệm thu chi tiết",
+          "options": {
+            "multi": true,
+            "rows": 4
+          }
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "3. Xác nhận bàn giao",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/handover_signed",
+          "label": "Xác nhận bàn giao đưa thiết bị vào sử dụng"
+        }
+      ]
+    }
+  ]
+}

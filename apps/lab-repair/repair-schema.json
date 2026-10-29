@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Báo cáo kết quả thực hiện sửa chữa",
+  "description": "Form ghi nhận nội dung công việc, linh kiện thay thế và chi phí thực tế do kỹ thuật viên thực hiện",
+  "type": "object",
+  "required": [
+    "technician_name",
+    "repair_date",
+    "work_performed",
+    "actual_cost_vnd",
+    "repair_status",
+    "technical_notes"
+  ],
+  "properties": {
+    "technician_name": {
+      "type": "string",
+      "title": "Kỹ thuật viên thực hiện",
+      "description": "Họ và tên cán bộ kỹ thuật trực tiếp sửa chữa",
+      "minLength": 2,
+      "maxLength": 100
+    },
+    "repair_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Ngày hoàn thành sửa chữa"
+    },
+    "work_performed": {
+      "type": "string",
+      "title": "Nội dung công việc đã thực hiện",
+      "description": "Chi tiết các thao tác kỹ thuật, sửa chữa, vệ sinh hoặc thay thế linh kiện",
+      "minLength": 10,
+      "maxLength": 2000
+    },
+    "parts_replaced": {
+      "type": "string",
+      "title": "Linh kiện thực tế đã thay thế",
+      "description": "Danh mục chi tiết phụ tùng, linh kiện đã lắp đặt",
+      "maxLength": 1000
+    },
+    "actual_cost_vnd": {
+      "type": "integer",
+      "title": "Chi phí thực tế (VNĐ, đã gồm VAT)",
+      "description": "Tổng chi phí thanh toán thực tế. Nếu vượt chi phí đã duyệt quá 10%, hệ thống sẽ kích hoạt duyệt lại theo luật E2",
+      "minimum": 0
+    },
+    "cost_variance_reason": {
+      "type": "string",
+      "title": "Lý do chênh lệch chi phí (nếu có)",
+      "description": "Giải trình lý do phát sinh chi phí vượt mức dự toán ban đầu",
+      "maxLength": 1000
+    },
+    "repair_status": {
+      "type": "string",
+      "title": "Kết quả sửa chữa kỹ thuật",
+      "enum": [
+        "completed",
+        "partially_completed",
+        "failed"
+      ],
+      "default": "completed"
+    },
+    "technical_notes": {
+      "type": "string",
+      "title": "Ghi chú kỹ thuật bàn giao",
+      "description": "Lưu ý vận hành hoặc khuyến nghị bảo dưỡng định kỳ",
+      "minLength": 5,
+      "maxLength": 1000
+    }
+  }
+}

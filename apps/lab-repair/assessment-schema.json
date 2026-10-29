@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Biên bản kiểm tra hiện trạng và đề xuất xử lý",
+  "description": "Form lập biên bản tình trạng kỹ thuật, xác định chi phí và đính kèm báo giá do kỹ thuật viên thực hiện",
+  "type": "object",
+  "required": [
+    "technician_name",
+    "inspection_date",
+    "fault_cause",
+    "action_type",
+    "estimated_cost_vnd",
+    "technician_recommendation"
+  ],
+  "properties": {
+    "technician_name": {
+      "type": "string",
+      "title": "Kỹ thuật viên kiểm tra",
+      "description": "Họ và tên cán bộ kỹ thuật được phân công",
+      "minLength": 2,
+      "maxLength": 100
+    },
+    "inspection_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Ngày lập biên bản kiểm tra"
+    },
+    "fault_cause": {
+      "type": "string",
+      "title": "Nguyên nhân hư hỏng xác định",
+      "description": "Kết quả chẩn đoán kỹ thuật về nguyên nhân gây sự cố",
+      "minLength": 5,
+      "maxLength": 1000
+    },
+    "action_type": {
+      "type": "string",
+      "title": "Phương án xử lý đề xuất",
+      "description": "Hình thức xử lý căn cứ theo hiện trạng thiết bị",
+      "enum": [
+        "repair",
+        "replace",
+        "upgrade",
+        "no_issue"
+      ],
+      "default": "repair"
+    },
+    "is_emergency": {
+      "type": "boolean",
+      "title": "Sự cố khẩn cấp an toàn (E4)",
+      "description": "Đã chủ động ngắt nguồn/cô lập thiết bị để phòng chống cháy nổ, mất an toàn điện",
+      "default": false
+    },
+    "estimated_cost_vnd": {
+      "type": "integer",
+      "title": "Tổng chi phí dự kiến (VNĐ, đã gồm VAT)",
+      "description": "Chi phí ước tính một lần sửa chữa cho tài sản, dùng để tra bảng phân cấp thẩm quyền duyệt",
+      "minimum": 0
+    },
+    "quotes": {
+      "type": "array",
+      "title": "Danh sách báo giá đính kèm",
+      "description": "Dưới 20 triệu: tối thiểu 1 báo giá; từ 20 triệu trở lên: bắt buộc 3 báo giá",
+      "items": {
+        "type": "object",
+        "required": [
+          "supplier_name",
+          "quote_amount_vnd",
+          "quote_reference"
+        ],
+        "properties": {
+          "supplier_name": {
+            "type": "string",
+            "title": "Tên nhà cung cấp / đơn vị báo giá",
+            "minLength": 2
+          },
+          "quote_amount_vnd": {
+            "type": "integer",
+            "title": "Số tiền báo giá (VNĐ)",
+            "minimum": 0
+          },
+          "quote_reference": {
+            "type": "string",
+            "title": "Số báo giá / Tên tệp đính kèm",
+            "minLength": 2
+          },
+          "quote_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Ngày báo giá"
+          }
+        }
+      }
+    },
+    "replaced_parts": {
+      "type": "string",
+      "title": "Linh kiện, vật tư thay thế",
+      "description": "Chi tiết tên linh kiện, mã part number và quy cách (nếu có)",
+      "maxLength": 1000
+    },
+    "technician_recommendation": {
+      "type": "string",
+      "title": "Ý kiến đề xuất của kỹ thuật viên",
+      "description": "Đề xuất chuyển bước tiếp theo (xác nhận nhu cầu, duyệt chi phí, hoặc chuyển mua sắm)",
+      "minLength": 5,
+      "maxLength": 1000
+    }
+  }
+}
