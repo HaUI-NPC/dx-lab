@@ -177,7 +177,30 @@ def test_publish_activate_and_versions(client: TestClient, headers_for: Headers)
                     "total": 1}
 
 
+def test_activation_registers_and_versions_record_schemas(app, client: TestClient, headers_for: Headers) -> None:
+    from dxlab_core.records.models import RecordType
+
+    schema = {"type": "object", "properties": {"name": {"type": "string"}}}
+    files = package()
+    files["records/room-record.json"] = json.dumps(schema).encode()
+    assert upload(client, headers_for(*QT_SON), files).status_code == 201
+    with app.state.sessionmaker() as session:
+        assert session.get(RecordType, ("mini", "room")) is None
+    assert client.post("/api/definitions/mini/versions/1/activate", headers=headers_for(*PGD_MINH)).status_code == 200
+    with app.state.sessionmaker() as session:
+        record_type = session.get(RecordType, ("mini", "room"))
+        assert (record_type.schema, record_type.version) == (schema, 1)
+
+    schema["required"] = ["name"]
+    files["records/room-record.json"] = json.dumps(schema).encode()
+    assert upload(client, headers_for(*QT_SON), files).status_code == 201
+    assert client.post("/api/definitions/mini/versions/2/activate", headers=headers_for(*PGD_MINH)).status_code == 200
+    with app.state.sessionmaker() as session:
+        record_type = session.get(RecordType, ("mini", "room"))
+        assert (record_type.schema, record_type.version) == (schema, 2)
+
 def test_rule_admin_may_only_change_dmn(client: TestClient, headers_for: Headers) -> None:
+
     upload(client, headers_for(*QT_SON), package())
     client.post("/api/definitions/mini/versions/1/activate", headers=headers_for(*PGD_MINH))
 
