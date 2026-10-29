@@ -13,6 +13,9 @@ from dxlab_core.records.service import InvalidRecordSchema, register_record_type
 from sample_data import (
     ADMIN_DX,
     APP_ID,
+    ASSET_SCHEMA,
+    ASSET_TYPE,
+    ASSETS,
     CSVC_LAN,
     HeadersFactory,
     QT_SON,
@@ -33,12 +36,13 @@ BASE = f"/api/records/{APP_ID}/{ROOM_TYPE}"
 def room_type(app: FastAPI) -> None:
     with app.state.sessionmaker() as session:
         register_record_type(session, APP_ID, ROOM_TYPE, ROOM_SCHEMA)
+        register_record_type(session, APP_ID, ASSET_TYPE, ASSET_SCHEMA)
         session.commit()
 
 
-def put_room(client: TestClient, headers: dict[str, str], room: dict, **overrides: object):
+def put_room(client: TestClient, headers: dict[str, str], room: dict, *, key: str | None = None, **overrides: object):
     body = {"data": room, "source": ROOMS_SOURCE, "license": ROOMS_LICENSE, "source_ref": f"rooms.json#{room['id']}"}
-    return client.put(f"{BASE}/{room['id']}", json={**body, **overrides}, headers=headers)
+    return client.put(f"{BASE}/{key or room['id']}", json={**body, **overrides}, headers=headers)
 
 
 @pytest.fixture
@@ -91,8 +95,21 @@ def test_upsert_creates_then_updates_with_provenance(client: TestClient, room_ty
 
 
 def test_invalid_data_returns_vietnamese_errors_with_paths(client: TestClient, room_type: None, headers_for: HeadersFactory) -> None:
-    broken = {"id": "lab-x", "name": "Phòng lỗi", "capacity": "bốn mươi", "status": "dang-sua", "floor": -1, "phong_thua": 1}
-    response = put_room(client, headers_for(*CSVC_LAN), broken)
+    broken = {
+        "id": "Lab X",
+        "name": "Phòng lỗi",
+        "capacity": "bốn mươi",
+        "status": "dang-sua",
+        "floor": -1,
+        "phong_thua": 1,
+        "manager_role": "lab_manager",
+        "org_path": "/haui/sict/khmt/lab-x",
+        "building": "Nhà A1",
+        "unit_name": "Khoa",
+        "school_name": "Trường",
+        "description": "",
+    }
+    response = put_room(client, headers_for(*CSVC_LAN), broken, key="lab-x")
     assert response.status_code == 422
     error = response.json()["error"]
     assert error["code"] == "VALIDATION_FAILED"
@@ -100,7 +117,7 @@ def test_invalid_data_returns_vietnamese_errors_with_paths(client: TestClient, r
         {"path": "data.capacity", "message": "Phải là số nguyên."},
         {"path": "data.code", "message": "Thiếu trường bắt buộc."},
         {"path": "data.floor", "message": "Giá trị phải từ 0 trở lên."},
-        {"path": "data.org_path", "message": "Thiếu trường bắt buộc."},
+        {"path": "data.id", "message": "Không đúng định dạng yêu cầu."},
         {"path": "data.phong_thua", "message": "Trường không được phép."},
         {"path": "data.status", "message": "Giá trị không nằm trong danh sách cho phép: active, inactive."},
     ]
@@ -186,3 +203,26 @@ def test_upsert_is_audited_without_record_data(app: FastAPI, client: TestClient,
         {"role": "rule_admin", "unit": "/haui/ban-csvc"},
     ]
     assert "data" not in events[0].details
+
+
+def test_asset_records_validate_nested_values_and_filter_by_unit(
+    client: TestClient, room_type: None, headers_for: HeadersFactory
+) -> None:
+    csvc = headers_for(*CSVC_LAN)
+    asset_base = f"/api/records/{APP_ID}/{ASSET_TYPE}"
+    body = {"source": "data/assets.json của dự án DX-Lab (APP-03)", "license": "CC-BY-4.0"}
+    for asset in ASSETS:
+        created = client.put(f"{asset_base}/{asset['id']}", json={"data": asset, **body}, headers=csvc)
+        assert created.status_code == 201, created.text
+
+    broken = {**ASSETS[0], "specifications": {"cpu": ["i7", "i9"]}, "warranty_expiry": "31/12/2026"}
+    response = client.put(f"{asset_base}/{ASSETS[0]['id']}", json={"data": broken, **body}, headers=csvc)
+    assert response.status_code == 422
+    assert response.json()["error"]["details"]["errors"] == [
+        {"path": "data.specifications.cpu", "message": "Phải là chuỗi hoặc số nguyên hoặc số hoặc đúng/sai."},
+        {"path": "data.warranty_expiry", "message": "Không đúng định dạng date."},
+    ]
+
+    in_room = client.get(asset_base, params={"unit": "/haui/sict/khmt/lab-a1-305"}, headers=csvc).json()
+    assert [item["key"] for item in in_room["items"]] == [asset["id"] for asset in ASSETS]
+    assert client.get(asset_base, params={"unit": "/haui/sict/khmt/lab-a1-306"}, headers=csvc).json()["total"] == 0
