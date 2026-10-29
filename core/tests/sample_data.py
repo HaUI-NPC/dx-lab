@@ -162,3 +162,18 @@ QT_SON = ("qt.son", ["/haui/tt-cntt/process_admin"])
 ADMIN_DX = ("admin.dx", ["/haui/tt-cntt/system_admin"])
 SV_AN = ("sv.an", [])
 IT_TECH = ("kt.hung", ["/haui/tt-cntt/it_technician"])
+
+SOP_NETWORK = """# Mất kết nối mạng LAN (SOP-IT-04)
+
+## Mục đích
+Hướng dẫn xử lý phòng thực hành bị mất mạng.
+Từ khóa tìm kiếm: `mat mang`, `mất mạng lan`, `không vào được mạng`.
+
+## Các bước
+1. Kiểm tra dây mạng RJ45 cắm chặt vào cổng switch.
+2. Khởi động lại switch tầng và kiểm tra đèn tín hiệu.
+"""
+
+QUOTE_TEXT = """Báo giá thay bộ nguồn máy tính không lên: 1.850.000 đồng.
+Nhà cung cấp A, hiệu lực đến 30/11/2026.
+"""

@@ -20,6 +20,8 @@ from dxlab_core.records.router import router as records_router
 from dxlab_core.request_id import RequestIdMiddleware, configure_logging
 from dxlab_core.tasks.router import router as tasks_router
 from dxlab_core.workflows.router import router as workflows_router
+from dxlab_core.search.engine import SearchEngine
+from dxlab_core.search.router import router as search_router
 
 API_PREFIX = "/api"
 
@@ -41,6 +43,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.engine = make_engine(settings.database_url)
     app.state.sessionmaker = make_sessionmaker(app.state.engine)
     app.state.token_verifier = TokenVerifier(settings)
+    app.state.search = SearchEngine(settings)
 
     install_error_handlers(app)
     app.add_middleware(RequestIdMiddleware)
@@ -52,6 +55,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(tasks_router, prefix=API_PREFIX)
     app.include_router(records_router, prefix=API_PREFIX)
     app.include_router(documents_router, prefix=API_PREFIX)
+    app.include_router(search_router, prefix=API_PREFIX)
     return app
 
 
