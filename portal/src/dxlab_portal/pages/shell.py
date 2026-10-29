@@ -6,7 +6,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import asyncio
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
+from typing import Any
 
 from prefab_ui.app import PrefabApp
 from prefab_ui.components import (
@@ -24,22 +27,45 @@ from prefab_ui.components import (
 from dxlab_portal.pages import dashboard, lookup, my_tasks, report, status
 from dxlab_portal.pages.context import PageContext
 
-# (mã tab, tiêu đề tiếng Việt, hàm dựng nội dung). Thứ tự ở đây là thứ tự hiển thị.
-TABS: list[tuple[str, str, Callable[[], None]]] = [
-    ("tasks", "Việc của tôi", my_tasks.render),
-    ("report", "Báo hỏng", report.render),
-    ("lookup", "Tra cứu", lookup.render),
-    ("dashboard", "Dashboard", dashboard.render),
-    ("status", "Trạng thái hệ thống", status.render),
+
+@dataclass(frozen=True)
+class TabDef:
+    """Một tab. Tab cần dữ liệu từ core khai báo ``load`` (chạy song song trước khi dựng trang);
+    ``render`` nhận kết quả của ``load``. ``state`` (tùy chọn) cho trạng thái Prefab ban đầu của tab."""
+
+    id: str
+    title: str
+    render: Callable[..., None]
+    load: Callable[[PageContext], Awaitable[Any]] | None = None
+    state: Callable[[Any], dict[str, Any]] | None = None
+
+
+# Thứ tự ở đây là thứ tự hiển thị.
+TABS: list[TabDef] = [
+    TabDef("tasks", "Việc của tôi", my_tasks.render),
+    TabDef("report", "Báo hỏng", report.render, report.load, report.state),
+    TabDef("lookup", "Tra cứu", lookup.render),
+    TabDef("dashboard", "Dashboard", dashboard.render),
+    TabDef("status", "Trạng thái hệ thống", status.render),
 ]
-DEFAULT_TAB = TABS[0][0]
+DEFAULT_TAB = TABS[0].id
 
 
-def build_page(ctx: PageContext) -> PrefabApp:
-    """Dựng trang chính cho người đã đăng nhập."""
-    tab_ids = {tab_id for tab_id, _, _ in TABS}
-    active = ctx.tab if ctx.tab in tab_ids else DEFAULT_TAB
-    with PrefabApp(title="DX-Lab", css_class="max-w-5xl mx-auto") as app:
+async def load_tabs(ctx: PageContext) -> dict[str, Any]:
+    """Chạy song song ``load`` của các tab."""
+    loaders = [t for t in TABS if t.load is not None]
+    results = await asyncio.gather(*(t.load(ctx) for t in loaders))  # type: ignore[misc]
+    return {t.id: r for t, r in zip(loaders, results, strict=True)}
+
+
+def build_page(ctx: PageContext, data: dict[str, Any]) -> PrefabApp:
+    """Dựng trang chính cho người đã đăng nhập; ``data`` là kết quả của ``load_tabs``."""
+    active = ctx.tab if ctx.tab in {t.id for t in TABS} else DEFAULT_TAB
+    state: dict[str, Any] = {}
+    for tab in TABS:
+        if tab.state is not None:
+            state.update(tab.state(data[tab.id]))
+    with PrefabApp(title="DX-Lab", css_class="max-w-5xl mx-auto", state=state or None) as app:
         with Column(gap=6):
             with Row(gap=4, align="center", justify="between"):
                 H1("DX-Lab")
@@ -56,13 +82,13 @@ def build_page(ctx: PageContext) -> PrefabApp:
                         css_class="text-sm whitespace-nowrap underline underline-offset-4",
                     )
             with Tabs(value=active):
-                for tab_id, title, render in TABS:
-                    with Tab(title, value=tab_id):
-                        render()
+                for tab in TABS:
+                    with Tab(tab.title, value=tab.id):
+                        tab.render(data[tab.id]) if tab.load else tab.render()
     return app
 
 
-def render_html(ctx: PageContext) -> str:
+def render_html(ctx: PageContext, data: dict[str, Any]) -> str:
     """HTML đầy đủ với renderer Prefab đóng gói sẵn trong gói ``prefab-ui``: không CDN, không Node."""
-    html = build_page(ctx).html(renderer_mode="bundled")
+    html = build_page(ctx, data).html(renderer_mode="bundled")
     return html.replace('<html lang="en">', '<html lang="vi">', 1)

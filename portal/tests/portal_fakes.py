@@ -13,10 +13,12 @@ import hashlib
 import json
 import time
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
 import httpx
+import pytest
 from dxlab_portal.config import Settings
 from fastapi.testclient import TestClient
 from joserfc import jwt
@@ -199,3 +201,33 @@ def prefab_strings(node: Any) -> list[str]:
 
 def prefab_text(html: str) -> str:
     return "\n".join(prefab_strings(prefab_wire(html)["view"]))
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def load_app_json(app_id: str, filename: str) -> dict[str, Any]:
+    """Đọc tệp schema thật của gói ứng dụng ở ``apps/<app_id>/`` (APP-02).
+
+    Chưa có trên nhánh (APP-02 chưa vào main) thì bỏ qua test cần tệp đó.
+    """
+    path = REPO_ROOT / "apps" / app_id / filename
+    if not path.exists():
+        pytest.skip(f"{path.relative_to(REPO_ROOT)} chưa có trên nhánh này (APP-02 chưa vào main)")
+    data: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+    return data
+
+
+VALID_REPORT: dict[str, Any] = {
+    "reporter_name": "Hoàng Thu Giang",
+    "reporter_id": "GV0305",
+    "reporter_phone": "0912345678",
+    "reporter_email": "giang@example.vn",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PROJ-305-01",
+    "asset_category": "projector",
+    "issue_title": "Máy chiếu không lên hình",
+    "issue_description": "Bật máy chiếu thì đèn báo nhấp nháy đỏ, không có hình.",
+    "urgency": "high",
+    "data_processing_consent": True,
+}
