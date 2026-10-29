@@ -1,0 +1,9 @@
+{
+    "description": "B\u00e1o h\u1ecfng, ki\u1ec3m tra, duy\u1ec7t theo h\u1ea1n m\u1ee9c, s\u1eeda v\u00e0 nghi\u1ec7m thu thi\u1ebft b\u1ecb ph\u00f2ng th\u1ef1c h\u00e0nh, th\u00ed nghi\u1ec7m",
+    "display_name": "B\u00e1o h\u1ecfng v\u00e0 s\u1eeda ch\u1eefa thi\u1ebft b\u1ecb ph\u00f2ng lab",
+    "exception_notification_addresses": [],
+    "fault_or_suspend_on_exception": "fault",
+    "metadata_extraction_paths": null,
+    "primary_file_name": "lab-repair.bpmn",
+    "primary_process_id": "lab_repair"
+}
