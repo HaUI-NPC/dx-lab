@@ -11,9 +11,10 @@ from sqlalchemy import select
 
 from dxlab_core.auth.deps import CurrentPrincipal
 from dxlab_core.db import DbSession
-from dxlab_core.pagination import PageParams, page_params
+from dxlab_core.pagination import Page, PageParams, page_params
 from dxlab_core.workflows import service
 from dxlab_core.workflows.models import Workflow
+from dxlab_core.workflows.schemas import WorkflowDetail, WorkflowOut
 
 router = APIRouter(prefix="/workflows", tags=["Phiếu công việc"])
 
@@ -24,12 +25,12 @@ class CreateWorkflow(BaseModel):
     data: dict[str, Any]
 
 
-@router.post("", status_code=201)
+@router.post("", status_code=201, response_model=WorkflowOut, summary="Tạo phiếu từ phiên bản ứng dụng đang áp dụng")
 def create(body: CreateWorkflow, principal: CurrentPrincipal, session: DbSession) -> dict:
     return service.summary(service.create(session, principal, body.app_id, body.data))
 
 
-@router.get("")
+@router.get("", response_model=Page[WorkflowDetail], summary="Danh sách phiếu trong phạm vi được xem")
 def listing(principal: CurrentPrincipal, session: DbSession, page: Annotated[PageParams, Depends(page_params)],
             app_id: str | None = None, status: str | None = None) -> dict:
     query = select(Workflow).order_by(Workflow.created_at.desc(), Workflow.id)
@@ -42,6 +43,6 @@ def listing(principal: CurrentPrincipal, session: DbSession, page: Annotated[Pag
             "total": len(visible)}
 
 
-@router.get("/{workflow_id}")
+@router.get("/{workflow_id}", response_model=WorkflowDetail, summary="Xem phiếu và lịch sử xử lý")
 def get(workflow_id: uuid.UUID, principal: CurrentPrincipal, session: DbSession) -> dict:
     return service.detail(session, principal, service.find(session, workflow_id))
