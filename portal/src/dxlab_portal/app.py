@@ -118,8 +118,10 @@ def create_app(
         if session is None:
             return proxy.error_response(401, "UNAUTHENTICATED", "Vui lòng đăng nhập lại.")
         result = await state.core.call("GET", "/search", token=session.access_token, params={"q": body.query})
-        if not result.ok or not isinstance(result.json, dict):
+        if not result.ok:
             return JSONResponse(result.json or {"error": {"message": result.error_message()}}, status_code=result.status)
+        if not isinstance(result.json, dict):
+            return proxy.error_response(502, "INTERNAL", "Core trả kết quả tìm kiếm không hợp lệ.")
         output = dict(result.json)
         output["items"] = []
         for item in result.json.get("items", []):
