@@ -5,6 +5,7 @@
 """Nạp, kiểm, gắn phiên bản và duyệt áp dụng gói ứng dụng."""
 
 import hashlib
+import json
 import re
 import uuid
 from collections.abc import Mapping
@@ -21,6 +22,7 @@ from dxlab_core.definitions.engine import LoadedPackage, first_user_task, form_o
 from dxlab_core.definitions.models import ACTIVE, PENDING, SUPERSEDED, DefinitionFile, DefinitionVersion
 from dxlab_core.definitions.validator import changed_kinds, package_files, validate_package
 from dxlab_core.errors import ApiError, Conflict, NotFound
+from dxlab_core.records.service import register_record_type
 
 APP_ID = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 PROCESS_ADMIN = "process_admin"
@@ -132,6 +134,10 @@ def activate(session: Session, principal: Principal, app_id: str, version_number
                        {"layer": 4, "rule": "SoD-5"})
     if version.status != PENDING:
         raise Conflict(f"Phiên bản {version_number} đang ở trạng thái {version.status}, không duyệt được.")
+    for path, content in files_of(version).items():
+        match = re.fullmatch(r"records/([a-z0-9][a-z0-9-]*)-record\.json", path)
+        if match:
+            register_record_type(session, app_id, match.group(1), json.loads(content))
     current = _active_or_none(session, app_id)
     if current is not None:
         current.status = SUPERSEDED
