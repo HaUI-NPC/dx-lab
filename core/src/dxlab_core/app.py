@@ -16,6 +16,7 @@ from dxlab_core.definitions.router import router as definitions_router
 from dxlab_core.errors import ErrorResponse, install_error_handlers
 from dxlab_core.health.router import router as health_router
 from dxlab_core.request_id import RequestIdMiddleware, configure_logging
+from dxlab_core.tasks.router import router as tasks_router
 from dxlab_core.workflows.router import router as workflows_router
 
 API_PREFIX = "/api"
@@ -46,6 +47,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_router, prefix=API_PREFIX)
     app.include_router(definitions_router, prefix=API_PREFIX)
     app.include_router(workflows_router, prefix=API_PREFIX)
+    app.include_router(tasks_router, prefix=API_PREFIX)
     return app
 
 
