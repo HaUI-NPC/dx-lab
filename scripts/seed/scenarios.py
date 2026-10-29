@@ -234,7 +234,7 @@ def scenarios() -> list[Scenario]:
             report=_report(
                 "lab-a1-305",
                 "AST-AC-305-01",
-                "hvac",
+                "air_conditioner",
                 "Điều hòa A1-305 chảy nước",
                 "Điều hòa âm trần nhỏ nước xuống bàn thực hành, máy vẫn chạy nhưng làm lạnh kém.",
             ),
