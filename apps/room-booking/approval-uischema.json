@@ -1,0 +1,1 @@
+{"type":"VerticalLayout","elements":[{"type":"Control","scope":"#/properties/booking_decision"},{"type":"Control","scope":"#/properties/booking_approval_reason","options":{"multi":true}}]}

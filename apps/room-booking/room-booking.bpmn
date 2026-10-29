@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="defs_room_booking" targetNamespace="dxlab">
+  <bpmn:collaboration id="collaboration"><bpmn:participant id="pool" name="Đặt phòng" processRef="room_booking" /></bpmn:collaboration>
+  <bpmn:process id="room_booking" name="Đặt phòng" isExecutable="true">
+    <bpmn:laneSet id="lanes">
+      <bpmn:lane id="lane_reporter" name="reporter"><bpmn:flowNodeRef>start</bpmn:flowNodeRef><bpmn:flowNodeRef>report</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="lane_system" name="system"><bpmn:flowNodeRef>check_conflict</bpmn:flowNodeRef></bpmn:lane>
+      <bpmn:lane id="lane_manager" name="lab_manager"><bpmn:flowNodeRef>awaiting_approval</bpmn:flowNodeRef><bpmn:flowNodeRef>decision_gateway</bpmn:flowNodeRef><bpmn:flowNodeRef>approved</bpmn:flowNodeRef><bpmn:flowNodeRef>rejected</bpmn:flowNodeRef></bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="start" name="Bắt đầu" />
+    <bpmn:userTask id="report" name="Đề nghị đặt phòng"><bpmn:extensionElements><spiffworkflow:properties><spiffworkflow:property name="formJsonSchemaFilename" value="report-schema.json"/><spiffworkflow:property name="formUiSchemaFilename" value="report-uischema.json"/></spiffworkflow:properties></bpmn:extensionElements></bpmn:userTask>
+    <bpmn:businessRuleTask id="check_conflict" name="Kiểm tra xung đột"><bpmn:extensionElements><spiffworkflow:calledDecisionId>booking_conflict</spiffworkflow:calledDecisionId></bpmn:extensionElements></bpmn:businessRuleTask>
+    <bpmn:userTask id="awaiting_approval" name="Duyệt đặt phòng"><bpmn:extensionElements><spiffworkflow:properties><spiffworkflow:property name="formJsonSchemaFilename" value="approval-schema.json"/><spiffworkflow:property name="formUiSchemaFilename" value="approval-uischema.json"/></spiffworkflow:properties></bpmn:extensionElements></bpmn:userTask>
+    <bpmn:exclusiveGateway id="decision_gateway" name="Quyết định" />
+    <bpmn:endEvent id="approved" name="Đã duyệt"/><bpmn:endEvent id="rejected" name="Từ chối"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="report"/><bpmn:sequenceFlow id="f2" sourceRef="report" targetRef="check_conflict"/><bpmn:sequenceFlow id="f3" sourceRef="check_conflict" targetRef="awaiting_approval"/><bpmn:sequenceFlow id="f4" sourceRef="awaiting_approval" targetRef="decision_gateway"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="decision_gateway" targetRef="approved"><bpmn:conditionExpression>booking_decision == "approved"</bpmn:conditionExpression></bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f6" sourceRef="decision_gateway" targetRef="rejected"><bpmn:conditionExpression>booking_decision == "rejected"</bpmn:conditionExpression></bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="diagram"><bpmndi:BPMNPlane id="plane" bpmnElement="collaboration">
+    <bpmndi:BPMNShape id="pool_di" bpmnElement="pool" isHorizontal="true"><dc:Bounds x="100" y="100" width="1050" height="450"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="lane_reporter_di" bpmnElement="lane_reporter" isHorizontal="true"><dc:Bounds x="130" y="100" width="1020" height="150"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="lane_system_di" bpmnElement="lane_system" isHorizontal="true"><dc:Bounds x="130" y="250" width="1020" height="150"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="lane_manager_di" bpmnElement="lane_manager" isHorizontal="true"><dc:Bounds x="130" y="400" width="1020" height="150"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="start_di" bpmnElement="start"><dc:Bounds x="180" y="157" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="report_di" bpmnElement="report"><dc:Bounds x="260" y="135" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="check_di" bpmnElement="check_conflict"><dc:Bounds x="430" y="285" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="approval_di" bpmnElement="awaiting_approval"><dc:Bounds x="600" y="435" width="120" height="80"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="gateway_di" bpmnElement="decision_gateway" isMarkerVisible="true"><dc:Bounds x="780" y="450" width="50" height="50"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="approved_di" bpmnElement="approved"><dc:Bounds x="960" y="422" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNShape id="rejected_di" bpmnElement="rejected"><dc:Bounds x="960" y="492" width="36" height="36"/></bpmndi:BPMNShape>
+    <bpmndi:BPMNEdge id="f1_di" bpmnElement="f1"><di:waypoint x="216" y="175"/><di:waypoint x="260" y="175"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="f2_di" bpmnElement="f2"><di:waypoint x="380" y="175"/><di:waypoint x="490" y="175"/><di:waypoint x="490" y="285"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="f3_di" bpmnElement="f3"><di:waypoint x="550" y="325"/><di:waypoint x="660" y="325"/><di:waypoint x="660" y="435"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="f4_di" bpmnElement="f4"><di:waypoint x="720" y="475"/><di:waypoint x="780" y="475"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="f5_di" bpmnElement="f5"><di:waypoint x="805" y="450"/><di:waypoint x="805" y="440"/><di:waypoint x="960" y="440"/></bpmndi:BPMNEdge>
+    <bpmndi:BPMNEdge id="f6_di" bpmnElement="f6"><di:waypoint x="805" y="500"/><di:waypoint x="805" y="510"/><di:waypoint x="960" y="510"/></bpmndi:BPMNEdge>
+  </bpmndi:BPMNPlane></bpmndi:BPMNDiagram>
+</bpmn:definitions>

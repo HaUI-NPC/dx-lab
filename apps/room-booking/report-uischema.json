@@ -1,0 +1,1 @@
+{"type":"VerticalLayout","elements":[{"type":"Control","scope":"#/properties/room_id"},{"type":"Control","scope":"#/properties/booking_date"},{"type":"Control","scope":"#/properties/booking_shift"},{"type":"Control","scope":"#/properties/booking_purpose"},{"type":"Control","scope":"#/properties/schedule_conflict"}]}
