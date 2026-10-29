@@ -114,11 +114,13 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
     task.completed_by = principal.username
     task.completed_at = datetime.now(UTC)
     workflows.save_engine(instance, engine)
+    details = {"step_id": task.step_id, "step_name": task.step_name, "task_id": str(task.id),
+               "version": instance.definition.version}
+    if task.lane == "approver":  # căn cứ thẩm quyền và hình thức ký chỉ thuộc về bước duyệt
+        details |= {"authority_basis": instance.data.get("authority_basis"),
+                    "signing_type": instance.data.get("signing_type")}
     record(session, actor=principal, action="repair.approve" if task.lane == "approver" else "task.complete",
-           object_type="workflow", object_id=str(instance.id),
-           details={"step_id": task.step_id, "step_name": task.step_name, "task_id": str(task.id),
-                    "version": instance.definition.version,
-                    "authority_basis": instance.data.get("authority_basis"), "signing_type": instance.data.get("signing_type")})
+           object_type="workflow", object_id=str(instance.id), details=details)
     for next_task in workflows.ready_tasks(engine):
         if next_task.task_spec.lane != "approver":
             continue
