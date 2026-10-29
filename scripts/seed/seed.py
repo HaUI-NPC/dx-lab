@@ -15,8 +15,11 @@ Chạy qua `scripts/seed.sh`. Không ghi thẳng database, không dùng tài kho
 
 import hashlib
 import json
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -75,19 +78,6 @@ def provenance(sources: dict[str, dict[str, str]], rel_path: str) -> tuple[str, 
 # --- 1, 2: publish và duyệt áp dụng ---------------------------------------------------------------
 
 
-def package_files() -> list[tuple[str, str, bytes]]:
-    """Mỗi tệp một phần `files`, tên tệp = đường dẫn tương đối trong gói; bỏ `eval/` và tệp ẩn."""
-    if not APP_DIR.is_dir():
-        raise SeedError(f"Không thấy {APP_DIR.relative_to(ROOT)}: cần gói ứng dụng lab-repair (APP-01 … APP-03) trong cây mã.")
-    parts = []
-    for path in sorted(p for p in APP_DIR.rglob("*") if p.is_file()):
-        rel = path.relative_to(APP_DIR)
-        if rel.parts[0] == "eval" or any(part.startswith(".") for part in rel.parts):
-            continue
-        parts.append(("files", rel.as_posix(), path.read_bytes()))
-    if not parts:
-        raise SeedError(f"{APP_DIR.relative_to(ROOT)} không có tệp nào để nạp.")
-    return parts
 
 
 def publish_and_activate(client: Client) -> None:
@@ -97,12 +87,33 @@ def publish_and_activate(client: Client) -> None:
         if item.get("app_id") == APP_ID and item.get("status") == "active":
             say(f"    đã có phiên bản đang áp dụng ({item.get('version')}), bỏ qua")
             return
-    parts = package_files()
-    say(f"    {PUBLISHER} nạp {len(parts)} tệp")
-    _, created = client.request(PUBLISHER, "POST", f"/definitions/{APP_ID}/versions", multipart=parts, ok=(201,))
-    version = created["version"]
-    if created.get("status") != "pending_approval":
-        raise SeedError(f"Phiên bản {version} có trạng thái {created.get('status')!r}, mong đợi 'pending_approval'.")
+    # Dùng phiên của qt.son đã đăng nhập để CLI không phải dùng lại mã OTP trong cùng chu kỳ.
+    session = client.sessions[PUBLISHER]
+    with tempfile.TemporaryDirectory(prefix="dxlab-seed-") as directory:
+        token_file = Path(directory) / "token.json"
+        token_file.write_text(json.dumps({
+            "issuer": client.issuer,
+            "client_id": client.client_id,
+            "access_token": session.access_token,
+            "refresh_token": session.refresh_token,
+            "expires_at": session.expires_at,
+        }), encoding="utf-8")
+        token_file.chmod(0o600)
+        env = dict(os.environ, DXLAB_TOKEN_FILE=str(token_file), DXLAB_API_URL=client.api_url,
+                   DXLAB_OIDC_ISSUER=client.issuer)
+        try:
+            result = subprocess.run(
+                ["uv", "run", "dxlab", "publish", str(APP_DIR)],
+                cwd=ROOT, env=env, text=True, capture_output=True, check=False,
+            )
+        except FileNotFoundError as error:
+            raise SeedError("Cần uv và CLI-01 để chạy dxlab publish.") from error
+    if result.returncode:
+        raise SeedError(f"dxlab publish thất bại: {(result.stderr or result.stdout).strip()}")
+    match = re.search(r"phiên bản (\d+), trạng thái pending_approval", result.stdout)
+    if not match:
+        raise SeedError(f"Không đọc được phiên bản từ dxlab publish: {result.stdout.strip()}")
+    version = int(match.group(1))
     say(f"    phiên bản {version}: chờ duyệt")
     _, activated = client.request(APPROVER, "POST", f"/definitions/{APP_ID}/versions/{version}/activate")
     if activated.get("status") != "active":

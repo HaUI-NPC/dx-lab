@@ -213,8 +213,17 @@ def scenarios() -> list[Scenario]:
                     "Không sửa được; đề nghị mua thay thế.",
                     "BG-2026-0167",
                 ),
+                Step(
+                    "awaiting_handoff",
+                    "tl.giang",
+                    {
+                        "handoff_type": "procurement_replace",
+                        "handoff_reason": "Thiết bị không còn linh kiện thay thế, đề nghị mua thiết bị mới.",
+                        "handoff_request_code": "DX-2026-0012",
+                    },
+                ),
             ),
-            target="awaiting_handoff",
+            target="handed_off",
         ),
         # Ca hoàn tất: 3.500.000 qua xác nhận, duyệt (tk.hai, OTP), sửa, nghiệm thu
         Scenario(
