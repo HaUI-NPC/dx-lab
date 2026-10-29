@@ -14,7 +14,7 @@ from urllib.parse import quote
 
 import httpx
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -24,9 +24,11 @@ from dxlab_portal.bff.oidc import OidcClient
 from dxlab_portal.bff.session import SessionStore
 from dxlab_portal.bff.state import PortalState, current_session, portal_state
 from dxlab_portal.config import Settings, load_settings
+from dxlab_portal.pages import status as status_view
 from dxlab_portal.pages.context import PageContext
 from dxlab_portal.pages.forms import routes as form_routes
-from dxlab_portal.pages.shell import load_tabs, render_html
+from dxlab_portal.pages.shell import load_tabs, render_html, render_prefab_html
+from dxlab_portal.pages.status_probe import check_all
 from dxlab_portal.pages.user import user_from_claims, user_from_me
 
 # Cookie tạm giữ state/nonce/PKCE trong lúc chuyển sang Keycloak, khác cookie phiên chính.
@@ -103,6 +105,15 @@ def create_app(
     @app.get("/healthz", include_in_schema=False)
     async def healthz() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get("/ui/status", include_in_schema=False)
+    async def status_json() -> JSONResponse:
+        """Trạng thái các thành phần; không cần đăng nhập để vẫn xem được khi Keycloak hỏng."""
+        return JSONResponse(await check_all(settings, state.oidc, state.core))
+
+    @app.get("/status", include_in_schema=False, response_class=HTMLResponse)
+    async def status_page() -> HTMLResponse:
+        return HTMLResponse(render_prefab_html(status_view.build_page()))
 
     @app.get("/", include_in_schema=False, response_class=HTMLResponse)
     async def index(request: Request, tab: str = "") -> Response:

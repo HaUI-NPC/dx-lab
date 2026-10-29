@@ -53,3 +53,15 @@ def test_mac_dinh_issuer_va_kenh_noi_bo(monkeypatch: pytest.MonkeyPatch) -> None
     assert (
         load_settings().discovery_url == "http://keycloak:8080/realms/dxlab/.well-known/openid-configuration"
     )
+
+
+def test_bien_dat_rong_coi_nhu_chua_dat(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DXLAB_PORTAL_PUBLIC_URL", "http://localhost:8000")
+    monkeypatch.setenv("DXLAB_PORTAL_CLIENT_SECRET", "a")
+    monkeypatch.setenv("DXLAB_PORTAL_SESSION_SECRET", "b")
+    monkeypatch.setenv("DXLAB_API_URL", "")
+    assert load_settings().api_url == "http://localhost:9080/api"
+    monkeypatch.setenv("DXLAB_PORTAL_CLIENT_SECRET", "")
+    with pytest.raises(SystemExit) as stop:
+        load_settings()
+    assert "DXLAB_PORTAL_CLIENT_SECRET" in str(stop.value)

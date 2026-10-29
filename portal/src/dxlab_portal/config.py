@@ -24,7 +24,8 @@ def _env(name: str) -> AliasChoices:
 class Settings(BaseSettings):
     """Biến môi trường của portal."""
 
-    model_config = SettingsConfigDict(extra="ignore", populate_by_name=False)
+    # Biến đặt rỗng coi như chưa đặt (compose có thể truyền chuỗi rỗng).
+    model_config = SettingsConfigDict(extra="ignore", populate_by_name=False, env_ignore_empty=True)
 
     public_url: str = Field(validation_alias=_env("DXLAB_PORTAL_PUBLIC_URL"))
     client_id: str = Field(default="dxlab-portal", validation_alias=_env("DXLAB_PORTAL_CLIENT_ID"))
