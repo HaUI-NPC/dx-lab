@@ -12,6 +12,8 @@ from typing import Any
 
 import httpx
 
+from dxlab_portal.bff.probe import ProbeResult, timed_get
+
 log = logging.getLogger("dxlab_portal.core")
 
 # Header không chuyển tiếp: do hop-by-hop, hoặc httpx/ASGI tự quản.
@@ -72,10 +74,15 @@ class CoreClient:
         timeout: float = 15.0,
     ) -> None:
         self._base_url = base_url.rstrip("/")
+        self._transport = transport
         self._http = httpx.AsyncClient(transport=transport, timeout=timeout)
 
     def url_for(self, path: str) -> str:
         return f"{self._base_url}/{path.lstrip('/')}"
+
+    async def probe(self, path: str) -> ProbeResult:
+        """Thăm dò một đường dẫn không cần token, đo thời gian phản hồi."""
+        return await timed_get(self.url_for(path), self._transport)
 
     async def aclose(self) -> None:
         await self._http.aclose()

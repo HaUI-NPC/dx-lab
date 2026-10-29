@@ -45,8 +45,8 @@ TABS: list[TabDef] = [
     TabDef("tasks", "Việc của tôi", my_tasks.render, my_tasks.load, my_tasks.state),
     TabDef("report", "Báo hỏng", report.render, report.load, report.state),
     TabDef("lookup", "Tra cứu", lookup.render),
-    TabDef("dashboard", "Dashboard", dashboard.render),
-    TabDef("status", "Trạng thái hệ thống", status.render),
+    TabDef("dashboard", "Dashboard", dashboard.render, dashboard.load),
+    TabDef("status", "Trạng thái hệ thống", status.render, state=lambda _: status.state()),
 ]
 DEFAULT_TAB = TABS[0].id
 
@@ -64,7 +64,7 @@ def build_page(ctx: PageContext, data: dict[str, Any]) -> PrefabApp:
     state: dict[str, Any] = {}
     for tab in TABS:
         if tab.state is not None:
-            state.update(tab.state(data[tab.id]))
+            state.update(tab.state(data.get(tab.id)))
     with PrefabApp(title="DX-Lab", css_class="max-w-5xl mx-auto", state=state or None) as app:
         with Column(gap=6):
             with Row(gap=4, align="center", justify="between"):
@@ -88,7 +88,11 @@ def build_page(ctx: PageContext, data: dict[str, Any]) -> PrefabApp:
     return app
 
 
-def render_html(ctx: PageContext, data: dict[str, Any]) -> str:
-    """HTML đầy đủ với renderer Prefab đóng gói sẵn trong gói ``prefab-ui``: không CDN, không Node."""
-    html = build_page(ctx, data).html(renderer_mode="bundled")
+def render_prefab_html(app: PrefabApp) -> str:
+    """HTML đầy đủ với renderer Prefab đóng gói sẵn trong ``prefab-ui``: không CDN, không Node."""
+    html = app.html(renderer_mode="bundled")
     return html.replace('<html lang="en">', '<html lang="vi">', 1)
+
+
+def render_html(ctx: PageContext, data: dict[str, Any]) -> str:
+    return render_prefab_html(build_page(ctx, data))
