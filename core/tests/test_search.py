@@ -237,6 +237,31 @@ def test_results_are_filtered_by_what_the_caller_may_see(
     assert reporter["total"] == len(reporter["items"])
 
 
+@pytest.mark.parametrize("mode", ["fts", "hybrid"])
+def test_linked_quote_search_respects_workflow_scope(
+    request: pytest.FixtureRequest, client: TestClient, headers_for: HeadersFactory, mode: str
+) -> None:
+    from test_documents import upload as upload_document
+    from test_workflows import activate, task_package
+
+    request.getfixturevalue("fts_only" if mode == "fts" else "hybrid")
+    activate(client, headers_for, task_package())
+    creator = headers_for("sv.an")
+    workflow = client.post("/api/workflows", headers=creator, json={"app_id": "mini", "data": {"cost": 3500000}})
+    assert workflow.status_code == 201, workflow.text
+    uploaded = upload_document(
+        client, headers_for(*CSVC_LAN), b"bao gia may tinh", app_id="mini",
+        workflow_id=workflow.json()["workflow_id"], kind="quote",
+    )
+    assert uploaded.status_code == 201, uploaded.text
+    document_id = uploaded.json()["id"]
+    insider = headers_for("inside", ["/haui/tt-cntt/lab_manager"])
+    outsider = headers_for("outside", ["/haui/sict/lab_manager"])
+    assert document_id in [hit["document"]["id"] for hit in search(client, insider, "may tinh")["items"]]
+    result = search(client, outsider, "may tinh")
+    assert result["items"] == [] and result["total"] == 0
+
+
 def test_filters_and_pagination(client: TestClient, fts_only: None, sops: dict, headers_for: HeadersFactory) -> None:
     sv = headers_for(*SV_AN)
     both = search(client, sv, "không kiểm tra")  # chung từ khóa với nhiều SOP: phải có > 1 kết quả
