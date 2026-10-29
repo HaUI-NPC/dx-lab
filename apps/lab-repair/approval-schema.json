@@ -53,8 +53,7 @@
       "title": "Quyết định phê duyệt",
       "enum": [
         "approved",
-        "rejected",
-        "request_revision"
+        "rejected"
       ],
       "default": "approved"
     },

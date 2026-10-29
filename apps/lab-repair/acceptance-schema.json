@@ -51,8 +51,7 @@
       "title": "Kết luận nghiệm thu",
       "enum": [
         "accepted",
-        "rejected",
-        "conditional_acceptance"
+        "rejected"
       ],
       "default": "accepted"
     },

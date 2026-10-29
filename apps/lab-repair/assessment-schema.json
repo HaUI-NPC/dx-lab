@@ -7,6 +7,8 @@
     "technician_name",
     "inspection_date",
     "fault_cause",
+    "assessment_result",
+    "quote_count",
     "action_type",
     "estimated_cost_vnd",
     "technician_recommendation"
@@ -31,6 +33,17 @@
       "minLength": 5,
       "maxLength": 1000
     },
+    "assessment_result": {
+      "type": "string",
+      "title": "Kết luận kiểm tra",
+      "enum": ["fix_no_cost", "needs_cost", "not_repairable", "invalid"]
+    },
+    "quote_count": {
+      "type": "integer",
+      "title": "Số báo giá đã đính kèm",
+      "minimum": 0,
+      "default": 0
+    },
     "action_type": {
       "type": "string",
       "title": "Phương án xử lý đề xuất",
@@ -38,8 +51,7 @@
       "enum": [
         "repair",
         "replace",
-        "upgrade",
-        "no_issue"
+        "upgrade"
       ],
       "default": "repair"
     },
