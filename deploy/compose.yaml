@@ -1,0 +1,136 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: dxlab
+
+services:
+  postgres:
+    image: postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dxlab}
+      POSTGRES_USER: ${POSTGRES_USER:-dxlab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-dxlab} -d $${POSTGRES_DB:-dxlab}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b
+    restart: unless-stopped
+    command: start-dev --import-realm
+    ports:
+      - "127.0.0.1:8180:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      KC_HOSTNAME: ${DXLAB_KEYCLOAK_PUBLIC_URL:-http://localhost:8180}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HEALTH_ENABLED: "true"
+      DXLAB_PORTAL_CLIENT_SECRET: ${DXLAB_PORTAL_CLIENT_SECRET}
+      DXLAB_DEMO_PASSWORD: ${DXLAB_DEMO_PASSWORD}
+      DXLAB_PORTAL_PUBLIC_URL: ${DXLAB_PORTAL_PUBLIC_URL:-http://localhost:8000}
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+      - ./keycloak:/opt/keycloak/data/import:ro
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e \"GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && cat <&3 | grep -q \"200 OK\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 15s
+
+  core:
+    build:
+      context: ..
+      dockerfile: core/Dockerfile
+    restart: unless-stopped
+    environment:
+      DXLAB_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-dxlab}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dxlab}
+      DXLAB_OIDC_ISSUER: ${DXLAB_KEYCLOAK_PUBLIC_URL:-http://localhost:8180}/realms/dxlab
+      DXLAB_OIDC_INTERNAL_URL: http://keycloak:8080/realms/dxlab
+      DXLAB_OIDC_AUDIENCE: dxlab-core
+      DXLAB_DOCUMENTS_DIR: /data/documents
+      DXLAB_SEARCH_INDEX_DIR: /data/search
+      DXLAB_MODEL_CACHE_DIR: /models
+      DXLAB_LOG_LEVEL: ${DXLAB_LOG_LEVEL:-INFO}
+      DXLAB_EMBEDDING_MODEL: ${DXLAB_EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+    volumes:
+      - core-data:/data
+      - models:/models
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/api/health\")'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  apisix:
+    image: apache/apisix:3.19.0-debian@sha256:9a7e45dc943fbf10ec916d1232bae4cda9302ae28a4696cfb83c2da01d261141
+    restart: unless-stopped
+    environment:
+      APISIX_STAND_ALONE: "true"
+    command: >
+      sh -c "if [ ! -f /usr/local/apisix/conf/config.yaml ] || grep -q 'config_provider: etcd' /usr/local/apisix/conf/config.yaml; then
+        rm -f /usr/local/apisix/conf/config.yaml
+      fi && exec /docker-entrypoint.sh docker-start"
+    ports:
+      - "127.0.0.1:9080:9080"
+    volumes:
+      - ./apisix/apisix.yaml:/usr/local/apisix/conf/apisix.yaml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9080 && echo -e \"GET /api/health HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && cat <&3 | grep -E -q \"HTTP/1.[01] 200\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    depends_on:
+      core:
+        condition: service_healthy
+
+  portal:
+    build:
+      context: ..
+      dockerfile: portal/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DXLAB_PORTAL_PUBLIC_URL: ${DXLAB_PORTAL_PUBLIC_URL:-http://localhost:8000}
+      DXLAB_PORTAL_SESSION_SECRET: ${DXLAB_PORTAL_SESSION_SECRET}
+      DXLAB_PORTAL_CLIENT_SECRET: ${DXLAB_PORTAL_CLIENT_SECRET}
+      DXLAB_PORTAL_CLIENT_ID: dxlab-portal
+      DXLAB_OIDC_ISSUER: ${DXLAB_KEYCLOAK_PUBLIC_URL:-http://localhost:8180}/realms/dxlab
+      DXLAB_OIDC_INTERNAL_URL: http://keycloak:8080/realms/dxlab
+      DXLAB_API_URL: http://apisix:9080/api
+      DXLAB_LOG_LEVEL: ${DXLAB_LOG_LEVEL:-INFO}
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/healthz\")'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      apisix:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  keycloak-data:
+  core-data:
+  models:
