@@ -1,0 +1,104 @@
+[
+  {
+    "id": "Q01",
+    "query": "máy chiếu không lên hình",
+    "expected_sop": "sop-may-chieu-mat-tin-hieu"
+  },
+  {
+    "id": "Q02",
+    "query": "máy chiếu báo đèn đỏ nhấp nháy",
+    "expected_sop": "sop-may-chieu-mat-tin-hieu"
+  },
+  {
+    "id": "Q03",
+    "query": "may chieu khong nhan hdmi",
+    "expected_sop": "sop-may-chieu-mat-tin-hieu"
+  },
+  {
+    "id": "Q04",
+    "query": "hình chiếu bị mờ nhòe",
+    "expected_sop": "sop-may-chieu-mat-tin-hieu"
+  },
+  {
+    "id": "Q05",
+    "query": "máy tính bật lên không có gì",
+    "expected_sop": "sop-pc-khong-len-nguon"
+  },
+  {
+    "id": "Q06",
+    "query": "may tinh khong len nguon",
+    "expected_sop": "sop-pc-khong-len-nguon"
+  },
+  {
+    "id": "Q07",
+    "query": "PC tự sập nguồn giữa chừng",
+    "expected_sop": "sop-pc-khong-len-nguon"
+  },
+  {
+    "id": "Q08",
+    "query": "phòng lab không vào được internet",
+    "expected_sop": "sop-mat-ket-noi-mang-lan"
+  },
+  {
+    "id": "Q09",
+    "query": "mất mạng lan cả phòng",
+    "expected_sop": "sop-mat-ket-noi-mang-lan"
+  },
+  {
+    "id": "Q10",
+    "query": "wifi chập chờn rớt liên tục",
+    "expected_sop": "sop-mat-ket-noi-mang-lan"
+  },
+  {
+    "id": "Q11",
+    "query": "điều hòa chạy nhưng không mát",
+    "expected_sop": "sop-dieu-hoa-khong-mat-chay-nuoc"
+  },
+  {
+    "id": "Q12",
+    "query": "máy lạnh nhỏ nước xuống sàn",
+    "expected_sop": "sop-dieu-hoa-khong-mat-chay-nuoc"
+  },
+  {
+    "id": "Q13",
+    "query": "đèn trong phòng nhấp nháy",
+    "expected_sop": "sop-den-chieu-sang-chap-chon"
+  },
+  {
+    "id": "Q14",
+    "query": "thay bóng đèn máng đôi",
+    "expected_sop": "sop-den-chieu-sang-chap-chon"
+  },
+  {
+    "id": "Q15",
+    "query": "máy in bị kẹt giấy",
+    "expected_sop": "sop-may-in-ket-giay-mo-muc"
+  },
+  {
+    "id": "Q16",
+    "query": "bản in có vệt đen",
+    "expected_sop": "sop-may-in-ket-giay-mo-muc"
+  },
+  {
+    "id": "Q17",
+    "query": "trạm hàn không nóng",
+    "expected_sop": "sop-tram-han-khong-nong"
+  },
+  {
+    "id": "Q18",
+    "query": "đồng hồ vạn năng Fluke không lên màn hình",
+    "expected_sop": "sop-dao-dong-ky-dong-ho-van-nang"
+  },
+  {
+    "id": "Q19",
+    "query": "ghế gãy chân",
+    "expected_sop": null,
+    "note": "không có hướng dẫn tương ứng: kết quả đúng là không trả tài liệu nào hoặc điểm rất thấp"
+  },
+  {
+    "id": "Q20",
+    "query": "vòi nước bị rò",
+    "expected_sop": null,
+    "note": "không có hướng dẫn tương ứng: kết quả đúng là không trả tài liệu nào hoặc điểm rất thấp"
+  }
+]
