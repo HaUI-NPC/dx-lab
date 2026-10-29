@@ -19,6 +19,7 @@ from urllib.parse import parse_qs, urlsplit
 
 import httpx
 import pytest
+from dxlab_portal.app import create_app
 from dxlab_portal.config import Settings
 from fastapi.testclient import TestClient
 from joserfc import jwt
@@ -231,3 +232,20 @@ VALID_REPORT: dict[str, Any] = {
     "urgency": "high",
     "data_processing_consent": True,
 }
+
+
+def make_client(
+    oidc_handler: Callable[[httpx.Request], httpx.Response],
+    core_handler: Callable[[httpx.Request], httpx.Response],
+) -> TestClient:
+    """Portal chạy thật với Keycloak và cổng API thay bằng hàm xử lý do test cung cấp."""
+    app = create_app(
+        make_settings(),
+        oidc_transport=httpx.MockTransport(oidc_handler),
+        core_transport=httpx.MockTransport(core_handler),
+    )
+    return TestClient(app, base_url=PUBLIC_URL, follow_redirects=False)
+
+
+def connection_refused(request: httpx.Request) -> httpx.Response:
+    raise httpx.ConnectError("từ chối kết nối", request=request)

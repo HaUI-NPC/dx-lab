@@ -20,6 +20,7 @@ import httpx
 from authlib.integrations.starlette_client import OAuth
 from authlib.integrations.starlette_client.apps import StarletteOAuth2App
 
+from dxlab_portal.bff.probe import ProbeResult, timed_get
 from dxlab_portal.config import Settings
 
 log = logging.getLogger("dxlab_portal.oidc")
@@ -75,6 +76,10 @@ class OidcClient:
                 "Máy chủ đăng nhập báo issuer khác cấu hình DXLAB_OIDC_ISSUER; từ chối đăng nhập."
             )
         return metadata
+
+    async def probe(self) -> ProbeResult:
+        """Thăm dò discovery (kênh nội bộ), không dùng bộ nhớ đệm của Authlib."""
+        return await timed_get(self._settings.discovery_url, self._transport)
 
     async def refresh(self, refresh_token: str) -> dict[str, Any]:
         """Đổi refresh token lấy token mới; ``OidcError`` nếu Keycloak từ chối."""
