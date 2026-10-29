@@ -11,6 +11,7 @@ license = "Apache-2.0"
 dependencies = [
     "alembic>=1.20.1",
     "fastapi>=0.121",
+    "httpx>=0.28.1",
     "jsonschema>=4.26.0",
     "psycopg[binary]>=3.2",
     "pydantic-settings>=2.16.2",
@@ -27,8 +28,3 @@ dxlab = "dxlab_core.cli:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[dependency-groups]
-dev = [
-    "httpx>=0.28.1",
-]
