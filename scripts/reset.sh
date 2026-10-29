@@ -10,6 +10,11 @@ set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
+if [ "$#" -gt 1 ]; then
+  echo "Dùng: scripts/reset.sh [--yes]" >&2
+  exit 2
+fi
+
 
 case "${1:-}" in
   "") ;;
@@ -23,6 +28,6 @@ if [ "${1:-}" != "--yes" ] && [ "${1:-}" != "-y" ]; then
   [ "$answer" = "yes" ] || { echo "Đã hủy."; exit 1; }
 fi
 
-docker compose -p dxlab down -v --remove-orphans
+docker compose --env-file .env -f deploy/compose.yaml -p dxlab down -v --remove-orphans
 scripts/up.sh
 scripts/seed.sh
