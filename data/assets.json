@@ -1,6 +1,7 @@
 [
   {
     "id": "AST-PC-305-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00101",
     "name": "Máy tính trạm Dell OptiPlex 7090",
     "category": "computer",
@@ -24,6 +25,7 @@
   },
   {
     "id": "AST-PC-305-02",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00102",
     "name": "Máy tính giảng viên HP ProDesk 400 G7",
     "category": "computer",
@@ -47,6 +49,7 @@
   },
   {
     "id": "AST-PROJ-305-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00201",
     "name": "Máy chiếu Panasonic PT-LB385",
     "category": "projector",
@@ -70,9 +73,10 @@
   },
   {
     "id": "AST-AC-305-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00301",
     "name": "Điều hòa âm trần Daikin 24000 BTU",
-    "category": "hvac",
+    "category": "air_conditioner",
     "room_id": "lab-a1-305",
     "room_code": "A1-305",
     "org_path": "/haui/sict/khmt/lab-a1-305",
@@ -92,9 +96,10 @@
   },
   {
     "id": "AST-LIGHT-305-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00401",
     "name": "Hệ thống máng đèn LED đôi 1.2m Rạng Đông",
-    "category": "electrical",
+    "category": "lighting",
     "room_id": "lab-a1-305",
     "room_code": "A1-305",
     "org_path": "/haui/sict/khmt/lab-a1-305",
@@ -115,6 +120,7 @@
   },
   {
     "id": "AST-PC-306-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00103",
     "name": "Máy tính trạm Dell Precision 3650",
     "category": "computer",
@@ -139,6 +145,7 @@
   },
   {
     "id": "AST-SW-601-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00501",
     "name": "Switch quản lý Cisco Catalyst 2960-X 48 Port",
     "category": "network",
@@ -161,6 +168,7 @@
   },
   {
     "id": "AST-WIFI-601-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00502",
     "name": "Bộ phát WiFi chuyên dụng Aruba AP-515",
     "category": "network",
@@ -184,9 +192,10 @@
   },
   {
     "id": "AST-PRINT-601-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00601",
     "name": "Máy in đa năng HP LaserJet Enterprise MFP M430f",
-    "category": "printer",
+    "category": "computer",
     "room_id": "lab-a1-601",
     "room_code": "A1-601",
     "org_path": "/haui/sict/mmt/lab-a1-601",
@@ -207,9 +216,10 @@
   },
   {
     "id": "AST-OSC-201-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00701",
     "name": "Dao động ký số 4 kênh Rigol DS1054Z",
-    "category": "lab_instrument",
+    "category": "lab_equipment",
     "room_id": "lab-a10-201",
     "room_code": "A10-201",
     "org_path": "/haui/truong-dien-dien-tu/khoa-dien/lab-a10-201",
@@ -231,9 +241,10 @@
   },
   {
     "id": "AST-DMM-201-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00702",
     "name": "Đồng hồ vạn năng hiện số Fluke 87V Industrial",
-    "category": "lab_instrument",
+    "category": "lab_equipment",
     "room_id": "lab-a10-201",
     "room_code": "A10-201",
     "org_path": "/haui/truong-dien-dien-tu/khoa-dien/lab-a10-201",
@@ -253,9 +264,10 @@
   },
   {
     "id": "AST-SOLDER-201-01",
+    "data_note": "Số liệu giả định, không phải tài sản thật của HaUI",
     "code": "TS-2024-00703",
     "name": "Trạm hàn điều chỉnh nhiệt độ Hakko FX-888D",
-    "category": "lab_instrument",
+    "category": "lab_equipment",
     "room_id": "lab-a10-201",
     "room_code": "A10-201",
     "org_path": "/haui/truong-dien-dien-tu/khoa-dien/lab-a10-201",
