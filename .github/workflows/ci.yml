@@ -132,3 +132,5 @@ jobs:
       - uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
       - name: pytest toàn workspace
         run: uv run --locked --all-packages pytest -ra
+      - name: Kiểm tra gói ứng dụng
+        run: uv run --locked dxlab validate apps/
