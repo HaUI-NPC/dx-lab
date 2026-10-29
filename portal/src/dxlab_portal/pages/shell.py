@@ -50,7 +50,11 @@ def build_page(ctx: PageContext) -> PrefabApp:
                     with Row(gap=1, align="center"):
                         for label in ctx.user.role_labels:
                             Badge(label, variant="secondary")
-                    Link("Đăng xuất", href="/auth/logout", css_class="text-sm underline underline-offset-4")
+                    Link(
+                        "Đăng xuất",
+                        href="/auth/logout",
+                        css_class="text-sm whitespace-nowrap underline underline-offset-4",
+                    )
             with Tabs(value=active):
                 for tab_id, title, render in TABS:
                     with Tab(title, value=tab_id):
