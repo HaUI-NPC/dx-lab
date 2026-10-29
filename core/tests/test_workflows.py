@@ -119,3 +119,22 @@ def test_detail_titles_form_fields_but_not_rule_outputs(client, headers_for):
 
     assert detail["data"]["level"] == "high"
     assert detail["field_titles"] == {"cost": "Chi phí"}
+
+
+def test_only_approver_steps_record_authority_basis_and_signing_type(client, headers_for, app):
+    from dxlab_core.audit.service import events_for
+
+    files = task_package()
+    metadata = json.loads(files["process_model.json"])
+    metadata["data_defaults"] |= {"authority_basis": "GĐ-X", "signing_type": "direct"}
+    files["process_model.json"] = json.dumps(metadata).encode()
+    activate(client, headers_for, files)
+    created = client.post("/api/workflows", headers=headers_for("sv.an"),
+                          json={"app_id": "mini", "data": {"cost": 3500000}}).json()
+    technician = headers_for("ktv.cuong", ["/haui/tt-cntt/it_technician"])
+    task_id = client.get("/api/tasks", headers=technician).json()["items"][0]["task_id"]
+    assert client.post(f"/api/tasks/{task_id}/complete", headers=technician, json={"data": {"ok": True}}).status_code == 200
+
+    with app.state.sessionmaker() as session:
+        (event,) = [e for e in events_for(session, "workflow", created["workflow_id"]) if e.action == "task.complete"]
+    assert "authority_basis" not in event.details and "signing_type" not in event.details
