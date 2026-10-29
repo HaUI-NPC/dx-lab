@@ -21,6 +21,7 @@ from dxlab_core.auth.principal import Principal
 from dxlab_core.definitions.engine import form_of
 from dxlab_core.definitions.service import active_version, files_of, loaded_package
 from dxlab_core.errors import ApiError, NotFound
+from dxlab_core.workflows import access
 from dxlab_core.workflows.models import Workflow
 
 SERIALIZER = BpmnWorkflowSerializer(BpmnWorkflowSerializer.configure(SPIFF_CONFIG))
@@ -90,6 +91,8 @@ def create(session: Session, principal: Principal, app_id: str, data: dict[str, 
     save_engine(instance, engine)
     session.add(instance)
     session.flush()
+    from dxlab_core.tasks.service import synchronize
+    synchronize(session, instance, engine)
     record(session, actor=principal, action="report.create", object_type="workflow", object_id=str(instance.id),
            details={"step_id": task.task_spec.bpmn_id, "version": definition.version})
     return instance
@@ -104,8 +107,7 @@ def find(session: Session, workflow_id: uuid.UUID, *, lock: bool = False) -> Wor
 
 
 def can_read(principal: Principal, instance: Workflow) -> bool:
-    # CORE-04a chưa mở hàng đợi nghiệp vụ: chỉ chủ phiếu xem được, mặc định từ chối người khác.
-    return principal.username == instance.created_by
+    return access.can_read(principal, instance)
 
 
 def summary(instance: Workflow) -> dict:
@@ -120,7 +122,7 @@ def detail(session: Session, principal: Principal, instance: Workflow) -> dict:
     if not can_read(principal, instance):
         raise ApiError(403, "FORBIDDEN_SCOPE", "Bạn không được xem phiếu này.", {"layer": 2})
     result = summary(instance)
-    result["data"] = instance.data
+    result["data"] = access.data_for(session, principal, instance)
     result["history"] = [{"actor": e.actor, "action": e.action, "step_id": e.details.get("step_id"),
                           "at": e.occurred_at, "details": e.details}
                          for e in events_for(session, "workflow", str(instance.id))]
