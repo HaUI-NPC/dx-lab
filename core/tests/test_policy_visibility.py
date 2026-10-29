@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import json
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -29,3 +31,31 @@ def test_sql_visibility_matches_workflow_access(client, app, headers_for):
             expected = {workflow.id for workflow in workflows if can_read(principal, workflow)}
             selected = set(session.scalars(select(Workflow.id).where(visible_clause(principal))))
             assert selected == expected
+
+
+def personal_package():
+    files = task_package()
+    schema = json.loads(files["report-schema.json"])
+    schema["properties"]["phone"] = {"type": "string", "x-personal-data": True}
+    files["report-schema.json"] = json.dumps(schema).encode()
+    return files
+
+
+def test_contact_reads_are_audited_for_others_but_not_for_the_reporter(client, app, headers_for):
+    from dxlab_core.audit.service import events_for
+
+    activate(client, headers_for, personal_package())
+    own = headers_for("sv.an")
+    created = client.post("/api/workflows", headers=own,
+                          json={"app_id": "mini", "data": {"cost": 3500000, "phone": "0901234567"}}).json()
+    wid = created["workflow_id"]
+    auditor = headers_for("ksnb.phuong", ["/haui/ban-dbcl-ksnb/internal_auditor"])
+
+    mine = client.get(f"/api/workflows/{wid}", headers=own).json()
+    seen = client.get(f"/api/workflows/{wid}", headers=auditor).json()
+
+    assert mine["data"]["phone"] == seen["data"]["phone"] == "0901234567"
+    with app.state.sessionmaker() as session:
+        logged = [(e.actor, e.action) for e in events_for(session, "workflow", wid)]
+    assert logged == [("sv.an", "report.create"), ("ksnb.phuong", "reporter_contact.read")]
+    assert [e["action"] for e in mine["history"]] == ["report.create"]
