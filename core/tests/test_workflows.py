@@ -138,3 +138,15 @@ def test_only_approver_steps_record_authority_basis_and_signing_type(client, hea
     with app.state.sessionmaker() as session:
         (event,) = [e for e in events_for(session, "workflow", created["workflow_id"]) if e.action == "task.complete"]
     assert "authority_basis" not in event.details and "signing_type" not in event.details
+
+
+def test_form_errors_point_at_the_field_and_are_vietnamese(client, headers_for):
+    activate(client, headers_for, task_package())
+    reporter = headers_for("sv.an")
+
+    missing = client.post("/api/workflows", headers=reporter, json={"app_id": "mini", "data": {}})
+    wrong_type = client.post("/api/workflows", headers=reporter, json={"app_id": "mini", "data": {"cost": "nhiều"}})
+
+    assert missing.status_code == wrong_type.status_code == 422
+    assert missing.json()["error"]["details"]["errors"] == [{"path": "cost", "message": "Thiếu trường bắt buộc."}]
+    assert wrong_type.json()["error"]["details"]["errors"] == [{"path": "cost", "message": "Sai kiểu dữ liệu."}]
