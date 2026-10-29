@@ -12,6 +12,7 @@ from dxlab_core.auth.router import router as auth_router
 from dxlab_core.auth.tokens import TokenVerifier
 from dxlab_core.config import Settings, get_settings
 from dxlab_core.db import make_engine, make_sessionmaker
+from dxlab_core.definitions.router import router as definitions_router
 from dxlab_core.errors import ErrorResponse, install_error_handlers
 from dxlab_core.health.router import router as health_router
 from dxlab_core.request_id import RequestIdMiddleware, configure_logging
@@ -42,6 +43,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(health_router, prefix=API_PREFIX)
     app.include_router(auth_router, prefix=API_PREFIX)
+    app.include_router(definitions_router, prefix=API_PREFIX)
     return app
 
 

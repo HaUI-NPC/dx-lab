@@ -44,4 +44,6 @@ def get_session(request: Request) -> Iterator[Session]:
             raise
 
 
-DbSession = Annotated[Session, Depends(get_session)]
+# `scope="function"`: commit ngay khi route trả kết quả, TRƯỚC khi gửi phản hồi. Mặc định FastAPI chạy phần sau
+# `yield` sau khi đã gửi phản hồi, nên client gọi tiếp ngay (nạp rồi duyệt) có thể chưa thấy dữ liệu vừa ghi.
+DbSession = Annotated[Session, Depends(get_session, scope="function")]

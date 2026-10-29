@@ -6,5 +6,6 @@
 
 from dxlab_core.audit import models as audit_models  # noqa: F401
 from dxlab_core.db import Base
+from dxlab_core.definitions import models as definitions_models  # noqa: F401
 
 metadata = Base.metadata
