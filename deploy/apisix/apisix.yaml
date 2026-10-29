@@ -1,0 +1,78 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# APISIX chế độ standalone (config_provider: yaml, không etcd): docs/ARCHITECTURE.md mục 3, 4.
+# Tệp này được mount vào /usr/local/apisix/conf/apisix.yaml; APISIX tự nạp lại khi tệp đổi.
+# Dòng `#END` ở cuối là bắt buộc: thiếu thì APISIX coi tệp chưa ghi xong và bỏ qua.
+#
+# - Công khai (không cần token): GET /api/health, /api/openapi.json, /api/docs*.
+# - Mọi đường dẫn khác dưới /api/: bắt buộc `Authorization: Bearer`; APISIX kiểm chữ ký (JWKS của Keycloak),
+#   hạn và issuer, giới hạn tần suất, gắn X-Request-Id. Core vẫn tự kiểm lại JWT và `aud` (APISIX chặn sớm,
+#   core quyết định).
+# - Không viết lại đường dẫn: core nhận nguyên /api/...
+
+upstreams:
+  - id: core
+    type: roundrobin
+    scheme: http
+    nodes:
+      "core:8000": 1
+    timeout:
+      connect: 3
+      send: 30
+      read: 60
+
+routes:
+  - id: core-public
+    name: core-public
+    uris:
+      - /api/health
+      - /api/openapi.json
+      - /api/docs*
+    methods: [GET, HEAD]
+    priority: 10
+    upstream_id: core
+    plugins:
+      request-id:
+        header_name: X-Request-Id
+        include_in_response: true
+
+  - id: core-api
+    name: core-api
+    uri: /api/*
+    priority: 0
+    upstream_id: core
+    plugins:
+      openid-connect:
+        # Chỉ kiểm Bearer token, không bao giờ chuyển hướng đăng nhập (trả 401).
+        bearer_only: true
+        # Discovery qua mạng compose. Keycloak chạy với KC_HOSTNAME + KC_HOSTNAME_BACKCHANNEL_DYNAMIC nên tài
+        # liệu discovery lấy từ đây có `issuer` là URL công khai (http://localhost:8180/realms/dxlab) — đúng với
+        # `iss` trong token — còn `jwks_uri` trỏ về keycloak:8080.
+        discovery: http://keycloak:8080/realms/dxlab/.well-known/openid-configuration
+        use_jwks: true
+        # Plugin yêu cầu client_id; chế độ bearer_only + use_jwks không gọi Keycloak bằng client này và không cần secret.
+        client_id: dxlab-core
+        ssl_verify: false
+        timeout: 5
+        # Không thêm header nào vào request gửi core: core không tin header do gateway thêm
+        # (trừ X-Request-Id); Authorization của client được giữ nguyên.
+        set_access_token_header: false
+        set_id_token_header: false
+        set_userinfo_header: false
+        set_refresh_token_header: false
+        access_token_in_authorization_header: false
+      limit-count:
+        # Giới hạn theo token của từng người: portal và MCP gọi từ một địa chỉ IP cho nhiều người dùng.
+        key_type: var
+        key: http_authorization
+        count: 300
+        time_window: 60
+        rejected_code: 429
+        policy: local
+        show_limit_quota_header: true
+      request-id:
+        header_name: X-Request-Id
+        include_in_response: true
+#END
