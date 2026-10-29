@@ -1,0 +1,84 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Spiff Editor (SpiffArena) chạy cục bộ làm công cụ soạn BPMN/DMN cho `apps/`.
+# KHÔNG thuộc compose sản phẩm (`deploy/compose.yaml`) và không nói chuyện với core.
+#
+# Khác với compose gốc của SpiffArena:
+#   - Ba image ghim digest (không dùng `latest`).
+#   - Xác thực của editor tắt (một người, một máy) nên mọi cổng chỉ bind 127.0.0.1.
+#   - Mount GỐC repo (không phải `apps/`) để script khởi động nhận ra repo git, không `git init` lồng.
+#   - Không tự commit khi lưu; người dùng commit bằng git.
+#   - Cơ sở dữ liệu SQLite của editor nằm trên tmpfs (chỉ chứa phiên làm việc), không cần quyền chown volume.
+#
+# Chạy:  docker compose -f tools/spiff-editor/compose.yaml up -d
+# Mở:    http://127.0.0.1:8600
+# Dừng:  docker compose -f tools/spiff-editor/compose.yaml down
+
+name: dxlab-spiff-editor
+
+services:
+  spiffworkflow-frontend:
+    image: ghcr.io/sartography/spiffworkflow-frontend:main-latest@sha256:c054f3a7f912e773d897110435f38f4ff664a4f738d4063c622a88328092c9fc
+    depends_on:
+      spiffworkflow-backend:
+        condition: service_healthy
+    environment:
+      APPLICATION_ROOT: "/"
+      PORT0: "${SPIFF_EDITOR_FRONTEND_PORT:-8600}"
+      # Trình duyệt gọi thẳng backend; địa chỉ phải khớp cổng đã publish bên dưới.
+      SPIFFWORKFLOW_FRONTEND_RUNTIME_CONFIG_BACKEND_BASE_URL: "http://127.0.0.1:${SPIFF_EDITOR_BACKEND_PORT:-8601}/v1.0"
+    ports:
+      - "127.0.0.1:${SPIFF_EDITOR_FRONTEND_PORT:-8600}:${SPIFF_EDITOR_FRONTEND_PORT:-8600}/tcp"
+
+  spiffworkflow-backend:
+    image: ghcr.io/sartography/spiffworkflow-backend:main-latest@sha256:f648b63cee511062e2361001eba9dec5a5a0d0396dfc932a86b490d17b839dfe
+    # Để tệp ghi vào repo thuộc đúng người dùng trên Linux:  RUN_AS="$(id -u):$(id -g)" docker compose ... up -d
+    user: "${RUN_AS:-0:0}"
+    depends_on:
+      spiffworkflow-connector:
+        condition: service_started
+    environment:
+      SPIFFWORKFLOW_BACKEND_ENV: "local_docker"
+      FLASK_DEBUG: "0"
+      FLASK_SESSION_SECRET_KEY: "chi-dung-cuc-bo-khong-phai-secret"
+      SPIFFWORKFLOW_BACKEND_URL: "http://127.0.0.1:${SPIFF_EDITOR_BACKEND_PORT:-8601}"
+      SPIFFWORKFLOW_BACKEND_FRONTEND_URL: "http://127.0.0.1:${SPIFF_EDITOR_FRONTEND_PORT:-8600}"
+      SPIFFWORKFLOW_BACKEND_PORT: "${SPIFF_EDITOR_BACKEND_PORT:-8601}"
+      # Gốc repo, không phải apps/ (xem ghi chú đầu tệp).
+      SPIFFWORKFLOW_BACKEND_BPMN_SPEC_ABSOLUTE_DIR: "/app/process_models"
+      SPIFFWORKFLOW_BACKEND_CONNECTOR_PROXY_URL: "http://spiffworkflow-connector:8004"
+      SPIFFWORKFLOW_BACKEND_DATABASE_TYPE: "sqlite"
+      SPIFFWORKFLOW_BACKEND_DATABASE_URI: "sqlite:////app/db_volume/db.sqlite3"
+      SPIFFWORKFLOW_BACKEND_UPGRADE_DB: "true"
+      SPIFFWORKFLOW_BACKEND_LOAD_FIXTURE_DATA: "false"
+      SPIFFWORKFLOW_BACKEND_LOG_LEVEL: "INFO"
+      SPIFFWORKFLOW_BACKEND_RUN_BACKGROUND_SCHEDULER_IN_CREATE_APP: "false"
+      # Tắt xác thực: chỉ an toàn vì mọi cổng bind 127.0.0.1.
+      SPIFFWORKFLOW_BACKEND_AUTHENTICATION_DISABLED: "true"
+      SPIFFWORKFLOW_BACKEND_PERMISSIONS_FILE_NAME: "example.yml"
+      # Không tự commit khi lưu.
+      SPIFFWORKFLOW_BACKEND_GIT_COMMIT_ON_SAVE: "false"
+    ports:
+      - "127.0.0.1:${SPIFF_EDITOR_BACKEND_PORT:-8601}:${SPIFF_EDITOR_BACKEND_PORT:-8601}/tcp"
+    volumes:
+      - ../..:/app/process_models
+      # Chỉ cần khi thư mục repo là git worktree (`.git` là TỆP trỏ ra đường dẫn tuyệt đối trên máy chủ): gắn
+      # thư mục git chung vào ĐÚNG đường dẫn đó, chỉ đọc, để `git rev-parse` trong container thấy repo và
+      # không chạy `git init`. Checkout thường (`.git` là thư mục) không cần đặt biến: mặc định là no-op.
+      - ${SPIFF_EDITOR_GIT_COMMON_DIR:-../../.git}:${SPIFF_EDITOR_GIT_COMMON_DIR:-/var/dxlab-git-common}:ro
+    tmpfs:
+      - /app/db_volume:mode=1777
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:${SPIFF_EDITOR_BACKEND_PORT:-8601}/v1.0/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  spiffworkflow-connector:
+    image: ghcr.io/sartography/connector-proxy-demo:latest@sha256:a5fba453f843b1e36f5b7baad29ddcfa2f4376bbe3fecaf707d4576ee09f1f8b
+    environment:
+      CONNECTOR_PROXY_PORT: "8004"
+    # Không publish cổng: chỉ backend trong mạng compose gọi tới.
