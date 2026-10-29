@@ -1,0 +1,231 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Phát hành: đẩy tag `v*` → đóng gói mã nguồn (tar.gz từ `git archive`), SHA256SUMS, SBOM (syft),
+# rồi tạo GitHub Release đính kèm các tệp đó, ghi chú lấy từ mục phiên bản trong CHANGELOG.md.
+#
+# Kiểm thử không cần tag thật: `pull_request` và `workflow_dispatch` chạy đúng các bước đóng gói
+# ở chế độ dry-run (tên tệp `dx-lab-dryrun-<sha7>`, ghi chú lấy từ `[Unreleased]`), tải lên artifact
+# của run nhưng KHÔNG tạo Release. Chỉ job `publish` có `contents: write` và chỉ chạy khi push tag.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+# Quyền tối thiểu cho toàn bộ workflow (OpenSSF Security Baseline OSPS-AC-04).
+permissions:
+  contents: read
+
+env:
+  # Công cụ phát hành ghim phiên bản + sha256 của bản nhị phân (checksums.txt của chính bản phát hành syft).
+  SYFT_VERSION: "1.55.0"
+  SYFT_SHA256: bb65249542db5fedeeb4d3f9b018b75e7264dbfbbb10486f044581a92f90490d  # syft_1.55.0_linux_amd64.tar.gz
+  SYFT_CHECK_FOR_APP_UPDATE: "false"
+
+jobs:
+  package:
+    name: Đóng gói tar.gz, SHA256SUMS, SBOM
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      publish: ${{ steps.meta.outputs.publish }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Xác định tên bản phát hành, kiểm tra tag khớp phiên bản
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+            publish=true
+            semver='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$'
+            if ! [[ "$tag" =~ $semver ]]; then
+              echo "::error::Tag '$tag' không theo SemVer 2.0.0 (dạng vX.Y.Z hoặc vX.Y.Z-rc.N)."
+              exit 1
+            fi
+          else
+            tag="dryrun-$(git rev-parse --short=7 HEAD)"
+            publish=false
+          fi
+          # Phiên bản trong mọi pyproject.toml của workspace phải bằng nhau; tag phải khớp chúng.
+          python3 - "$tag" "$publish" <<'PY'
+          import subprocess, sys, tomllib
+          tag, publish = sys.argv[1], sys.argv[2] == "true"
+          files = subprocess.check_output(
+              ["git", "ls-files", "pyproject.toml", "*/pyproject.toml"], text=True
+          ).split()
+          versions = {}
+          for f in files:
+              with open(f, "rb") as fh:
+                  versions[f] = tomllib.load(fh)["project"]["version"]
+          for f, v in versions.items():
+              print(f"{f}: {v}")
+          if len(set(versions.values())) != 1:
+              sys.exit("::error::Các pyproject.toml không cùng một phiên bản.")
+          version = next(iter(versions.values()))
+          if publish and tag != f"v{version}":
+              sys.exit(f"::error::Tag {tag} không khớp phiên bản {version} trong pyproject.toml.")
+          PY
+          {
+            echo "tag=$tag"
+            echo "publish=$publish"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Tạo tar.gz từ cây mã của commit (git archive)
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist-release
+          # `gzip -n`: không ghi tên tệp/giờ vào header, cùng commit cho cùng một tệp byte-for-byte.
+          git archive --format=tar --prefix="dx-lab-${TAG}/" HEAD | gzip -n -9 > "dist-release/dx-lab-${TAG}.tar.gz"
+          ls -l dist-release
+
+      - name: Kiểm tra nội dung gói (không venv, node_modules, secret, ghi chú nội bộ)
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          tar -tzf "dist-release/dx-lab-${TAG}.tar.gz" > tar-listing.txt
+          wc -l tar-listing.txt
+          bad="$(grep -E '(^|/)(\.venv|node_modules|\.local|__pycache__)/|(^|/)\.env$' tar-listing.txt || true)"
+          if [ -n "$bad" ]; then
+            echo "::error::Gói chứa thứ không được phát hành:"
+            echo "$bad"
+            exit 1
+          fi
+          for f in LICENSE README.md CHANGELOG.md REUSE.toml uv.lock; do
+            grep -qxF "dx-lab-${TAG}/${f}" tar-listing.txt || { echo "::error::Gói thiếu ${f}"; exit 1; }
+          done
+
+      - name: Cài syft (ghim phiên bản, kiểm sha256 trước khi giải nén)
+        run: |
+          set -euo pipefail
+          archive="syft_${SYFT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$archive" \
+            "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/${archive}"
+          echo "${SYFT_SHA256}  $RUNNER_TEMP/$archive" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/syft"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/syft" syft
+          echo "$RUNNER_TEMP/syft" >> "$GITHUB_PATH"
+
+      - name: SBOM của mã nguồn (SPDX JSON và CycloneDX JSON) từ chính tar.gz
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          syft --version
+          # Giải nén gói ra thư mục riêng rồi quét: syft đọc uv.lock/pyproject.toml của đúng nội dung phát hành.
+          src="$RUNNER_TEMP/sbom-src"
+          mkdir -p "$src"
+          tar -xzf "dist-release/dx-lab-${TAG}.tar.gz" -C "$src"
+          syft scan "dir:$src/dx-lab-${TAG}" \
+            --source-name dx-lab --source-version "$TAG" \
+            -o "spdx-json=dist-release/dx-lab-${TAG}.spdx.json" \
+            -o "cyclonedx-json=dist-release/dx-lab-${TAG}.cdx.json"
+          python3 - "dist-release/dx-lab-${TAG}.spdx.json" "dist-release/dx-lab-${TAG}.cdx.json" <<'PY'
+          import json, sys
+          spdx = json.load(open(sys.argv[1]))
+          cdx = json.load(open(sys.argv[2]))
+          print("SPDX packages:", len(spdx.get("packages", [])))
+          print("CycloneDX components:", len(cdx.get("components", [])))
+          if not cdx.get("components"):
+              sys.exit("::error::SBOM rỗng: syft không tìm thấy thành phần nào trong gói.")
+          PY
+
+      - name: Tạo SHA256SUMS và kiểm lại bằng sha256sum -c
+        working-directory: dist-release
+        run: |
+          set -euo pipefail
+          sha256sum -- *.tar.gz *.spdx.json *.cdx.json > SHA256SUMS
+          cat SHA256SUMS
+          sha256sum -c SHA256SUMS
+
+      - name: Trích ghi chú phát hành từ CHANGELOG.md
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+          PUBLISH: ${{ steps.meta.outputs.publish }}
+        run: |
+          set -euo pipefail
+          if [ "$PUBLISH" = "true" ]; then
+            heading="${TAG#v}"
+          else
+            heading="Unreleased"
+          fi
+          # Lấy phần thân của `## [<heading>]` tới mục `## ` kế tiếp hoặc dòng định nghĩa liên kết cuối tệp.
+          awk -v h="## [$heading]" '
+            index($0, h) == 1 { on = 1; next }
+            on && /^## / { exit }
+            on && /^\[[^]]+\]: / { exit }
+            on && /^[[:space:]]*$/ { blank++; next }
+            on { if (shown) for (i = 0; i < blank; i++) print ""; blank = 0; shown = 1; print }
+          ' CHANGELOG.md > release-notes.body.md
+          if ! grep -q '[^[:space:]]' release-notes.body.md; then
+            echo "::error::CHANGELOG.md không có mục '## [$heading]' hoặc mục rỗng."
+            exit 1
+          fi
+          {
+            cat release-notes.body.md
+            echo
+            echo "## Kiểm tra tệp tải về"
+            echo
+            echo '```bash'
+            echo 'sha256sum -c SHA256SUMS'
+            echo '```'
+            echo
+            echo "- \`dx-lab-${TAG}.tar.gz\`: cây mã nguồn của tag \`${TAG}\` (\`git archive\`)."
+            echo "- \`dx-lab-${TAG}.spdx.json\`, \`dx-lab-${TAG}.cdx.json\`: SBOM của mã nguồn (syft ${SYFT_VERSION}), dạng SPDX và CycloneDX."
+          } > dist-release/release-notes.md
+          cat dist-release/release-notes.md
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-assets
+          path: dist-release/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Tạo GitHub Release
+    needs: package
+    if: needs.package.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.package.outputs.tag }}
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-assets
+          path: dist-release
+
+      - name: Kiểm lại checksum trước khi phát hành
+        working-directory: dist-release
+        run: sha256sum -c SHA256SUMS
+
+      - name: Tạo Release (tag chứa dấu "-" là bản tiền phát hành)
+        working-directory: dist-release
+        run: |
+          set -euo pipefail
+          flags=()
+          case "$TAG" in *-*) flags+=(--prerelease) ;; esac
+          gh release create "$TAG" \
+            "dx-lab-${TAG}.tar.gz" SHA256SUMS "dx-lab-${TAG}.spdx.json" "dx-lab-${TAG}.cdx.json" \
+            --title "DX-Lab ${TAG}" \
+            --notes-file release-notes.md \
+            --verify-tag \
+            "${flags[@]}"
