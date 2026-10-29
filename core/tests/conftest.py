@@ -123,3 +123,10 @@ def headers_for(token_for: TokenFactory) -> HeadersFactory:
 def client(app: FastAPI) -> Iterator[TestClient]:
     with TestClient(app, raise_server_exceptions=False) as test_client:
         yield test_client
+
+
+@pytest.fixture
+def clean_data(app: FastAPI) -> None:
+    """Xóa dữ liệu nghiệp vụ và audit trước test: database chung cả phiên chạy nên test nào cần bảng trống phải dùng."""
+    with app.state.engine.begin() as conn:
+        conn.execute(text("TRUNCATE records, record_types, documents, audit_events RESTART IDENTITY CASCADE"))
