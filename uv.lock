@@ -421,6 +421,7 @@ dependencies = [
     { name = "alembic" },
     { name = "fastapi" },
     { name = "fastembed" },
+    { name = "httpx" },
     { name = "jsonschema" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pydantic-settings" },
@@ -432,16 +433,12 @@ dependencies = [
     { name = "zvec" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "httpx" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.20.1" },
     { name = "fastapi", specifier = ">=0.121" },
     { name = "fastembed", specifier = ">=0.9.1" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "jsonschema", specifier = ">=4.26.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2" },
     { name = "pydantic-settings", specifier = ">=2.16.2" },
@@ -452,9 +449,6 @@ requires-dist = [
     { name = "uvicorn", specifier = ">=0.30" },
     { name = "zvec", specifier = "==0.8.0" },
 ]
-
-[package.metadata.requires-dev]
-dev = [{ name = "httpx", specifier = ">=0.28.1" }]
 
 [[package]]
 name = "dxlab-portal"
