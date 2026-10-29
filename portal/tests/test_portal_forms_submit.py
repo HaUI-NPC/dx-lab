@@ -27,16 +27,16 @@ CREATED = {
 
 
 def serve_start_form(core: FakeCore) -> None:
+    form = {
+        "app_id": "lab-repair",
+        "version": "1",
+        "step_id": "report",
+        "step_name": "Báo hỏng",
+        "schema": load_app_json("lab-repair", "report-schema.json"),
+        "uischema": load_app_json("lab-repair", "report-uischema.json"),
+    }
     core.routes[("GET", "/api/definitions/lab-repair/start-form")] = lambda request: httpx.Response(
-        200,
-        json={
-            "app_id": "lab-repair",
-            "version": "1",
-            "step_id": "report",
-            "step_name": "Báo hỏng",
-            "schema": load_app_json("lab-repair", "report-schema.json"),
-            "uischema": load_app_json("lab-repair", "report-uischema.json"),
-        },
+        200, json=form
     )
 
 
