@@ -36,6 +36,10 @@
       "label": "2. Phương án và ước tính chi phí",
       "elements": [
         {
+          "type": "Control",
+          "scope": "#/properties/assessment_result"
+        },
+        {
           "type": "HorizontalLayout",
           "elements": [
             {
@@ -66,6 +70,10 @@
       "type": "Group",
       "label": "3. Danh sách báo giá đính kèm",
       "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/quote_count"
+        },
         {
           "type": "Control",
           "scope": "#/properties/quotes",

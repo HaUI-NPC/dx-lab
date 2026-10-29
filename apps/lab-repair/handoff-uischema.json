@@ -1,0 +1,8 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {"type": "Control", "scope": "#/properties/handoff_type"},
+    {"type": "Control", "scope": "#/properties/handoff_reason", "options": {"multi": true}},
+    {"type": "Control", "scope": "#/properties/handoff_request_code"}
+  ]
+}
