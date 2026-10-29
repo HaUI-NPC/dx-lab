@@ -11,7 +11,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dxlab}
       POSTGRES_USER: ${POSTGRES_USER:-dxlab}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Thiếu POSTGRES_PASSWORD trong .env}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -29,12 +29,13 @@ services:
       - "127.0.0.1:8180:8080"
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
-      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD:?Thiếu KC_BOOTSTRAP_ADMIN_PASSWORD trong .env}
       KC_HOSTNAME: ${DXLAB_KEYCLOAK_PUBLIC_URL:-http://localhost:8180}
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_HEALTH_ENABLED: "true"
-      DXLAB_PORTAL_CLIENT_SECRET: ${DXLAB_PORTAL_CLIENT_SECRET}
-      DXLAB_DEMO_PASSWORD: ${DXLAB_DEMO_PASSWORD}
+      DXLAB_PORTAL_CLIENT_SECRET: ${DXLAB_PORTAL_CLIENT_SECRET:?Thiếu DXLAB_PORTAL_CLIENT_SECRET trong .env}
+      DXLAB_DEMO_PASSWORD: ${DXLAB_DEMO_PASSWORD:?Thiếu DXLAB_DEMO_PASSWORD trong .env}
+      DXLAB_DEMO_OTP_SECRET: ${DXLAB_DEMO_OTP_SECRET:-}
       DXLAB_PORTAL_PUBLIC_URL: ${DXLAB_PORTAL_PUBLIC_URL:-http://localhost:8000}
     volumes:
       - keycloak-data:/opt/keycloak/data
@@ -43,7 +44,7 @@ services:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e \"GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && cat <&3 | grep -q \"200 OK\"'"]
       interval: 5s
       timeout: 3s
-      retries: 15
+      retries: 40
       start_period: 15s
 
   core:
@@ -52,7 +53,7 @@ services:
       dockerfile: core/Dockerfile
     restart: unless-stopped
     environment:
-      DXLAB_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-dxlab}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-dxlab}
+      DXLAB_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-dxlab}:${POSTGRES_PASSWORD:?Thiếu POSTGRES_PASSWORD trong .env}@postgres:5432/${POSTGRES_DB:-dxlab}
       DXLAB_OIDC_ISSUER: ${DXLAB_KEYCLOAK_PUBLIC_URL:-http://localhost:8180}/realms/dxlab
       DXLAB_OIDC_INTERNAL_URL: http://keycloak:8080/realms/dxlab
       DXLAB_OIDC_AUDIENCE: dxlab-core
@@ -74,8 +75,6 @@ services:
       start_period: 10s
     depends_on:
       postgres:
-        condition: service_healthy
-      keycloak:
         condition: service_healthy
 
   apisix:
@@ -110,8 +109,8 @@ services:
       - "127.0.0.1:8000:8000"
     environment:
       DXLAB_PORTAL_PUBLIC_URL: ${DXLAB_PORTAL_PUBLIC_URL:-http://localhost:8000}
-      DXLAB_PORTAL_SESSION_SECRET: ${DXLAB_PORTAL_SESSION_SECRET}
-      DXLAB_PORTAL_CLIENT_SECRET: ${DXLAB_PORTAL_CLIENT_SECRET}
+      DXLAB_PORTAL_SESSION_SECRET: ${DXLAB_PORTAL_SESSION_SECRET:?Thiếu DXLAB_PORTAL_SESSION_SECRET trong .env}
+      DXLAB_PORTAL_CLIENT_SECRET: ${DXLAB_PORTAL_CLIENT_SECRET:?Thiếu DXLAB_PORTAL_CLIENT_SECRET trong .env}
       DXLAB_PORTAL_CLIENT_ID: dxlab-portal
       DXLAB_OIDC_ISSUER: ${DXLAB_KEYCLOAK_PUBLIC_URL:-http://localhost:8180}/realms/dxlab
       DXLAB_OIDC_INTERNAL_URL: http://keycloak:8080/realms/dxlab
