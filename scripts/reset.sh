@@ -28,6 +28,12 @@ if [ "${1:-}" != "--yes" ] && [ "${1:-}" != "-y" ]; then
   [ "$answer" = "yes" ] || { echo "Đã hủy."; exit 1; }
 fi
 
-docker compose --env-file .env -f deploy/compose.yaml -p dxlab down -v --remove-orphans
+if [ -f .env ]; then
+  docker compose --env-file .env -f deploy/compose.yaml -p dxlab down -v --remove-orphans
+else
+  # Chưa có .env (cây mới): `down` không cần giá trị thật, chỉ cần đủ biến bắt buộc để compose đọc được tệp.
+  POSTGRES_PASSWORD=x KC_BOOTSTRAP_ADMIN_PASSWORD=x DXLAB_PORTAL_CLIENT_SECRET=x DXLAB_DEMO_PASSWORD=x \
+    DXLAB_PORTAL_SESSION_SECRET=x docker compose -f deploy/compose.yaml -p dxlab down -v --remove-orphans
+fi
 scripts/up.sh
 scripts/seed.sh
