@@ -133,7 +133,7 @@ datasets:
     origin: "Tự viết nội dung kỹ thuật"
     checksum:
       algorithm: "sha256"
-      value: "682c737c7d23b729c618dd65d2931fd93a19d6c666f60426b239ad527c067b98"
+      value: "d70feb0af3c46e63af589baee5a6c7b2e5c94f7f8a9af35c4befd5a347899826"
 
   - id: "sop-lab-02"
     title: "SOP-LAB-02: Xử lý sự cố trạm hàn nhiệt không gia nhiệt hoặc hỏng mũi hàn"
@@ -146,4 +146,4 @@ datasets:
     origin: "Tự viết nội dung kỹ thuật"
     checksum:
       algorithm: "sha256"
-      value: "52107111c29fafa69dfaf0f0d19e587ad2d46675d8a6ec37aab1e8dd6857b5cb"
+      value: "5529dbcf28b6fb061593e8ba0adba5a6a62be021a1d59f03b807c0984e5c0ccd"

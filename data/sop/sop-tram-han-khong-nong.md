@@ -29,17 +29,16 @@ SPDX-License-Identifier: CC-BY-4.0
 ### Bước 1: Kiểm tra an toàn và kết nối giắc cắm
 1. Tắt công tắc nguồn trạm hàn và rút phích cắm điện AC 220V.
 2. Kiểm tra giắc cắm nối tay hàn với thân máy chính: vặn vòng ren khóa chắc chắn, đảm bảo các chân kim tiếp xúc không bị cong gập hoặc rỉ sét.
-3. Bật máy kiểm tra lại: nếu máy tiếp tục báo lỗi `H-E` (Heater Error) thì tiến hành tháo tay hàn để đo kiểm điện trở nội.
+3. Nếu máy tiếp tục báo lỗi, tắt nguồn, rút phích cắm và đợi tay hàn nguội hoàn toàn trước khi tháo hoặc đo.
 
 ### Bước 2: Đo kiểm tra lõi gia nhiệt và cảm biến nhiệt
 1. Rút giắc cắm tay hàn khỏi thân máy.
 2. Sử dụng đồng hồ vạn năng chuyển sang thang đo điện trở Ohm.
-3. Tiến hành đo giữa các cặp chân trên giắc cắm tay hàn (đối chiếu sơ đồ chân tiêu chuẩn Hakko FX-888D):
-   - **Chân lõi sưởi (Heater Resistance):** Đo giữa chân 1 và chân 2; giá trị điện trở chuẩn khi nguội phải nằm trong khoảng từ 2.5 Ohm đến 4.0 Ohm. Nếu đo được `OL` (vô cùng lớn), cuộn may-so sưởi đã bị đứt hoàn toàn.
-   - **Chân cảm biến nhiệt (Sensor Resistance):** Đo giữa chân 4 và chân 5; giá trị điện trở chuẩn khi ở nhiệt độ phòng (25°C) phải nằm trong khoảng từ 45 Ohm đến 55 Ohm. Nếu giá trị quá cao hoặc ngắn mạch về 0 Ohm, cảm biến nhiệt đã hỏng.
-   - **Chân tiếp địa chống tĩnh điện (ESD Ground):** Đo giữa chân mũi hàn và chân tiếp địa giắc cắm; điện trở bắt buộc phải nhỏ hơn 2 Ohm.
+3. Chỉ người đã được hướng dẫn mới thực hiện đo và tháo lắp. Đối chiếu sơ đồ chân, phương pháp đo và giới hạn điện trở với tài liệu chính thức của đúng mẫu thiết bị; không dùng trị số của mẫu khác để kết luận an toàn.
+4. Nếu nghi ngờ hỏng lõi sưởi, cảm biến hoặc tiếp địa, ngừng sử dụng và chuyển cho kỹ thuật viên có chuyên môn.
 
 ### Bước 3: Thay thế lõi may-so gia nhiệt bị hỏng
+Chỉ thực hiện sau khi ngắt điện, rút phích cắm và để tay hàn nguội hoàn toàn; thao tác hàn, tháo linh kiện có nguy cơ bỏng và chỉ dành cho người đã được hướng dẫn.
 1. Tháo nắp vặn ren kim loại chụp ngoài mũi hàn, nhẹ nhàng rút mũi hàn ra ngoài.
 2. Vặn rời khớp nối thân nhựa tay cầm, rút nhẹ bo mạch nhỏ và cụm lõi sưởi gốm ra ngoài.
 3. Dùng mỏ hàn chì nhả mối hàn của 4 chân lõi gốm cũ trên bo mạch tay cầm.
@@ -55,4 +54,4 @@ SPDX-License-Identifier: CC-BY-4.0
 ## 5. Nghiệm thu
 - Màn hình trạm hàn đạt nhiệt độ cài đặt 350°C trong vòng 30 giây kể từ khi bật nguồn.
 - Mũi hàn bám thiếc sáng bóng, thiếc tan chảy đều mịn ngay khi chạm vào mũi hàn.
-- Thử nghiệm chạm thử mũi hàn vào linh kiện nhạy cảm không sinh điện áp rò (điện áp rò < 2mV RMS).
+- Kiểm tra an toàn điện và tiếp địa theo tài liệu chính thức của đúng mẫu, bằng thiết bị đo phù hợp; không đưa vào sử dụng nếu chưa đạt.
