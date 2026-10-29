@@ -5,7 +5,7 @@
 import json
 from types import SimpleNamespace
 
-from dxlab_core.workflows.authority import actor_has_authority, next_authority
+from dxlab_core.workflows.authority import actor_has_authority, escalate, next_authority
 from dxlab_core.workflows.privacy import mask_personal_data
 
 
@@ -40,6 +40,11 @@ def test_escalation_follows_dmn_outputs_without_fixed_amounts():
     event = SimpleNamespace(actor_roles=[{"role": "local", "unit": "/org/faculty"}])
     assert actor_has_authority(event, "local", "/org/faculty/room")
     assert not actor_has_authority(event, "local", "/org/other/room")
+    data = {"approver_role": "local", "approval_scope": "faculty",
+            "owner_faculty": "/org/faculty", "owner_school": "/org"}
+    escalate(workflow, data, [event])
+    assert data["approver_role"] == "higher"
+    assert data["approval_limit_vnd"] == 42
 
 
 def test_bound_room_overrides_untrusted_value(monkeypatch):
