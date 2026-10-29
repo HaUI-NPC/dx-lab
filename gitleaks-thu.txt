@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Tệp thử, KHÔNG merge: khóa AWS giả để kiểm tra gitleaks chặn PR.
+aws_access_key_id = AKIAQ7XK3MNP5HRT2WVB
