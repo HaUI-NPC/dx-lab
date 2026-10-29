@@ -18,6 +18,8 @@ from dxlab_core.documents import storage
 from dxlab_core.documents.models import KINDS, Document
 from dxlab_core.errors import ApiError, NotFound, ValidationFailed
 from dxlab_core.pagination import PageParams
+from dxlab_core.workflows.access import can_read, visible_clause
+from dxlab_core.workflows.models import Workflow
 
 # Ai được tải tài liệu lên [GĐ]: danh mục tri thức do Ban CSVC và người thiết kế quy trình quản;
 # báo giá còn do kỹ thuật viên đính kèm khi lập biên bản tình trạng (docs/AUTHZ.md mục 4, `technical_assessment.confirm`).
@@ -46,12 +48,18 @@ def _has_business_role(principal: Principal) -> bool:
 def visible_to(principal: Principal) -> ColumnElement[bool]:
     """Điều kiện SQL: tài liệu người này được xem (dùng cho danh sách và tìm kiếm).
 
-    SOP và tài liệu khác: mọi người đã đăng nhập. Báo giá: người tải lên và mọi người giữ một vai trò nghiệp vụ
-    (từ kỹ thuật viên đến lãnh đạo); người chỉ có vai trò `reporter` không thấy [GĐ].
+    Tài liệu gắn phiếu chỉ hiển thị cho người được xem phiếu đó. Tài liệu không gắn phiếu giữ quy tắc
+    danh mục [GĐ]: báo giá chỉ hiển thị cho người tải lên hoặc người giữ vai trò nghiệp vụ.
     """
-    if _has_business_role(principal):
-        return true()
-    return or_(Document.kind != "quote", Document.created_by == principal.username)
+    unlinked = true() if _has_business_role(principal) else or_(
+        Document.kind != "quote", Document.created_by == principal.username
+    )
+    linked = select(Workflow.id).where(
+        Workflow.id == Document.workflow_id,
+        Workflow.app_id == Document.app_id,
+        visible_clause(principal),
+    ).exists()
+    return or_(and_(Document.workflow_id.is_(None), unlinked), linked)
 
 
 def clean_filename(raw: str | None) -> str:
@@ -109,6 +117,10 @@ def create_document(
             errors.append({"path": field, "message": f"Dài tối đa {limit} ký tự."})
     if errors:
         raise ValidationFailed(errors)
+    if workflow_id is not None:
+        workflow = session.get(Workflow, workflow_id)
+        if workflow is None or workflow.app_id != app_id or not can_read(actor, workflow):
+            raise NotFound("Không tìm thấy phiếu.")
 
     name = clean_filename(filename)
     try:
