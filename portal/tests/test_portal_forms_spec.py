@@ -194,13 +194,15 @@ def test_truong_tuy_chon_de_trong_khong_gui_va_ngay_sai_bi_bao_loi() -> None:
     assert data["when"] == "2026-10-29"
 
 
-def test_truong_kieu_mang_hien_thong_bao_chua_ho_tro_va_khong_chan_gui() -> None:
-    from dxlab_portal.pages.forms.spec import Unsupported
-
+def test_truong_kieu_mang_duoc_hien_va_gui() -> None:
     spec = build_form(SCHEMA, None)
-    unsupported = [c for c in spec.root.children if isinstance(c, Unsupported)]
-    assert [u.name for u in unsupported] == ["attachments"]
-    assert "attachments" not in {f.name for f in spec.fields}
+    assert {f.name: f.kind for f in spec.fields}["attachments"] == "array"
+    data, errors = validate_form(spec, {
+        "amount": "0", "count": "1", "approved": False,
+        "decision": "rejected", "note": "Không đạt", "attachments": '["a.pdf"]',
+    })
+    assert errors == {}
+    assert data["attachments"] == ["a.pdf"]
 
 
 def test_o_danh_dau_const_khong_bao_gio_tick_san_ke_ca_khi_schema_dat_mac_dinh_true() -> None:
