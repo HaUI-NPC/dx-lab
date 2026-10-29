@@ -1,77 +1,56 @@
 #!/usr/bin/env bash
-#
 # SPDX-FileCopyrightText: 2026 DX-Lab contributors
 #
 # SPDX-License-Identifier: Apache-2.0
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$root"
 
-cd "${ROOT_DIR}"
-
-generate_secret() {
-  if command -v openssl >/dev/null 2>&1; then
-    openssl rand -hex 24
-  else
-    head -c 24 /dev/urandom | od -An -tx1 | tr -d ' \n'
-  fi
-}
-
-ENV_FILE=".env"
-ENV_EXAMPLE=".env.example"
-
-if [ ! -f "${ENV_FILE}" ]; then
-  if [ ! -f "${ENV_EXAMPLE}" ]; then
-    echo "Lỗi: Không tìm thấy ${ENV_EXAMPLE} để khởi tạo ${ENV_FILE}." >&2
-    exit 1
-  fi
-  echo "Tạo ${ENV_FILE} từ ${ENV_EXAMPLE}..."
-  cp "${ENV_EXAMPLE}" "${ENV_FILE}"
+if [ "$#" -ne 0 ]; then
+  echo "Dùng: scripts/up.sh (luôn khởi động toàn bộ dịch vụ)." >&2
+  exit 2
 fi
-
-# Sinh ngẫu nhiên các secret đang để trống trong .env
-SECRETS=(
-  "POSTGRES_PASSWORD"
-  "KC_BOOTSTRAP_ADMIN_PASSWORD"
-  "DXLAB_PORTAL_CLIENT_SECRET"
-  "DXLAB_DEMO_PASSWORD"
-  "DXLAB_PORTAL_SESSION_SECRET"
-)
-
-for secret_var in "${SECRETS[@]}"; do
-  if grep -q -E "^${secret_var}=$" "${ENV_FILE}"; then
-    new_val="$(generate_secret)"
-    sed -i "s|^${secret_var}=$|${secret_var}=${new_val}|" "${ENV_FILE}"
-    echo "Đã sinh secret ngẫu nhiên cho ${secret_var}."
-  fi
+for cmd in docker openssl; do
+  command -v "$cmd" >/dev/null 2>&1 || { echo "Lỗi: cần cài '$cmd'." >&2; exit 1; }
 done
+[ -f .env.example ] || { echo "Lỗi: không thấy .env.example." >&2; exit 1; }
 
-chmod 600 "${ENV_FILE}" 2>/dev/null || true
-
-# Tạo thư mục mount nếu chưa tồn tại
-mkdir -p deploy/keycloak deploy/apisix
-
-if [ $# -gt 0 ]; then
-  docker compose --env-file "${ENV_FILE}" -f deploy/compose.yaml up -d --wait "$@"
-else
-  # Khi core/Dockerfile hoặc portal/Dockerfile chưa sẵn sàng (đang trong PR CORE-01 / POR-01),
-  # khởi động các dịch vụ hạ tầng đã sẵn sàng để kiểm tra môi trường.
-  if [ -f "core/Dockerfile" ] && [ -f "portal/Dockerfile" ] && [ -f "deploy/apisix/apisix.yaml" ]; then
-    docker compose --env-file "${ENV_FILE}" -f deploy/compose.yaml up -d --wait
-  else
-    SERVICES=(postgres keycloak)
-    if [ -f "deploy/apisix/apisix.yaml" ]; then
-      SERVICES+=(apisix)
-    fi
-    if [ -f "core/Dockerfile" ]; then
-      SERVICES+=(core)
-    fi
-    if [ -f "portal/Dockerfile" ]; then
-      SERVICES+=(portal)
-    fi
-    echo "Khởi động các dịch vụ sẵn sàng (${SERVICES[*]}):"
-    docker compose --env-file "${ENV_FILE}" -f deploy/compose.yaml up -d --wait "${SERVICES[@]}"
-  fi
+if [ ! -f .env ]; then
+  cp .env.example .env
+  echo "Đã tạo .env từ .env.example."
 fi
+chmod 600 .env
+
+# Bổ sung biến mới mà không ghi đè cấu hình hiện có.
+while IFS= read -r line || [ -n "$line" ]; do
+  if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)= ]]; then
+    key="${BASH_REMATCH[1]}"
+    if ! grep -q -E "^${key}=" .env; then
+      printf '\n%s\n' "$line" >> .env
+      echo "Đã thêm biến ${key} vào .env."
+    fi
+  fi
+done < .env.example
+
+# Ghi qua tệp tạm để không phụ thuộc cú pháp sed -i giữa macOS và Linux.
+tmp="$(mktemp "${TMPDIR:-/tmp}/dxlab-env.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+while IFS= read -r line || [ -n "$line" ]; do
+  if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=$ ]]; then
+    key="${BASH_REMATCH[1]}"
+    printf '%s=%s\n' "$key" "$(openssl rand -hex 24)" >> "$tmp"
+    echo "Đã sinh secret ngẫu nhiên cho ${key}."
+  else
+    printf '%s\n' "$line" >> "$tmp"
+  fi
+done < .env
+cat "$tmp" > .env
+
+docker compose --env-file .env -f deploy/compose.yaml up -d --build --wait
+
+env_value() { grep -E "^$1=" .env | tail -n 1 | cut -d= -f2-; }
+portal_url="$(env_value DXLAB_PORTAL_PUBLIC_URL)"
+keycloak_url="$(env_value DXLAB_KEYCLOAK_PUBLIC_URL)"
+printf '\nDX-Lab đã chạy (mọi service healthy):\n  Portal    %s\n  API       http://localhost:9080/api\n  Keycloak  %s\n' "${portal_url:-http://localhost:8000}" "${keycloak_url:-http://localhost:8180}"
