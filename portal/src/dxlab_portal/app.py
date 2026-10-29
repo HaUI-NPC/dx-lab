@@ -105,7 +105,7 @@ def create_app(
         return {"status": "ok"}
 
     @app.get("/", include_in_schema=False, response_class=HTMLResponse)
-    async def index(request: Request, tab: str = "") -> Response:
+    async def index(request: Request, tab: str = "", task_id: str = "", workflow_id: str = "") -> Response:
         session = await current_session(request)
         if session is None:
             target = request.url.path + (f"?{request.url.query}" if request.url.query else "")
@@ -115,7 +115,8 @@ def create_app(
         if me.ok and isinstance(me.json, dict):
             user = user_from_me(me.json, user)
         ctx = PageContext(
-            user=user, access_token=session.access_token, core=portal_state(request).core, tab=tab
+            user=user, access_token=session.access_token, core=portal_state(request).core, tab=tab,
+            task_id=task_id, workflow_id=workflow_id,
         )
         return HTMLResponse(render_html(ctx, await load_tabs(ctx)))
 

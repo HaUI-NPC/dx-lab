@@ -55,9 +55,9 @@ def test_trang_bao_hong_sinh_form_tu_schema_cua_core(
         assert label in text
     state = prefab_wire(html)["state"]
     # AUTHZ §8: ô xác nhận thông báo xử lý dữ liệu không tick sẵn.
-    assert state["f_data_processing_consent"] is False
-    assert state["f_urgency"] == "normal"
-    assert all(v == "" for v in state["errors"].values())
+    assert state["report_f_data_processing_consent"] is False
+    assert state["report_f_urgency"] == "normal"
+    assert all(v == "" for v in state["report_errors"].values())
 
 
 def test_core_chua_co_route_thi_hien_dung_loi_cua_core_khong_dung_form_gia(
@@ -70,7 +70,7 @@ def test_core_chua_co_route_thi_hien_dung_loi_cua_core_khong_dung_form_gia(
     assert "Không có tài nguyên." in text  # nguyên message của core
     assert "NOT_FOUND" in text and "r-404" in text
     assert "Gửi phiếu báo hỏng" not in text
-    assert "f_reporter_name" not in prefab_wire(html).get("state", {})
+    assert "report_f_reporter_name" not in prefab_wire(html).get("state", {})
 
 
 def test_gui_thieu_truong_tra_loi_tieng_viet_dung_truong_va_khong_goi_core_tao_phieu(
