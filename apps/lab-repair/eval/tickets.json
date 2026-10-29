@@ -1,0 +1,962 @@
+[
+  {
+    "id": "T01",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-LIGHT-305-01",
+    "asset_category": "electrical",
+    "impact": "whole_room",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Mất điện toàn phòng từ đầu buổi, cả lớp 40 sinh viên không thực hành được.",
+    "label": {
+      "true_category": "electrical",
+      "priority": "P1",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T02",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-OSC-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "single",
+    "safety_hazard": true,
+    "urgency": "critical",
+    "issue_description": "Dao động ký có mùi khét, nóng bất thường, đã rút điện ra.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P1",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T03",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PC-305-02",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Máy tính giảng viên bốc khói nhẹ ở phần nguồn rồi tắt.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P1",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T04",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-SW-601-01",
+    "asset_category": "network",
+    "impact": "whole_room",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Switch chết, cả phòng A1-601 mất mạng giữa buổi thực hành mạng.",
+    "label": {
+      "true_category": "network",
+      "priority": "P1",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T05",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-AC-305-01",
+    "asset_category": "hvac",
+    "impact": "single",
+    "safety_hazard": true,
+    "urgency": "high",
+    "issue_description": "Dàn nóng điều hòa phát tia lửa, nước chảy xuống gần ổ cắm.",
+    "label": {
+      "true_category": "air_conditioner",
+      "priority": "P1",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T06",
+    "room_id": "lab-a1-306",
+    "asset_id": "AST-PC-306-01",
+    "asset_category": "computer",
+    "impact": "whole_room",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Toàn bộ máy trạm phòng 306 không vào được hệ điều hành sau lần cập nhật tối qua.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P1",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T07",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-DMM-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Đồng hồ vạn năng vỡ vỏ, lộ dây bên trong, có nguy cơ giật khi đo.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P1",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T08",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-LIGHT-305-01",
+    "asset_category": "electrical",
+    "impact": "single",
+    "safety_hazard": true,
+    "urgency": "critical",
+    "issue_description": "Ổ cắm dãy cuối phòng cháy xém, có mùi khét.",
+    "label": {
+      "true_category": "electrical",
+      "priority": "P1",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T09",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PROJ-305-01",
+    "asset_category": "projector",
+    "impact": "whole_room",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Máy chiếu hỏng, cả lớp ngồi chờ, giảng viên dùng bảng thay thế được.",
+    "label": {
+      "true_category": "projector",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T10",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-WIFI-601-01",
+    "asset_category": "network",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Bộ đổi nguồn của AP WiFi nóng chảy nhựa, có khói, đã ngắt điện.",
+    "label": {
+      "true_category": "network",
+      "priority": "P1",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T11",
+    "room_id": "lab-a10-201",
+    "asset_id": "KHONG-RO",
+    "asset_category": "electrical",
+    "impact": "single",
+    "safety_hazard": true,
+    "urgency": "high",
+    "issue_description": "Rò điện ở bàn thí nghiệm số 3, một sinh viên bị giật nhẹ.",
+    "label": {
+      "true_category": "electrical",
+      "priority": "P1",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T12",
+    "room_id": "lab-a1-306",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "whole_room",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Trần nhà phòng 306 thấm nước nhiều, nước nhỏ xuống dãy máy, phải đóng cả phòng.",
+    "label": {
+      "true_category": "plumbing",
+      "priority": "P1",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T13",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PC-305-01",
+    "asset_category": "computer",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Hai máy cuối phòng không lên nguồn, sinh viên phải ngồi ghép nhóm.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T14",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PROJ-305-01",
+    "asset_category": "projector",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Máy chiếu mờ hình, chữ nhỏ khó đọc, tiết thực hành vẫn tiến hành được.",
+    "label": {
+      "true_category": "projector",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T15",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-WIFI-601-01",
+    "asset_category": "network",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "WiFi chập chờn ở dãy bàn phía cửa sau, một nửa lớp bị rớt mạng.",
+    "label": {
+      "true_category": "network",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T16",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-OSC-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Dao động ký số 2 trong 6 bộ không hiện sóng, nhóm 3 và nhóm 4 phải chờ.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P2",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T17",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-AC-305-01",
+    "asset_category": "hvac",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Điều hòa không mát, phòng nóng 36 độ, sinh viên xin ra ngoài.",
+    "label": {
+      "true_category": "air_conditioner",
+      "priority": "P2",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T18",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-SOLDER-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Trạm hàn số 5 không gia nhiệt, nhóm đang làm bài PCB bị gián đoạn.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P2",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T19",
+    "room_id": "lab-a1-306",
+    "asset_id": "AST-PC-306-01",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Máy giảng viên không lên nguồn, tiết học ca sáng bị chậm 20 phút.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T20",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-SW-601-01",
+    "asset_category": "network",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Một nửa cổng switch không nhận cáp, nhóm 1 đến 4 không cấu hình được bài lab.",
+    "label": {
+      "true_category": "network",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T21",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-LIGHT-305-01",
+    "asset_category": "electrical",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Hai máng đèn dãy giữa tắt, thực hành đọc mạch ở dãy này bị thiếu sáng.",
+    "label": {
+      "true_category": "lighting",
+      "priority": "P2",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T22",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PC-305-01",
+    "asset_category": "computer",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Năm máy treo liên tục khi biên dịch, bài thực hành không hoàn thành đúng giờ.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T23",
+    "room_id": "lab-a1-306",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Chuột và bàn phím của ba máy bị mất, nhóm 2 không làm bài được.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T24",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-DMM-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Ba đồng hồ vạn năng đo sai số, sinh viên phải mượn thiết bị phòng khác.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P2",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T25",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-PRINT-601-01",
+    "asset_category": "printer",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Máy in duy nhất kẹt giấy, đề thực hành chưa in kịp cho nửa lớp.",
+    "label": {
+      "true_category": "printer",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T26",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PROJ-305-01",
+    "asset_category": "projector",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Máy chiếu không nhận HDMI, giảng viên đang trình bày bài kiểm tra cuối kỳ.",
+    "label": {
+      "true_category": "projector",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T27",
+    "room_id": "lab-a1-306",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Ba chiếc ghế dãy đầu gãy chân, sinh viên đứng thực hành.",
+    "label": {
+      "true_category": "furniture",
+      "priority": "P2",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T28",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-OSC-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Dao động ký còn sót duy nhất bộ có băng thông 100 MHz bị đơ màn hình, buổi đo sắp bắt đầu.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P2",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T29",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-SW-601-01",
+    "asset_category": "network",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Cổng console switch không phản hồi, một nhóm không vào được bài cấu hình.",
+    "label": {
+      "true_category": "network",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T30",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-AC-305-01",
+    "asset_category": "hvac",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Điều hòa kêu to bất thường suốt buổi, ảnh hưởng nghe giảng.",
+    "label": {
+      "true_category": "air_conditioner",
+      "priority": "P2",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T31",
+    "room_id": "lab-a1-306",
+    "asset_id": "AST-PC-306-01",
+    "asset_category": "computer",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Bốn máy không nhận ổ USB, sinh viên không nạp được bài.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P2",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T32",
+    "room_id": "lab-a10-201",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "partial_session",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Bàn thí nghiệm số 2 mất nguồn 220V ở các ổ cắm, hai nhóm phải dồn sang bàn khác.",
+    "label": {
+      "true_category": "electrical",
+      "priority": "P2",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T33",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PC-305-01",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Máy số 12 chạy chậm, đề nghị cài lại hệ điều hành.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T34",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PROJ-305-01",
+    "asset_category": "projector",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Điều khiển từ xa máy chiếu hết pin.",
+    "label": {
+      "true_category": "projector",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T35",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-PRINT-601-01",
+    "asset_category": "printer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Máy in in mờ ở mép trang, vẫn dùng được.",
+    "label": {
+      "true_category": "printer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T36",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-PRINT-601-01",
+    "asset_category": "printer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Khay giấy số 2 thỉnh thoảng kẹt, đã tự gỡ được.",
+    "label": {
+      "true_category": "printer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T37",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-SOLDER-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Mũi hàn trạm số 1 bị oxy hóa, cần thay mũi mới.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P3",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T38",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-DMM-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Que đo đồng hồ vạn năng lỏng đầu cắm.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P3",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T39",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-LIGHT-305-01",
+    "asset_category": "electrical",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Một bóng đèn góc phòng nhấp nháy nhẹ.",
+    "label": {
+      "true_category": "lighting",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T40",
+    "room_id": "lab-a1-306",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Bàn phím máy số 7 mất phím F5.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T41",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-AC-305-01",
+    "asset_category": "hvac",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Điều khiển điều hòa hiển thị mờ chữ số.",
+    "label": {
+      "true_category": "air_conditioner",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T42",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-WIFI-601-01",
+    "asset_category": "network",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Đèn báo của AP WiFi nháy vàng, mạng vẫn dùng bình thường.",
+    "label": {
+      "true_category": "network",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T43",
+    "room_id": "lab-a1-306",
+    "asset_id": "AST-PC-306-01",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Máy số 3 thỉnh thoảng tự khởi động lại khi nghỉ giải lao.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T44",
+    "room_id": "lab-a10-201",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Cửa tủ đựng linh kiện bị kẹt khóa.",
+    "label": {
+      "true_category": "furniture",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T45",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PC-305-02",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Máy giảng viên báo thiếu bản cập nhật phần mềm diệt virus.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T46",
+    "room_id": "lab-a1-601",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Vòi nước ở bồn rửa cuối phòng nhỏ giọt.",
+    "label": {
+      "true_category": "plumbing",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T47",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-OSC-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Chân đế của dao động ký bị lỏng ốc.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P3",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T48",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PROJ-305-01",
+    "asset_category": "projector",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Bộ lọc bụi máy chiếu cần vệ sinh, hình vẫn rõ.",
+    "label": {
+      "true_category": "projector",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T49",
+    "room_id": "lab-a1-306",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Rèm cửa sổ bên trái bị rách mép.",
+    "label": {
+      "true_category": "furniture",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T50",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-SW-601-01",
+    "asset_category": "network",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Nhãn cổng switch bị bong, cần dán lại.",
+    "label": {
+      "true_category": "network",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T51",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-PC-305-01",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Chuột máy số 5 bị rớt con lăn, thay chuột là xong.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T52",
+    "room_id": "lab-a10-201",
+    "asset_id": "AST-SOLDER-201-01",
+    "asset_category": "lab_instrument",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Giá đỡ mỏ hàn bị hỏng, dùng tạm bằng giá khác.",
+    "label": {
+      "true_category": "lab_equipment",
+      "priority": "P3",
+      "tech_unit": "owner_faculty",
+      "tech_role": "lab_technician"
+    }
+  },
+  {
+    "id": "T53",
+    "room_id": "lab-a1-306",
+    "asset_id": "AST-PC-306-01",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Máy số 4 khởi động chậm, em báo gấp vì sắp thi giữa kỳ.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T54",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-PRINT-601-01",
+    "asset_category": "printer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "high",
+    "issue_description": "Máy in hết mực đen, em cần in báo cáo ngay chiều nay.",
+    "label": {
+      "true_category": "printer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T55",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-LIGHT-305-01",
+    "asset_category": "electrical",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Công tắc đèn cạnh cửa bị lỏng, đôi lúc phải bật hai lần.",
+    "label": {
+      "true_category": "lighting",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T56",
+    "room_id": "lab-a10-201",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Biển tên phòng bị bong một góc.",
+    "label": {
+      "true_category": "furniture",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T57",
+    "room_id": "lab-a1-305",
+    "asset_id": "AST-AC-305-01",
+    "asset_category": "hvac",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Lưới lọc điều hòa bám bụi nhiều, đề nghị vệ sinh.",
+    "label": {
+      "true_category": "air_conditioner",
+      "priority": "P3",
+      "tech_unit": "/haui/ban-csvc",
+      "tech_role": "facility_technician"
+    }
+  },
+  {
+    "id": "T58",
+    "room_id": "lab-a1-306",
+    "asset_id": "AST-PC-306-01",
+    "asset_category": "computer",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Màn hình máy số 9 có vệt sáng nhỏ ở góc.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T59",
+    "room_id": "lab-a1-306",
+    "asset_id": "KHONG-RO",
+    "asset_category": "other",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "low",
+    "issue_description": "Dây nguồn máy số 6 bị gập cấn, chưa ảnh hưởng hoạt động.",
+    "label": {
+      "true_category": "computer",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  },
+  {
+    "id": "T60",
+    "room_id": "lab-a1-601",
+    "asset_id": "AST-WIFI-601-01",
+    "asset_category": "network",
+    "impact": "single",
+    "safety_hazard": false,
+    "urgency": "normal",
+    "issue_description": "Tốc độ WiFi thấp hơn bình thường vào giờ cao điểm.",
+    "label": {
+      "true_category": "network",
+      "priority": "P3",
+      "tech_unit": "/haui/tt-cntt",
+      "tech_role": "it_technician"
+    }
+  }
+]
