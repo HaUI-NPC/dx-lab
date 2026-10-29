@@ -4,6 +4,7 @@
 
 import mimetypes
 import re
+import unicodedata
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
@@ -82,8 +83,9 @@ def resolve_content_type(filename: str, declared: str | None) -> str:
 def _extract_text(path: Path, filename: str, content_type: str) -> str | None:
     """Văn bản của tệp `.md` / `.txt` / `text/*`; dạng khác trả `None`."""
     if content_type.startswith("text/") or PurePosixPath(filename).suffix.lower() in _TEXT_SUFFIXES:
-        # Postgres không lưu được NUL trong text.
-        return path.read_text(encoding="utf-8", errors="replace").replace("\x00", "")
+        # Postgres không lưu được NUL trong text. NFC: chữ có dấu luôn ở dạng dựng sẵn, để tìm kiếm khớp mọi nguồn gõ.
+        text = path.read_text(encoding="utf-8", errors="replace").replace("\x00", "")
+        return unicodedata.normalize("NFC", text)
     return None
 
 
