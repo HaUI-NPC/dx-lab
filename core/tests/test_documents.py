@@ -195,6 +195,38 @@ def test_quotes_are_hidden_from_reporters(client: TestClient, headers_for: Heade
     assert client.get("/api/documents", headers=headers_for(*ADMIN_DX)).status_code == 403
 
 
+def test_linked_documents_follow_workflow_visibility_and_validate_upload(
+    client: TestClient, settings: Settings, headers_for: HeadersFactory
+) -> None:
+    from test_workflows import activate, task_package
+
+    activate(client, headers_for, task_package())
+    creator = headers_for("sv.an")
+    created = client.post("/api/workflows", headers=creator, json={"app_id": "mini", "data": {"cost": 3500000}})
+    assert created.status_code == 201, created.text
+    workflow_id = created.json()["workflow_id"]
+    writer = headers_for(*CSVC_LAN)
+    for app_id, reference in (("mini", str(uuid.uuid4())), ("other-app", workflow_id)):
+        denied = upload(client, writer, b"khong duoc luu", app_id=app_id, workflow_id=reference, kind="quote")
+        assert denied.status_code == 404
+    outsider = headers_for("outside", ["/haui/sict/it_technician"])
+    denied = upload(client, outsider, b"khong duoc luu", app_id="mini", workflow_id=workflow_id, kind="quote")
+    assert denied.status_code == 404
+    assert not settings.documents_dir.exists() or not any(settings.documents_dir.rglob("*"))
+
+    response = upload(client, writer, b"bao gia phong may", app_id="mini", workflow_id=workflow_id, kind="quote")
+    assert response.status_code == 201, response.text
+    document_id = response.json()["id"]
+    insider = headers_for("inside", ["/haui/tt-cntt/lab_manager"])
+    for headers in (creator, insider, writer):
+        assert client.get(f"/api/documents/{document_id}", headers=headers).status_code == 200
+        assert client.get(f"/api/documents/{document_id}/content", headers=headers).status_code == 200
+        assert [item["id"] for item in client.get("/api/documents", headers=headers).json()["items"]] == [document_id]
+    assert client.get("/api/documents", headers=outsider).json()["total"] == 0
+    assert client.get(f"/api/documents/{document_id}", headers=outsider).status_code == 404
+    assert client.get(f"/api/documents/{document_id}/content", headers=outsider).status_code == 404
+
+
 def test_list_filters_and_paginates(client: TestClient, headers_for: HeadersFactory) -> None:
     csvc = headers_for(*CSVC_LAN)
     upload(client, csvc, SOP_PC.encode(), title="SOP 1")
