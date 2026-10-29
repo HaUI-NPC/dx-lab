@@ -124,7 +124,8 @@ def data_for(session: Session, principal: Principal, instance: Workflow) -> dict
     masked = mask_personal_data(instance, instance.data)
     if not can_contact:
         return masked
-    if masked != instance.data:
+    # Chủ phiếu xem dữ liệu của chính mình không phải "xem liên hệ người báo" (docs/AUTHZ.md mục 8).
+    if masked != instance.data and principal.username != instance.created_by:
         record(session, actor=principal, action="reporter_contact.read", object_type="workflow",
                object_id=str(instance.id), details={"purpose": "request.read"})
     return dict(instance.data)

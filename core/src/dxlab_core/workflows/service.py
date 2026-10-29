@@ -149,7 +149,9 @@ def detail(session: Session, principal: Principal, instance: Workflow) -> dict:
         raise ApiError(403, "FORBIDDEN_SCOPE", "Bạn không được xem phiếu này.", {"layer": 2})
     result = summary(instance)
     result["data"] = access.data_for(session, principal, instance)
+    # Lịch sử phiếu chỉ gồm hành động nghiệp vụ; log xem dữ liệu cá nhân nằm trong audit.
     result["history"] = [{"actor": e.actor, "action": e.action, "step_id": e.details.get("step_id"),
                           "at": e.occurred_at, "details": mask_history(instance, e.details)}
-                         for e in events_for(session, "workflow", str(instance.id))]
+                         for e in events_for(session, "workflow", str(instance.id))
+                         if e.action != "reporter_contact.read"]
     return result
