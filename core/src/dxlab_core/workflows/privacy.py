@@ -8,6 +8,8 @@ import json
 from typing import Any
 
 from dxlab_core.definitions.service import files_of
+from dxlab_core.audit.service import record
+from dxlab_core.errors import ApiError
 
 _REDACTED = object()
 
@@ -51,3 +53,14 @@ def mask_personal_data(instance: Any, data: dict) -> dict:
             schema = json.loads(content)
             result = _mask(result, schema, schema)
     return {} if result is _REDACTED else result
+
+
+def export_personal_data(session: Any, principal: Any, instance: Any, reason: str) -> dict:
+    """Xuất có kiểm soát; audit chỉ chứa lý do, không chứa nội dung xuất."""
+    if principal.is_system_admin or not principal.has_role("internal_auditor"):
+        raise ApiError(403, "FORBIDDEN_PERSONAL_DATA", "Chỉ kiểm soát nội bộ được xuất dữ liệu cá nhân.", {"layer": 5})
+    if not reason.strip():
+        raise ApiError(422, "VALIDATION_FAILED", "Phải nêu lý do xuất dữ liệu cá nhân.")
+    record(session, actor=principal, action="personal_data.export", object_type="workflow",
+           object_id=str(instance.id), details={"reason": reason.strip()})
+    return dict(instance.data)
