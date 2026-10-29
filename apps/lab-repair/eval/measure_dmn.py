@@ -27,9 +27,9 @@ APP = pathlib.Path(__file__).resolve().parent.parent
 
 # Loại người báo phải chọn trên form (report-schema.json) cho mỗi loại thật; dùng để đo "chọn đúng loại".
 FORM_CATEGORY = {
-    "computer": "computer", "projector": "projector", "network": "network", "printer": "printer",
-    "electrical": "electrical", "lighting": "electrical", "air_conditioner": "hvac",
-    "lab_equipment": "lab_instrument", "furniture": "other", "plumbing": "other", "other": "other",
+    "computer": "computer", "projector": "projector", "network": "network",
+    "electrical": "electrical", "lighting": "lighting", "air_conditioner": "air_conditioner",
+    "lab_equipment": "lab_equipment", "furniture": "furniture", "plumbing": "plumbing", "other": "other",
 }
 
 
