@@ -18,7 +18,8 @@
       "title": "Họ và tên người duyệt",
       "description": "Người có thẩm quyền hoặc người được ủy quyền hợp pháp",
       "minLength": 2,
-      "maxLength": 100
+      "maxLength": 100,
+      "x-personal-data": true
     },
     "approver_role": {
       "type": "string",
