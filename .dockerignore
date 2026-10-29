@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+.git
+.env
+.local
+.agents
+.omp
+.venv
+**/__pycache__
+**/.pytest_cache
+**/*.egg-info
+dist
+docs/De_thi_*.pdf
+.DS_Store

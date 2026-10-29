@@ -232,12 +232,14 @@ Mọi lỗi của core, kể cả lỗi kiểm tra đầu vào của FastAPI, tr
 |---|---|---|
 | 401 | `UNAUTHENTICATED` | Thiếu token, token sai chữ ký, sai `iss` / `aud`, hết hạn |
 | 403 | `FORBIDDEN_ROLE`, `FORBIDDEN_SCOPE`, `FORBIDDEN_AUTHORITY`, `FORBIDDEN_SOD`, `FORBIDDEN_PERSONAL_DATA` | Bị chặn ở lớp 1 … 5 của [`docs/AUTHZ.md`](docs/AUTHZ.md); `details.layer` ghi số lớp |
+| 403 | `FORBIDDEN_ORIGIN` | Portal từ chối yêu cầu ghi từ origin khác |
 | 404 | `NOT_FOUND` | Không có đối tượng |
 | 409 | `CONFLICT` | Đối tượng đã đổi từ lúc đọc (khóa phiên bản), bước đã được người khác hoàn thành |
 | 422 | `VALIDATION_FAILED` | Dữ liệu sai model hoặc sai JSON Schema; `details.errors` là danh sách `{"path", "message"}` |
 | 422 | `DEFINITION_REJECTED` | Validator từ chối gói ứng dụng; `details.errors` là danh sách `{"file", "element", "message"}` |
 | 429 | `RATE_LIMITED` | Vượt giới hạn tần suất; do APISIX trả |
 | 500 | `INTERNAL` | Lỗi không lường trước; chi tiết chỉ nằm trong log, tra theo `request_id` |
+| 502, 504 | `INTERNAL` | Portal không kết nối được Core hoặc hết thời gian chờ; không tiết lộ địa chỉ nội bộ |
 
 Lỗi do APISIX tự trả trước khi tới core (401 thiếu / sai token, 429) có thân phản hồi của gateway, không theo dạng
 trên: client dựa vào mã HTTP cho hai trường hợp này.
