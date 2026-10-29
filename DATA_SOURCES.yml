@@ -20,14 +20,14 @@ datasets:
     path: "data/rooms.json"
     format: "application/json"
     description: >
-      Danh sách 5 phòng thực hành mẫu (A1-305, A1-306, A1-601, A10-201, CSVC-KHO-01)
+      Danh sách 4 phòng thực hành mẫu (A1-305, A1-306, A1-601, A10-201)
       gắn liền với cấu trúc cây đơn vị và phân quyền trong docs/AUTHZ.md.
     creator: "DX-Lab contributors"
     license: "CC-BY-4.0"
     origin: "Tự tạo giả định, không chứa dữ liệu thật"
     checksum:
       algorithm: "sha256"
-      value: "2a3b15fb3a1a0bb43185cd6afd957e4791d3e298eb334fd3e486a423240bfc94"
+      value: "b5493dae1d9c3ed1436b6b5074803845b6e807f8a9ffcd3e4a2a19814a2a301d"
 
   - id: "dataset-assets"
     title: "Danh mục tài sản và trang thiết bị kỹ thuật mẫu"
@@ -41,7 +41,7 @@ datasets:
     origin: "Tự tạo giả định, không chứa dữ liệu thật"
     checksum:
       algorithm: "sha256"
-      value: "025aaa3ddc7e900fd06dde8541f1e8148a189b1e8c391048ee36c7de22ed815f"
+      value: "85a15a885e4e13a888d0a3b14c02d111748dbb11fcd56db115b75f368278e5b3"
 
   - id: "sop-pc-01"
     title: "SOP-IT-01: Kiểm tra và khắc phục sự cố máy tính không lên nguồn"

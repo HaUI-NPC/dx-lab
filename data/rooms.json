@@ -1,6 +1,7 @@
 [
   {
     "id": "lab-a1-305",
+    "basis": "GĐ-TC-2026 (giả định)",
     "code": "A1-305",
     "name": "Phòng thực hành máy tính A1-305",
     "building": "Nhà A1",
@@ -15,6 +16,7 @@
   },
   {
     "id": "lab-a1-306",
+    "basis": "GĐ-TC-2026 (giả định)",
     "code": "A1-306",
     "name": "Phòng thực hành máy tính A1-306",
     "building": "Nhà A1",
@@ -29,6 +31,7 @@
   },
   {
     "id": "lab-a1-601",
+    "basis": "GĐ-TC-2026 (giả định)",
     "code": "A1-601",
     "name": "Phòng thực hành mạng A1-601",
     "building": "Nhà A1",
@@ -43,6 +46,7 @@
   },
   {
     "id": "lab-a10-201",
+    "basis": "GĐ-TC-2026 (giả định)",
     "code": "A10-201",
     "name": "Phòng thí nghiệm điện A10-201",
     "building": "Nhà A10",
@@ -54,19 +58,5 @@
     "capacity": 30,
     "status": "active",
     "description": "Phòng thí nghiệm đo lường điện, khí cụ điện và mạch vi điều khiển."
-  },
-  {
-    "id": "lab-csvc-storage",
-    "code": "CSVC-KHO-01",
-    "name": "Kho vật tư và thiết bị Ban Cơ sở vật chất",
-    "building": "Nhà A2",
-    "floor": 1,
-    "org_path": "/haui/ban-csvc",
-    "unit_name": "Ban Cơ sở vật chất",
-    "school_name": "Đại học Công nghiệp Hà Nội",
-    "manager_role": "facility_director",
-    "capacity": 15,
-    "status": "active",
-    "description": "Kho tiếp nhận, phân loại và lưu trữ thiết bị, vật tư sửa chữa tập trung toàn trường."
   }
 ]
