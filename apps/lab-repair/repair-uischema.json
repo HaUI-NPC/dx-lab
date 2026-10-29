@@ -1,0 +1,81 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "1. Thông tin thực hiện sửa chữa",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/technician_name",
+              "label": "Kỹ thuật viên thực hiện"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/repair_date",
+              "label": "Ngày hoàn thành"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/work_performed",
+          "label": "Nội dung công việc đã thực hiện",
+          "options": {
+            "multi": true,
+            "rows": 4
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/parts_replaced",
+          "label": "Linh kiện thực tế thay thế"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "2. Chi phí thực tế và giải trình phát sinh (Luật E2)",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/actual_cost_vnd",
+              "label": "Chi phí thực tế (VNĐ)"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/repair_status",
+              "label": "Kết quả kỹ thuật"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/cost_variance_reason",
+          "label": "Giải trình chênh lệch chi phí (nếu vượt dự toán > 10%)"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "3. Lưu ý kỹ thuật và bàn giao",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/technical_notes",
+          "label": "Ghi chú kỹ thuật bàn giao",
+          "options": {
+            "multi": true,
+            "rows": 3
+          }
+        }
+      ]
+    }
+  ]
+}

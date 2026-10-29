@@ -1,0 +1,103 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "1. Thông tin người báo hỏng (Bảo mật cá nhân)",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/reporter_name",
+              "label": "Họ và tên"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/reporter_id",
+              "label": "Mã sinh viên / Cán bộ"
+            }
+          ]
+        },
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/reporter_phone",
+              "label": "Số điện thoại liên hệ"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/reporter_email",
+              "label": "Email liên hệ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "2. Địa điểm và thiết bị xảy ra sự cố",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/room_id",
+              "label": "Phòng thực hành"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/asset_category",
+              "label": "Phân loại thiết bị"
+            }
+          ]
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/asset_id",
+          "label": "Mã tài sản / thiết bị"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "3. Chi tiết hiện trạng sự cố",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/issue_title",
+          "label": "Tiêu đề tóm tắt"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/issue_description",
+          "label": "Mô tả chi tiết sự cố",
+          "options": {
+            "multi": true,
+            "rows": 4
+          }
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/urgency",
+          "label": "Mức độ khẩn cấp"
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "4. Xác nhận và đồng thuận bảo vệ dữ liệu cá nhân",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/data_processing_consent",
+          "label": "Đồng thuận xử lý dữ liệu cá nhân (Không tick sẵn)"
+        }
+      ]
+    }
+  ]
+}

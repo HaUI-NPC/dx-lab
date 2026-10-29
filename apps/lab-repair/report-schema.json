@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Phiếu báo hỏng thiết bị phòng lab",
+  "description": "Form tiếp nhận thông tin báo hỏng thiết bị từ giảng viên, sinh viên hoặc kỹ thuật viên",
+  "type": "object",
+  "required": [
+    "reporter_name",
+    "reporter_id",
+    "reporter_phone",
+    "reporter_email",
+    "room_id",
+    "asset_id",
+    "asset_category",
+    "issue_title",
+    "issue_description",
+    "urgency",
+    "data_processing_consent"
+  ],
+  "properties": {
+    "reporter_name": {
+      "type": "string",
+      "title": "Họ và tên người báo hỏng",
+      "description": "Họ và tên đầy đủ của người gửi phiếu báo hỏng",
+      "minLength": 2,
+      "maxLength": 100,
+      "x-personal-data": true
+    },
+    "reporter_id": {
+      "type": "string",
+      "title": "Mã sinh viên hoặc mã cán bộ",
+      "description": "Mã số định danh tại trường Đại học Công nghiệp Hà Nội",
+      "minLength": 3,
+      "maxLength": 30,
+      "x-personal-data": true
+    },
+    "reporter_phone": {
+      "type": "string",
+      "title": "Số điện thoại liên hệ",
+      "description": "Số điện thoại dùng để kỹ thuật viên liên hệ xác minh sự cố",
+      "pattern": "^[0-9+]{9,15}$",
+      "x-personal-data": true
+    },
+    "reporter_email": {
+      "type": "string",
+      "format": "email",
+      "title": "Địa chỉ email liên hệ",
+      "description": "Email nhận thông báo tiến độ xử lý phiếu",
+      "x-personal-data": true
+    },
+    "room_id": {
+      "type": "string",
+      "title": "Phòng thực hành / thí nghiệm",
+      "description": "Phòng xảy ra sự cố thiết bị",
+      "enum": [
+        "lab-a1-305",
+        "lab-a1-306",
+        "lab-a1-601",
+        "lab-a10-201",
+        "lab-csvc-storage"
+      ]
+    },
+    "asset_id": {
+      "type": "string",
+      "title": "Mã tài sản / thiết bị",
+      "description": "Mã tài sản dán trên tem thiết bị (ví dụ: AST-PC-305-01, AST-PROJ-305-01)",
+      "minLength": 3,
+      "maxLength": 50
+    },
+    "asset_category": {
+      "type": "string",
+      "title": "Phân loại thiết bị sự cố",
+      "description": "Loại thiết bị để hệ thống định tuyến tới đúng đơn vị kỹ thuật",
+      "enum": [
+        "computer",
+        "projector",
+        "network",
+        "hvac",
+        "electrical",
+        "lab_instrument",
+        "printer",
+        "other"
+      ]
+    },
+    "issue_title": {
+      "type": "string",
+      "title": "Tiêu đề tóm tắt sự cố",
+      "description": "Tóm tắt ngắn gọn hiện tượng hư hỏng",
+      "minLength": 5,
+      "maxLength": 150
+    },
+    "issue_description": {
+      "type": "string",
+      "title": "Mô tả chi tiết sự cố",
+      "description": "Mô tả cụ thể triệu chứng, hoàn cảnh xảy ra lỗi và các thao tác đã thử",
+      "minLength": 10,
+      "maxLength": 2000
+    },
+    "urgency": {
+      "type": "string",
+      "title": "Mức độ khẩn cấp",
+      "description": "Mức độ ảnh hưởng tới hoạt động giảng dạy và nghiên cứu",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "default": "normal"
+    },
+    "data_processing_consent": {
+      "type": "boolean",
+      "title": "Đồng thuận xử lý dữ liệu cá nhân",
+      "description": "Tôi xác nhận thông tin cung cấp là chính xác và đồng ý cho phép DX-Lab lưu trữ, xử lý thông tin liên hệ nhằm mục đích phối hợp kiểm tra, xử lý sự cố thiết bị theo quy định bảo vệ dữ liệu cá nhân.",
+      "const": true
+    },
+    "consent_notice_version": {
+      "type": "string",
+      "title": "Phiên bản thông báo dữ liệu cá nhân",
+      "default": "v1.0"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Xác nhận nhu cầu sửa chữa của Phòng thí nghiệm",
+  "description": "Form xác nhận nhu cầu sử dụng thiết bị và đề xuất xử lý do Trưởng phòng thí nghiệm (lab_manager) thực hiện",
+  "type": "object",
+  "required": [
+    "lab_manager_name",
+    "confirm_date",
+    "need_confirmed",
+    "urgency_level",
+    "manager_comment"
+  ],
+  "properties": {
+    "lab_manager_name": {
+      "type": "string",
+      "title": "Trưởng phòng thí nghiệm",
+      "description": "Họ và tên cán bộ quản lý phòng lab",
+      "minLength": 2,
+      "maxLength": 100
+    },
+    "confirm_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Ngày xác nhận"
+    },
+    "need_confirmed": {
+      "type": "boolean",
+      "title": "Xác nhận nhu cầu sửa chữa",
+      "description": "Đồng ý sự cần thiết phải sửa chữa thiết bị để phục vụ đào tạo và nghiên cứu"
+    },
+    "urgency_level": {
+      "type": "string",
+      "title": "Mức độ ưu tiên sử dụng",
+      "description": "Đánh giá mức độ cấp thiết đối với lịch học và nghiên cứu tại phòng lab",
+      "enum": [
+        "urgent",
+        "normal",
+        "low"
+      ],
+      "default": "normal"
+    },
+    "replacement_procurement_requested": {
+      "type": "boolean",
+      "title": "Đề nghị mua sắm thay thế (procurement.request)",
+      "description": "Đánh dấu nếu thiết bị hỏng nặng không thể sửa chữa, cần chuyển hồ sơ sang Ban Cơ sở vật chất để mua sắm mới",
+      "default": false
+    },
+    "manager_comment": {
+      "type": "string",
+      "title": "Ý kiến của Trưởng phòng lab",
+      "description": "Nêu rõ tình hình sử dụng phòng và yêu cầu về tiến độ bàn giao thiết bị",
+      "minLength": 5,
+      "maxLength": 1000
+    }
+  }
+}

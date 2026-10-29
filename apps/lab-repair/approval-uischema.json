@@ -1,0 +1,82 @@
+{
+  "type": "VerticalLayout",
+  "elements": [
+    {
+      "type": "Group",
+      "label": "1. Thông tin người có thẩm quyền phê duyệt",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/approver_name",
+              "label": "Người duyệt"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/approver_role",
+              "label": "Vai trò thẩm quyền"
+            }
+          ]
+        },
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/signing_type",
+              "label": "Hình thức ký (Trực tiếp, KT., TUQ.)"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/delegation_number",
+              "label": "Số giấy ủy quyền (nếu có)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "2. Quyết định và hạn mức kinh phí",
+      "elements": [
+        {
+          "type": "HorizontalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/decision",
+              "label": "Quyết định phê duyệt"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/approved_amount_vnd",
+              "label": "Số tiền phê duyệt (VNĐ)"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/approval_date",
+              "label": "Ngày phê duyệt"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Group",
+      "label": "3. Ý kiến phê duyệt và chỉ đạo",
+      "elements": [
+        {
+          "type": "Control",
+          "scope": "#/properties/approval_comment",
+          "label": "Ý kiến phê duyệt / lý do",
+          "options": {
+            "multi": true,
+            "rows": 3
+          }
+        }
+      ]
+    }
+  ]
+}

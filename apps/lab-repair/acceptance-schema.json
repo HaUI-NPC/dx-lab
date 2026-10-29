@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Biên bản nghiệm thu và bàn giao thiết bị phòng lab",
+  "description": "Form nghiệm thu chất lượng sửa chữa do Trưởng phòng lab hoặc Trưởng khoa thực hiện (tuân thủ SoD-2: không trùng người sửa)",
+  "type": "object",
+  "required": [
+    "acceptor_name",
+    "acceptor_role",
+    "acceptance_date",
+    "operational_status",
+    "acceptance_result",
+    "acceptance_notes",
+    "handover_signed"
+  ],
+  "properties": {
+    "acceptor_name": {
+      "type": "string",
+      "title": "Cán bộ nghiệm thu",
+      "description": "Họ và tên cán bộ quản lý phòng lab hoặc lãnh đạo đơn vị nghiệm thu",
+      "minLength": 2,
+      "maxLength": 100
+    },
+    "acceptor_role": {
+      "type": "string",
+      "title": "Vai trò người nghiệm thu",
+      "description": "Tuân thủ luật SoD-2: Người nghiệm thu bắt buộc phải khác kỹ thuật viên kiểm tra hoặc sửa chữa",
+      "enum": [
+        "lab_manager",
+        "faculty_head",
+        "facility_officer"
+      ]
+    },
+    "acceptance_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Ngày nghiệm thu"
+    },
+    "operational_status": {
+      "type": "string",
+      "title": "Tình trạng vận hành sau sửa chữa",
+      "description": "Đánh giá khả năng hoạt động thực tế của thiết bị",
+      "enum": [
+        "normal",
+        "degraded",
+        "not_working"
+      ],
+      "default": "normal"
+    },
+    "acceptance_result": {
+      "type": "string",
+      "title": "Kết luận nghiệm thu",
+      "enum": [
+        "accepted",
+        "rejected",
+        "conditional_acceptance"
+      ],
+      "default": "accepted"
+    },
+    "acceptance_notes": {
+      "type": "string",
+      "title": "Ý kiến nghiệm thu và đánh giá chất lượng",
+      "description": "Nhận xét chi tiết về hiệu quả sửa chữa và mức độ đáp ứng yêu cầu giảng dạy/thực hành",
+      "minLength": 5,
+      "maxLength": 1000
+    },
+    "handover_signed": {
+      "type": "boolean",
+      "title": "Xác nhận bàn giao và đưa vào sử dụng",
+      "description": "Xác nhận hoàn tất thủ tục bàn giao, cho phép đưa tài sản trở lại trạng thái hoạt động bình thường trong phòng học",
+      "const": true
+    }
+  }
+}
