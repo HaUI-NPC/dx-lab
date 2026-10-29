@@ -13,19 +13,27 @@ Test chạy trên PostgreSQL thật. `DXLAB_TEST_DATABASE_URL` trỏ tới một
 """
 
 import os
+import time
 import uuid
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from pathlib import Path
+from typing import Any
 
+import jwt
 import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
 from dxlab_core.app import create_app
+from dxlab_core.auth.tokens import TokenVerifier
 from dxlab_core.config import Settings, load_settings
 from dxlab_core.db.migrate import upgrade
+
+TokenFactory = Callable[..., str]
+HeadersFactory = Callable[..., dict[str, str]]
 
 
 @pytest.fixture(scope="session")
@@ -56,11 +64,54 @@ def settings(database_url: str, tmp_path: Path) -> Settings:
     )
 
 
+@pytest.fixture(scope="session")
+def signing_key() -> rsa.RSAPrivateKey:
+    """Khóa ký token cho test, đóng vai khóa realm của Keycloak."""
+    return rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+
 @pytest.fixture
-def app(settings: Settings) -> Iterator[FastAPI]:
+def app(settings: Settings, signing_key: rsa.RSAPrivateKey) -> Iterator[FastAPI]:
     application = create_app(settings)
+    public_key = signing_key.public_key()
+    application.state.token_verifier = TokenVerifier(settings, key_resolver=lambda _token: public_key)
     yield application
     application.state.engine.dispose()
+
+
+@pytest.fixture
+def token_for(settings: Settings, signing_key: rsa.RSAPrivateKey) -> TokenFactory:
+    """`token_for("tk.hai", ["/haui/sict/khmt/faculty_head"])` → access token như Keycloak cấp cho tài khoản đó.
+
+    Tham số khóa thêm ghi đè claim (ví dụ `exp=...`, `aud=...`, `iss=...`).
+    """
+
+    def make(username: str, groups: list[str] | None = None, **claims: Any) -> str:
+        now = int(time.time())
+        payload = {
+            "iss": settings.oidc_issuer,
+            "aud": [settings.oidc_audience, "account"],
+            "sub": str(uuid.uuid5(uuid.NAMESPACE_DNS, username)),
+            "preferred_username": username,
+            "name": username,
+            "groups": groups or [],
+            "iat": now,
+            "exp": now + 300,
+            **claims,
+        }
+        return jwt.encode(payload, signing_key, algorithm="RS256", headers={"kid": "test"})
+
+    return make
+
+
+@pytest.fixture
+def headers_for(token_for: TokenFactory) -> HeadersFactory:
+    """`headers_for("tk.hai", [...])` → header `Authorization: Bearer <token>` cho tài khoản đó."""
+
+    def make(username: str, groups: list[str] | None = None, **claims: Any) -> dict[str, str]:
+        return {"Authorization": f"Bearer {token_for(username, groups, **claims)}"}
+
+    return make
 
 
 @pytest.fixture

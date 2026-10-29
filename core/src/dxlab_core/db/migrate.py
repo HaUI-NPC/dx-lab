@@ -4,10 +4,13 @@
 
 """`python -m dxlab_core.db.migrate`: nâng database lên phiên bản migration mới nhất (chạy khi container khởi động)."""
 
+import os
 from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
+
+from dxlab_core.config import ConfigError
 
 MIGRATIONS_DIR = Path(__file__).with_name("migrations")
 
@@ -25,9 +28,10 @@ def upgrade(database_url: str, revision: str = "head") -> None:
 
 
 def main() -> None:
-    from dxlab_core.config import get_settings
-
-    upgrade(get_settings().database_url)
+    database_url = os.environ.get("DXLAB_DATABASE_URL")
+    if not database_url:
+        raise ConfigError("Thiếu biến môi trường bắt buộc: DXLAB_DATABASE_URL")
+    upgrade(database_url)
 
 
 if __name__ == "__main__":

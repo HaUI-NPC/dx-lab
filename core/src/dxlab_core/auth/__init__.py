@@ -2,4 +2,4 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Xác thực và người gọi (`Principal`). Kiểm JWT qua JWKS do CORE-02 bổ sung."""
+"""Xác thực (JWT qua JWKS của Keycloak), người gọi (`Principal`) và lớp 1 của phân quyền."""
