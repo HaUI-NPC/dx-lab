@@ -10,25 +10,26 @@ from pathlib import Path
 from urllib.parse import quote
 
 from dxlab_core.cli.api import api_request
-from dxlab_core.cli.context import CliError, Context
+from dxlab_core.cli.context import CliError, Context, invoke
 
 
 def register(subparsers: "argparse._SubParsersAction[argparse.ArgumentParser]") -> None:
     parser = subparsers.add_parser(
         "publish",
         help="nạp một gói ứng dụng (apps/<app>) thành phiên bản mới, chờ duyệt",
-        description="app_id lấy từ tên thư mục. Mọi tệp trong thư mục (trừ tệp ẩn) được gửi, tên tệp là đường dẫn tương đối.",
+        description="app_id lấy từ tên thư mục. Mọi tệp trong thư mục (trừ tệp ẩn và thư mục eval/) được gửi, tên tệp là đường dẫn tương đối.",
     )
     parser.add_argument("app_dir", metavar="apps/<app>", type=Path, help="thư mục gói ứng dụng")
-    parser.set_defaults(handler=run)
+    parser.set_defaults(func=lambda args: invoke(run, args))
 
 
 def collect_files(app_dir: Path) -> list[tuple[str, Path]]:
-    """Mọi tệp thường trong thư mục, bỏ tệp/thư mục ẩn; sắp theo đường dẫn tương đối (POSIX) cho ổn định."""
+    """Mọi tệp thường trong thư mục, bỏ tệp/thư mục ẩn và thư mục `eval/` ở gốc gói (công cụ đo, validator
+    cũng bỏ); sắp theo đường dẫn tương đối (POSIX) cho ổn định."""
     found = []
     for path in app_dir.rglob("*"):
         relative = path.relative_to(app_dir)
-        if any(part.startswith(".") for part in relative.parts) or not path.is_file():
+        if any(part.startswith(".") for part in relative.parts) or relative.parts[0] == "eval" or not path.is_file():
             continue
         found.append((relative.as_posix(), path))
     return sorted(found)

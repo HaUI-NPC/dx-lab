@@ -4,10 +4,12 @@
 
 """Ngữ cảnh chạy chung của các lệnh `dxlab`: cấu hình từ môi trường, HTTP client, đồng hồ, đầu ra."""
 
+import argparse
 import os
 import sys
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TextIO
@@ -62,3 +64,36 @@ class Context:
 
     def say(self, text: str = "") -> None:
         print(text, file=self.out, flush=True)
+
+
+_override: Context | None = None
+
+
+@contextmanager
+def use_context(ctx: Context) -> Iterator[Context]:
+    """Dùng `ctx` thay cho ngữ cảnh mặc định (từ môi trường) trong khối `with`; dành cho test."""
+    global _override
+    previous, _override = _override, ctx
+    try:
+        yield ctx
+    finally:
+        _override = previous
+
+
+def invoke(run: Callable[[argparse.Namespace, Context], int], args: argparse.Namespace) -> int:
+    """Chạy một lệnh với ngữ cảnh hiện hành; đổi `CliError` thành thông báo stderr và mã thoát 1."""
+    owned = _override is None
+    ctx = _override or Context(settings=CliSettings.from_env(), client=httpx.Client(timeout=HTTP_TIMEOUT))
+    try:
+        return int(run(args, ctx))
+    except CliError as exc:
+        print(f"Lỗi: {exc.message}", file=ctx.err)
+        for line in exc.lines:
+            print(f"  {line}", file=ctx.err)
+        return 1
+    except KeyboardInterrupt:
+        print("Đã hủy.", file=ctx.err)
+        return 130
+    finally:
+        if owned:
+            ctx.client.close()

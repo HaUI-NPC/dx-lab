@@ -11,7 +11,7 @@ import json
 import sys
 from typing import Any
 
-from dxlab_core.cli.context import CliError, Context
+from dxlab_core.cli.context import CliError, Context, invoke
 from dxlab_core.cli.oidc import device_login, password_login
 from dxlab_core.cli.tokens import save_token
 
@@ -29,7 +29,7 @@ def register(subparsers: "argparse._SubParsersAction[argparse.ArgumentParser]") 
     parser.add_argument("--password", help="mật khẩu; ưu tiên --password-env để mật khẩu không nằm trong lịch sử shell")
     parser.add_argument("--password-env", metavar="TÊN_BIẾN", help="đọc mật khẩu từ biến môi trường này")
     parser.add_argument("--totp", help="mã OTP 6 số nếu tài khoản bật OTP")
-    parser.set_defaults(handler=run)
+    parser.set_defaults(func=lambda args: invoke(run, args))
 
 
 def run(args: argparse.Namespace, ctx: Context) -> int:
