@@ -31,6 +31,7 @@ from dxlab_core.app import create_app
 from dxlab_core.auth.tokens import TokenVerifier
 from dxlab_core.config import Settings, load_settings
 from dxlab_core.db.migrate import upgrade
+from dxlab_core.db.models import metadata
 
 TokenFactory = Callable[..., str]
 HeadersFactory = Callable[..., dict[str, str]]
@@ -76,6 +77,10 @@ def app(settings: Settings, signing_key: rsa.RSAPrivateKey) -> Iterator[FastAPI]
     public_key = signing_key.public_key()
     application.state.token_verifier = TokenVerifier(settings, key_resolver=lambda _token: public_key)
     yield application
+    # Mỗi test bắt đầu với database rỗng (cùng schema): xóa dữ liệu mọi bảng, giữ alembic_version.
+    tables = ", ".join(f'"{t.name}"' for t in metadata.sorted_tables)
+    with application.state.engine.begin() as conn:
+        conn.execute(text(f"TRUNCATE {tables} RESTART IDENTITY CASCADE"))
     application.state.engine.dispose()
 
 

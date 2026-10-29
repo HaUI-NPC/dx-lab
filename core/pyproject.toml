@@ -10,13 +10,19 @@ requires-python = ">=3.12"
 license = "Apache-2.0"
 dependencies = [
     "alembic>=1.20.1",
-    "fastapi>=0.115",
+    "fastapi>=0.121",
+    "jsonschema>=4.26.0",
     "psycopg[binary]>=3.2",
     "pydantic-settings>=2.16.2",
     "pyjwt[crypto]>=2.15.1",
+    "python-multipart>=0.0.32",
+    "spiffworkflow>=3.2",
     "sqlalchemy>=2.0",
     "uvicorn>=0.30",
 ]
+
+[project.scripts]
+dxlab = "dxlab_core.cli:main"
 
 [build-system]
 requires = ["hatchling"]
