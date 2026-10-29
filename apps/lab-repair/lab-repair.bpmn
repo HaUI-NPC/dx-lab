@@ -159,6 +159,7 @@
     <bpmn:exclusiveGateway id="gw_approval" name="Quyết định duyệt?">
       <bpmn:incoming>flow_awaiting_approval_gw_approval</bpmn:incoming>
       <bpmn:outgoing>flow_gw_approval_repairing</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_approval_acceptance</bpmn:outgoing>
       <bpmn:outgoing>flow_gw_approval_closed_rejected</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:userTask id="repairing" name="Đang sửa">
@@ -201,6 +202,7 @@
         </spiffworkflow:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_gw_overrun_awaiting_acceptance</bpmn:incoming>
+      <bpmn:incoming>flow_gw_approval_acceptance</bpmn:incoming>
       <bpmn:outgoing>flow_awaiting_acceptance_gw_acceptance</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:exclusiveGateway id="gw_acceptance" name="Kết quả nghiệm thu?">
@@ -254,7 +256,10 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="flow_awaiting_approval_gw_approval" sourceRef="awaiting_approval" targetRef="gw_approval" />
     <bpmn:sequenceFlow id="flow_gw_approval_repairing" name="Duyệt" sourceRef="gw_approval" targetRef="repairing">
-      <bpmn:conditionExpression>decision == "approved"</bpmn:conditionExpression>
+      <bpmn:conditionExpression>decision == "approved" and not repair_recorded</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_approval_acceptance" name="Duyệt lại sau sửa" sourceRef="gw_approval" targetRef="awaiting_acceptance">
+      <bpmn:conditionExpression>decision == "approved" and repair_recorded</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="flow_gw_approval_closed_rejected" name="Không duyệt" sourceRef="gw_approval" targetRef="closed_rejected">
       <bpmn:conditionExpression>decision == "rejected"</bpmn:conditionExpression>
@@ -509,6 +514,11 @@
         <di:waypoint x="2140" y="875" />
         <di:waypoint x="2140" y="500" />
         <di:waypoint x="2200" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_approval_acceptance_di" bpmnElement="flow_gw_approval_acceptance">
+        <di:waypoint x="2165" y="900" />
+        <di:waypoint x="2540" y="900" />
+        <di:waypoint x="2540" y="740" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="flow_gw_approval_closed_rejected_di" bpmnElement="flow_gw_approval_closed_rejected">
         <di:waypoint x="2140" y="925" />
