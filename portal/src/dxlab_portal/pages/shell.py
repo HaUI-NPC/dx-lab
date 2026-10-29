@@ -44,7 +44,7 @@ class TabDef:
 TABS: list[TabDef] = [
     TabDef("tasks", "Việc của tôi", my_tasks.render),
     TabDef("report", "Báo hỏng", report.render, report.load, report.state),
-    TabDef("lookup", "Tra cứu", lookup.render),
+    TabDef("lookup", "Tra cứu", lookup.render, state=lookup.state),
     TabDef("dashboard", "Dashboard", dashboard.render, dashboard.load),
     TabDef("status", "Trạng thái hệ thống", status.render, state=lambda _: status.state()),
 ]
