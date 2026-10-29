@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from dxlab_portal.pages.forms.spec import build_form
 from dxlab_portal.pages.forms.validate import validate_form
-from dxlab_portal.pages.my_tasks import _value
+from dxlab_portal.pages.my_tasks import _value, describe_fields, describe_history
 from portal_fakes import FakeCore, FakeKeycloak, login, prefab_text
 
 
@@ -33,10 +33,30 @@ def test_hop_viec_va_lich_su_tu_core(client: TestClient, keycloak: FakeKeycloak,
         200, json={**task, "form": {"schema": {"type": "object", "properties": {}}, "uischema": {}}}
     )
     core.routes[("GET", "/api/workflows/wf-1")] = lambda _: httpx.Response(
-        200, json={"workflow_id": "wf-1", "data": {"asset_id": "AST-1"},
-                   "history": [{"action": "duyệt", "details": {"basis": "GĐ-PC-01/2026"}}]}
+        200, json={"workflow_id": "wf-1", "data": {"asset_id": "AST-1", "tech_role": "it_technician"},
+                   "field_titles": {"asset_id": "Mã thiết bị"},
+                   "history": [{"actor": "tl.giang", "action": "task.complete", "step_id": "awaiting_approval",
+                                "at": "2026-10-30T03:53:00Z",
+                                "details": {"step_name": "Chờ duyệt", "authority_basis": "GĐ-PC-01/2026"}}]}
     )
     login(client, keycloak)
     text = prefab_text(client.get("/?tab=tasks&task_id=task-1").text)
     assert "Chờ duyệt" in text and "Quá hạn" in text
-    assert "AST-1" in text and "giả định" in text
+    assert "Mã thiết bị: AST-1" in text and "giả định" in text
+    assert "tech_role" not in text and "it_technician" not in text
+
+
+def test_chi_tiet_chi_hien_truong_co_tieu_de_va_dinh_dang_de_doc():
+    data = {"estimated_cost_vnd": 12000000, "safety_hazard": False, "quotes": [{"supplier_name": "A", "quote_amount_vnd": 5000}],
+            "tech_unit": "/haui/tt-cntt"}
+    titles = {"estimated_cost_vnd": "Chi phí dự kiến", "safety_hazard": "Nguy hiểm an toàn", "quotes": "Báo giá"}
+    assert describe_fields(data, titles) == [
+        ("Chi phí dự kiến", "12.000.000 đ"), ("Nguy hiểm an toàn", "Không"), ("Báo giá", "A · 5.000 đ")]
+
+
+def test_lich_su_moi_su_kien_mot_dong_co_hinh_thuc_ky_va_can_cu_gia_dinh():
+    line, = describe_history([{"actor": "pgd.minh", "action": "repair.approve", "step_id": "awaiting_approval",
+                               "at": "2026-10-30T03:53:00Z",
+                               "details": {"step_name": "Chờ duyệt", "signing_type": "kt",
+                                           "authority_basis": "GĐ-PCBGĐ-2026"}}])
+    assert line == "30/10/2026 10:53 · pgd.minh · Duyệt: Chờ duyệt · ký KT. · căn cứ GĐ-PCBGĐ-2026 (giả định)"
