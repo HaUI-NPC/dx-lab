@@ -80,3 +80,31 @@ def test_export_requires_auditor_and_reason_without_logging_data(monkeypatch):
         privacy.export_personal_data(None, auditor, workflow, " ")
     assert privacy.export_personal_data(None, auditor, workflow, "kiểm tra") == workflow.data
     assert events[0]["details"] == {"reason": "kiểm tra"}
+
+
+def test_scope_sod_and_admin_are_enforced(monkeypatch):
+    import pytest
+    from dxlab_core.auth.principal import Principal, RoleAssignment
+    from dxlab_core.errors import ApiError
+    from dxlab_core.workflows import access
+
+    workflow = SimpleNamespace(id="id", created_by="reporter", data={
+        "room_unit": "/org/school/faculty/room", "owner_faculty": "/org/school/faculty",
+        "approval_scope": "faculty", "approver_role": "faculty_head"})
+    task = SimpleNamespace(task_spec=SimpleNamespace(lane="approver", extensions={"properties": {}}))
+    monkeypatch.setattr(access, "events_for", lambda *_: [])
+    outsider = Principal("other", "Other", (RoleAssignment("faculty_head", "/org/other/faculty"),))
+    with pytest.raises(ApiError) as denied:
+        access.authorize_task(None, outsider, workflow, task)
+    assert denied.value.code == "FORBIDDEN_SCOPE"
+    admin = Principal("admin", "Admin", (RoleAssignment("system_admin", "/org"),))
+    with pytest.raises(ApiError) as denied:
+        access.authorize_task(None, admin, workflow, task)
+    assert denied.value.code == "FORBIDDEN_ROLE"
+    task.task_spec.extensions = {"properties": {"dxlabExcludeActorsOf": "repair"}}
+    monkeypatch.setattr(access, "events_for", lambda *_: [
+        SimpleNamespace(actor="technician", details={"step_id": "repair"})])
+    technician = Principal("technician", "Technician", (RoleAssignment("it_technician", "/org/it"),))
+    with pytest.raises(ApiError) as denied:
+        access.authorize_task(None, technician, workflow, task)
+    assert denied.value.code == "FORBIDDEN_SOD"

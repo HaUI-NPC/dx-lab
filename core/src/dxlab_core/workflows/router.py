@@ -13,6 +13,7 @@ from dxlab_core.auth.deps import CurrentPrincipal
 from dxlab_core.db import DbSession
 from dxlab_core.pagination import Page, PageParams, page_params
 from dxlab_core.workflows import service
+from dxlab_core.workflows.privacy import export_personal_data
 from dxlab_core.workflows.models import Workflow
 from dxlab_core.workflows.schemas import WorkflowDetail, WorkflowOut
 
@@ -23,6 +24,11 @@ class CreateWorkflow(BaseModel):
     model_config = ConfigDict(extra="forbid")
     app_id: str = Field(min_length=1, max_length=64)
     data: dict[str, Any]
+
+
+class PersonalDataExport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    reason: str = Field(min_length=1, max_length=1000)
 
 
 @router.post("", status_code=201, response_model=WorkflowOut, summary="Tạo phiếu từ phiên bản ứng dụng đang áp dụng")
@@ -46,3 +52,10 @@ def listing(principal: CurrentPrincipal, session: DbSession, page: Annotated[Pag
 @router.get("/{workflow_id}", response_model=WorkflowDetail, summary="Xem phiếu và lịch sử xử lý")
 def get(workflow_id: uuid.UUID, principal: CurrentPrincipal, session: DbSession) -> dict:
     return service.detail(session, principal, service.find(session, workflow_id))
+
+
+@router.post("/{workflow_id}/export-personal-data", response_model=dict[str, Any],
+             summary="Xuất dữ liệu cá nhân với lý do và nhật ký kiểm soát")
+def export(workflow_id: uuid.UUID, body: PersonalDataExport,
+           principal: CurrentPrincipal, session: DbSession) -> dict:
+    return export_personal_data(session, principal, service.find(session, workflow_id), body.reason)

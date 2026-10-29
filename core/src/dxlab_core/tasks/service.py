@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import uuid
 from datetime import UTC, datetime
 
@@ -89,6 +90,13 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
     access.authorize_task(session, principal, instance, current)
     schema, _ = form_of(current.task_spec, files_of(instance.definition))
     submitted = workflows.validate_form(schema, data)
+    metadata = json.loads(files_of(instance.definition)["process_model.json"])
+    bound = {field for binding in metadata.get("record_bindings", [])
+             for field in binding.get("fields", {}).values()}
+    if "room_unit" in bound:
+        bound.update({"owner_faculty", "owner_school", "room_manager_role"})
+    if bound & submitted.keys():
+        raise ApiError(422, "VALIDATION_FAILED", "Không được sửa thuộc tính lấy từ danh mục.")
     if current.task_spec.lane == "approver":
         limit = current.data.get("approval_limit_vnd")
         amount = submitted.get("approved_amount_vnd")
