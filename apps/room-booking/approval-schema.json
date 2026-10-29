@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Phê duyệt đặt phòng",
+  "description": "Ghi lý do cho mọi quyết định, kể cả khi ca có xung đột lịch.",
+  "type": "object",
+  "required": ["booking_decision", "booking_approval_reason"],
+  "properties": {
+    "booking_decision": {"type": "string", "title": "Quyết định", "oneOf": [{"const": "approved", "title": "Duyệt"}, {"const": "rejected", "title": "Từ chối"}]},
+    "booking_approval_reason": {"type": "string", "title": "Lý do quyết định", "minLength": 5, "maxLength": 1000}
+  }
+}

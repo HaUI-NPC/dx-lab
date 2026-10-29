@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Đề nghị đặt phòng",
+  "type": "object",
+  "required": ["room_id", "booking_date", "booking_shift", "booking_purpose", "schedule_conflict"],
+  "properties": {
+    "room_id": {"type": "string", "title": "Mã phòng", "minLength": 1},
+    "booking_date": {"type": "string", "title": "Ngày đặt phòng", "format": "date"},
+    "booking_shift": {"type": "string", "title": "Ca", "oneOf": [{"const": "morning", "title": "Sáng"}, {"const": "afternoon", "title": "Chiều"}, {"const": "evening", "title": "Tối"}]},
+    "booking_purpose": {"type": "string", "title": "Mục đích", "minLength": 5, "maxLength": 1000},
+    "schedule_conflict": {"type": "boolean", "title": "Ca đặt phòng có xung đột lịch", "description": "Người đề nghị kiểm tra lịch phòng và khai báo xung đột; ứng dụng không tự tra lịch."}
+  }
+}

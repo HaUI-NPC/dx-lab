@@ -1,0 +1,8 @@
+{
+  "display_name": "Đặt phòng thực hành",
+  "description": "Đề nghị đặt phòng và phê duyệt bởi quản lý phòng.",
+  "primary_file_name": "room-booking.bpmn",
+  "primary_process_id": "room_booking",
+  "data_defaults": {},
+  "record_bindings": [{"type": "room", "key_field": "room_id", "fields": {"org_path": "room_unit"}}]
+}

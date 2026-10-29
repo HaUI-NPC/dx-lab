@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="conflict_defs" name="Xung đột lịch" namespace="dxlab">
+  <decision id="booking_conflict" name="Yêu cầu lý do khi xung đột">
+    <decisionTable id="booking_conflict_table" hitPolicy="FIRST">
+      <input id="conflict_input" label="Có xung đột"><inputExpression id="conflict_expr" typeRef="boolean"><text>schedule_conflict</text></inputExpression></input>
+      <output id="reason_output" label="Cần lý do" name="conflict_reason_required" typeRef="boolean" />
+      <rule id="conflict_yes"><inputEntry id="yes_input"><text>True</text></inputEntry><outputEntry id="yes_output"><text>True</text></outputEntry></rule>
+      <rule id="conflict_no"><inputEntry id="no_input"><text>False</text></inputEntry><outputEntry id="no_output"><text>False</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+</definitions>
