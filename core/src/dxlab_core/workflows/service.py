@@ -22,6 +22,8 @@ from dxlab_core.definitions.engine import form_of
 from dxlab_core.definitions.service import active_version, files_of, loaded_package
 from dxlab_core.errors import ApiError, NotFound
 from dxlab_core.workflows import access
+from dxlab_core.workflows.bindings import apply_record_bindings
+from dxlab_core.workflows.privacy import mask_history
 from dxlab_core.workflows.models import Workflow
 
 SERIALIZER = BpmnWorkflowSerializer(BpmnWorkflowSerializer.configure(SPIFF_CONFIG))
@@ -30,9 +32,9 @@ SERIALIZER = BpmnWorkflowSerializer(BpmnWorkflowSerializer.configure(SPIFF_CONFI
 def validate_form(schema: dict, data: dict) -> dict:
     # Không cho client chèn output DMN hay trạng thái phân quyền ngoài form.
     unknown = set(data) - set(schema.get("properties", {}))
-    issues = [{"field": k, "message": "Trường không thuộc form của bước này."} for k in sorted(unknown)]
+    issues = [{"path": k, "message": "Trường không thuộc form của bước này."} for k in sorted(unknown)]
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
-    issues.extend({"field": ".".join(map(str, error.absolute_path)), "message": error.message}
+    issues.extend({"path": ".".join(map(str, error.absolute_path)), "message": error.message}
                   for error in validator.iter_errors(data))
     if issues:
         raise ApiError(422, "VALIDATION_FAILED", "Dữ liệu form chưa hợp lệ.", {"errors": issues})
@@ -104,6 +106,7 @@ def create(session: Session, principal: Principal, app_id: str, data: dict[str, 
     metadata = json.loads(files_of(definition)["process_model.json"])
     task.data.update(metadata.get("data_defaults", {}))
     task.data.update(submitted)
+    apply_record_bindings(session, app_id, metadata, task.data)
     if "data_processing_consent" in schema.get("properties", {}):
         task.data["consent_notice_version"] = schema["properties"].get("consent_notice_version", {}).get("default", "v1.0")
         task.data["consent_recorded_at"] = datetime.now(UTC).isoformat()
@@ -147,6 +150,6 @@ def detail(session: Session, principal: Principal, instance: Workflow) -> dict:
     result = summary(instance)
     result["data"] = access.data_for(session, principal, instance)
     result["history"] = [{"actor": e.actor, "action": e.action, "step_id": e.details.get("step_id"),
-                          "at": e.occurred_at, "details": e.details}
+                          "at": e.occurred_at, "details": mask_history(instance, e.details)}
                          for e in events_for(session, "workflow", str(instance.id))]
     return result

@@ -9,12 +9,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from SpiffWorkflow.util.task import TaskState
 
-from dxlab_core.audit.service import record
+from dxlab_core.audit.service import events_for, record
 from dxlab_core.auth.principal import Principal
-from dxlab_core.definitions.engine import form_of
+from dxlab_core.definitions.engine import form_of, task_properties
 from dxlab_core.definitions.service import files_of
 from dxlab_core.errors import ApiError, Conflict, NotFound
 from dxlab_core.workflows import access
+from dxlab_core.workflows.authority import escalate
 from dxlab_core.workflows import service as workflows
 from dxlab_core.workflows.models import Workflow, WorkflowTask
 
@@ -88,6 +89,14 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
     access.authorize_task(session, principal, instance, current)
     schema, _ = form_of(current.task_spec, files_of(instance.definition))
     submitted = workflows.validate_form(schema, data)
+    if current.task_spec.lane == "approver":
+        limit = current.data.get("approval_limit_vnd")
+        amount = submitted.get("approved_amount_vnd")
+        if amount is not None and (not isinstance(limit, (int, float)) or amount > limit):
+            raise ApiError(403, "FORBIDDEN_AUTHORITY", "Số tiền duyệt vượt hạn mức.", {"layer": 3})
+        for key in ("approver_role", "signing_type"):
+            if key in submitted and submitted[key] != current.data.get(key):
+                raise ApiError(403, "FORBIDDEN_AUTHORITY", "Thông tin duyệt không khớp thẩm quyền.", {"layer": 3})
     current.data.update(submitted)
     if "actual_cost_vnd" in submitted:
         current.data["repair_recorded"] = True
@@ -97,10 +106,22 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
     task.completed_by = principal.username
     task.completed_at = datetime.now(UTC)
     workflows.save_engine(instance, engine)
-    record(session, actor=principal, action="task.complete", object_type="workflow", object_id=str(instance.id),
+    record(session, actor=principal, action="repair.approve" if task.lane == "approver" else "task.complete",
+           object_type="workflow", object_id=str(instance.id),
            details={"step_id": task.step_id, "step_name": task.step_name, "task_id": str(task.id),
                     "version": instance.definition.version,
                     "authority_basis": instance.data.get("authority_basis"), "signing_type": instance.data.get("signing_type")})
+    for next_task in workflows.ready_tasks(engine):
+        if next_task.task_spec.lane != "approver":
+            continue
+        excluded = {s.strip() for s in task_properties(next_task.task_spec).get("dxlabExcludeActorsOf", "").split(",")}
+        manager_steps = set(session.scalars(select(WorkflowTask.step_id).where(
+            WorkflowTask.workflow_id == instance.id, WorkflowTask.lane == "lab_manager",
+            WorkflowTask.status == "completed")))
+        eligible_events = [e for e in events_for(session, "workflow", str(instance.id))
+                           if e.details.get("step_id") in excluded | manager_steps]
+        escalate(instance, next_task.data, eligible_events)
+        workflows.save_engine(instance, engine)
     synchronize(session, instance, engine)
     session.flush()
     return instance

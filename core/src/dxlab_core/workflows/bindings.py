@@ -22,7 +22,7 @@ def apply_record_bindings(session: Session, app_id: str, metadata: dict, data: d
         key = data.get(binding["key_field"])
         if not isinstance(key, str) or not key:
             raise ApiError(422, "VALIDATION_FAILED", "Thiếu mã đối tượng liên kết.")
-        record = get_record(session, app_id, binding["type"], key)
+        record = get_record(session, binding.get("app_id", app_id), binding["type"], key)
         for source, destination in binding["fields"].items():
             if source not in record.data:
                 raise ApiError(422, "VALIDATION_FAILED", "Đối tượng liên kết thiếu thuộc tính bắt buộc.")
