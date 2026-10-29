@@ -15,10 +15,12 @@ fi
 docker compose --env-file .env -f deploy/compose.yaml run --rm --no-deps \
   --entrypoint python core -c '
 import os
+cache = os.environ["DXLAB_MODEL_CACHE_DIR"]
+os.environ["XDG_CACHE_HOME"] = os.path.join(cache, ".cache")
+os.environ["HF_HOME"] = os.path.join(cache, ".cache", "huggingface")
 from fastembed import TextEmbedding
 
 model = os.environ.get("DXLAB_EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-cache = os.environ["DXLAB_MODEL_CACHE_DIR"]
 TextEmbedding(model_name=model, cache_dir=cache)
 # Kiểm lại bằng đường đọc offline mà core sử dụng.
 TextEmbedding(model_name=model, cache_dir=cache, local_files_only=True)
