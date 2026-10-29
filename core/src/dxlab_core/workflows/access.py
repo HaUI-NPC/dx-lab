@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Quyền lane/phạm vi và không kiêm nhiệm của bước BPMN; mặc định từ chối."""
-from sqlalchemy import select
+from sqlalchemy import Numeric, and_, case, cast, false, func, or_, select, true
 from sqlalchemy.orm import Session
 
 from dxlab_core.audit.service import events_for, record
@@ -12,6 +12,9 @@ from dxlab_core.definitions.engine import task_properties
 from dxlab_core.errors import ApiError
 from dxlab_core.workflows.models import Workflow, WorkflowTask
 from dxlab_core.workflows.privacy import mask_personal_data
+
+_GLOBAL_READERS = {"internal_auditor", "facility_officer", "facility_director", "vice_president", "president"}
+_ROOM_READERS = {"lab_manager", "faculty_head", "faculty_deputy", "school_head"}
 
 
 def required_role(instance: Workflow, task) -> str:
@@ -66,11 +69,11 @@ def can_read(principal: Principal, instance: Workflow) -> bool:
         return True
     room = str(instance.data.get("room_unit", ""))
     for a in principal.roles:
-        if a.role in {"internal_auditor", "facility_officer", "facility_director", "vice_president", "president"}:
+        if a.role in _GLOBAL_READERS:
             return True
-        if a.role == "finance_officer" and instance.data.get("estimated_cost_vnd", 0) > 0:
+        if a.role == "finance_officer" and isinstance(instance.data.get("estimated_cost_vnd"), (int, float)) and instance.data["estimated_cost_vnd"] > 0:
             return True
-        if a.role in {"lab_manager", "faculty_head", "faculty_deputy", "school_head"} and room and unit_contains(a.unit, room):
+        if a.role in _ROOM_READERS and room and unit_contains(a.unit, room):
             return True
         if a.role == instance.data.get("tech_role"):
             tech = instance.data.get("tech_unit", "")
@@ -78,6 +81,30 @@ def can_read(principal: Principal, instance: Workflow) -> bool:
             if tech and unit_contains(a.unit, tech):
                 return True
     return False
+
+
+def visible_clause(principal: Principal):
+    """Biểu thức SQL tương đương can_read, dùng cho lọc phiếu và tài liệu liên kết."""
+    if principal.is_system_admin:
+        return false()
+    if any(a.role in _GLOBAL_READERS for a in principal.roles):
+        return true()
+    data = Workflow.data
+    room = data["room_unit"].astext
+    tech_name = data["tech_unit"].astext
+    tech_unit = case((tech_name.like("/%"), tech_name), else_=data.op("->>")(tech_name))
+    conditions = [Workflow.created_by == principal.username]
+    for assignment in principal.roles:
+        unit = assignment.unit.rstrip("/")
+        if assignment.role in _ROOM_READERS:
+            conditions.append(or_(room == unit, room.startswith(unit + "/", autoescape=True)))
+        conditions.append(and_(data["tech_role"].astext == assignment.role,
+                               or_(tech_unit == unit, tech_unit.startswith(unit + "/", autoescape=True))))
+        if assignment.role == "finance_officer":
+            amount = case((func.jsonb_typeof(data["estimated_cost_vnd"]) == "number",
+                           cast(data["estimated_cost_vnd"].astext, Numeric)), else_=0)
+            conditions.append(amount > 0)
+    return or_(*conditions)
 
 
 def data_for(session: Session, principal: Principal, instance: Workflow) -> dict:
