@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Chuyển đề nghị xử lý ngoài hệ thống",
+  "type": "object",
+  "required": ["handoff_type", "handoff_reason"],
+  "properties": {
+    "handoff_type": {
+      "type": "string",
+      "title": "Loại đề nghị",
+      "oneOf": [
+        {"const": "procurement_replace", "title": "Mua thay thế"},
+        {"const": "disposal_proposal", "title": "Đề nghị thanh lý"}
+      ]
+    },
+    "handoff_reason": {"type": "string", "title": "Lý do chuyển đề nghị", "minLength": 5, "maxLength": 1000},
+    "handoff_request_code": {"type": "string", "title": "Mã phiếu gửi Ban CSVC", "maxLength": 100}
+  }
+}

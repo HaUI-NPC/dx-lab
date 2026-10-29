@@ -14,6 +14,8 @@
     "issue_title",
     "issue_description",
     "urgency",
+    "impact",
+    "safety_hazard",
     "data_processing_consent"
   ],
   "properties": {
@@ -74,11 +76,12 @@
         "computer",
         "projector",
         "network",
-        "hvac",
+        "air_conditioner",
         "electrical",
-        "lab_instrument",
-        "printer",
-        "other"
+        "lighting",
+        "furniture",
+        "plumbing",
+        "lab_equipment"
       ]
     },
     "issue_title": {
@@ -106,6 +109,18 @@
         "critical"
       ],
       "default": "normal"
+    },
+    "impact": {
+      "type": "string",
+      "title": "Mức ảnh hưởng",
+      "enum": ["single", "partial_session", "whole_room"],
+      "default": "single"
+    },
+    "safety_hazard": {
+      "type": "boolean",
+      "title": "Có nguy cơ mất an toàn",
+      "description": "Nguy cơ điện giật, cháy nổ hoặc rò nước.",
+      "default": false
     },
     "data_processing_consent": {
       "type": "boolean",

@@ -69,6 +69,14 @@
       "elements": [
         {
           "type": "Control",
+          "scope": "#/properties/impact"
+        },
+        {
+          "type": "Control",
+          "scope": "#/properties/safety_hazard"
+        },
+        {
+          "type": "Control",
           "scope": "#/properties/issue_title",
           "label": "Tiêu đề tóm tắt"
         },
