@@ -5,5 +5,13 @@
     "fault_or_suspend_on_exception": "fault",
     "metadata_extraction_paths": null,
     "primary_file_name": "lab-repair.bpmn",
-    "primary_process_id": "lab_repair"
+    "primary_process_id": "lab_repair",
+    "data_defaults": {
+        "approved_amount_vnd": 0,
+        "approval_limit_vnd": 0,
+        "repair_recorded": false
+    },
+    "record_bindings": [
+        {"type": "room", "key_field": "room_id", "fields": {"org_path": "room_unit"}}
+    ]
 }
