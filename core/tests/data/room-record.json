@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaUI-NPC/dx-lab/apps/lab-repair/records/room-record.json",
+  "title": "Phòng thực hành, thí nghiệm",
+  "description": "Một bản ghi trong danh mục phòng (data/rooms.json). Khóa bản ghi là trường id. Dữ liệu mẫu là giả định, không phải cơ cấu thật của HaUI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "code",
+    "name",
+    "building",
+    "floor",
+    "org_path",
+    "unit_name",
+    "school_name",
+    "manager_role",
+    "capacity",
+    "status",
+    "description"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "title": "Mã định danh",
+      "description": "Khóa bản ghi, chữ thường, số, gạch ngang; trùng tên đoạn cuối của org_path đối với phòng.",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "code": {
+      "type": "string",
+      "title": "Mã phòng",
+      "description": "Mã hiển thị, ví dụ A1-305.",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "title": "Tên phòng",
+      "minLength": 1
+    },
+    "building": {
+      "type": "string",
+      "title": "Tòa nhà",
+      "minLength": 1
+    },
+    "floor": {
+      "type": "integer",
+      "title": "Tầng",
+      "minimum": 0
+    },
+    "org_path": {
+      "type": "string",
+      "title": "Đường dẫn đơn vị",
+      "description": "Đường dẫn nhóm trong cây tổ chức (docs/AUTHZ.md mục 2), ví dụ /haui/sict/khmt/lab-a1-305.",
+      "pattern": "^/haui(/[a-z0-9]+(-[a-z0-9]+)*)+$"
+    },
+    "unit_name": {
+      "type": "string",
+      "title": "Tên khoa hoặc đơn vị sở hữu",
+      "minLength": 1
+    },
+    "school_name": {
+      "type": "string",
+      "title": "Tên trường thành viên hoặc đại học",
+      "minLength": 1
+    },
+    "manager_role": {
+      "title": "Vai trò quản lý phòng",
+      "description": "Khóa vai trò ở docs/AUTHZ.md mục 3.",
+      "oneOf": [
+        {
+          "const": "lab_manager",
+          "title": "Trưởng phòng thí nghiệm"
+        },
+        {
+          "const": "faculty_head",
+          "title": "Trưởng khoa"
+        },
+        {
+          "const": "facility_director",
+          "title": "Trưởng Ban Cơ sở vật chất"
+        }
+      ]
+    },
+    "capacity": {
+      "type": "integer",
+      "title": "Sức chứa (người)",
+      "minimum": 0
+    },
+    "status": {
+      "title": "Trạng thái",
+      "oneOf": [
+        {
+          "const": "active",
+          "title": "Đang hoạt động"
+        },
+        {
+          "const": "inactive",
+          "title": "Ngừng hoạt động"
+        }
+      ]
+    },
+    "description": {
+      "type": "string",
+      "title": "Mô tả"
+    },
+    "basis": {
+      "type": "string",
+      "title": "Căn cứ",
+      "description": "Mã căn cứ, ví dụ GĐ-TC-2026 (giả định). Mã GĐ-… luôn hiển thị kèm chữ giả định."
+    },
+    "data_note": {
+      "type": "string",
+      "title": "Ghi chú dữ liệu",
+      "description": "Ví dụ: Số liệu giả định, không phải tài sản thật của HaUI."
+    }
+  }
+}

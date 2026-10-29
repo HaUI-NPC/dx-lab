@@ -84,6 +84,9 @@ def _messages(error: ValidationError) -> list[tuple[Iterable[Any], str]]:
         case "maxProperties":
             return [(path, f"Đối tượng có tối đa {expected} trường.")]
         case "anyOf" | "oneOf":
+            # Danh sách lựa chọn viết bằng `oneOf` của các `const` (kiểu form có tên hiển thị cho từng giá trị).
+            if all(isinstance(branch, dict) and "const" in branch for branch in expected):
+                return [(path, f"Giá trị không nằm trong danh sách cho phép: {_join(b['const'] for b in expected)}.")]
             return [(path, "Không khớp với bất kỳ dạng nào được phép.")]
         case "not":
             return [(path, "Giá trị không được phép.")]

@@ -2,9 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""Dữ liệu mẫu cho test records, documents, search: phòng theo `data/rooms.json` của APP-03 (PR #55) và hai SOP ngắn."""
+"""Dữ liệu mẫu cho test records, documents: phòng, tài sản theo APP-03 (PR #55), schema theo APP-01 (PR #69), và các SOP ngắn."""
 
+import json
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
 # Chữ ký của fixture `headers_for` trong conftest.py.
@@ -12,29 +14,14 @@ HeadersFactory = Callable[..., dict[str, str]]
 
 APP_ID = "lab-repair"
 ROOM_TYPE = "room"
+ASSET_TYPE = "asset"
 
-ROOM_SCHEMA: dict[str, Any] = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "Phòng thực hành, phòng thí nghiệm",
-    "type": "object",
-    "required": ["id", "code", "name", "org_path", "capacity", "status"],
-    "additionalProperties": False,
-    "properties": {
-        "id": {"type": "string", "minLength": 1},
-        "code": {"type": "string", "minLength": 1},
-        "name": {"type": "string", "minLength": 1},
-        "building": {"type": "string"},
-        "floor": {"type": "integer", "minimum": 0},
-        "org_path": {"type": "string", "pattern": "^/haui(/[a-z0-9-]+)+$"},
-        "unit_name": {"type": "string"},
-        "school_name": {"type": "string"},
-        "manager_role": {"type": "string"},
-        "capacity": {"type": "integer", "minimum": 1},
-        "status": {"enum": ["active", "inactive"]},
-        "description": {"type": "string"},
-    },
-}
+# Schema đúng như `apps/lab-repair/records/*-record.json` (APP-01, PR #69); chép sang `tests/data/` để test không phụ thuộc thứ tự merge.
+_DATA = Path(__file__).with_name("data")
+ROOM_SCHEMA: dict[str, Any] = json.loads((_DATA / "room-record.json").read_text(encoding="utf-8"))
+ASSET_SCHEMA: dict[str, Any] = json.loads((_DATA / "asset-record.json").read_text(encoding="utf-8"))
 
+# Bản ghi chép từ `data/rooms.json` và `data/assets.json` của APP-03 (PR #55).
 ROOMS: list[dict[str, Any]] = [
     {
         "id": "lab-a1-305",
@@ -48,6 +35,7 @@ ROOMS: list[dict[str, Any]] = [
         "manager_role": "lab_manager",
         "capacity": 40,
         "status": "active",
+        "description": "Phòng thực hành chuyên ngành Khoa học máy tính, trang bị máy trạm thực hành lập trình và tính toán."
     },
     {
         "id": "lab-a1-306",
@@ -61,6 +49,7 @@ ROOMS: list[dict[str, Any]] = [
         "manager_role": "lab_manager",
         "capacity": 40,
         "status": "active",
+        "description": "Phòng thực hành lập trình ứng dụng và hệ thống phân tán."
     },
     {
         "id": "lab-a1-601",
@@ -74,6 +63,7 @@ ROOMS: list[dict[str, Any]] = [
         "manager_role": "lab_manager",
         "capacity": 35,
         "status": "active",
+        "description": "Phòng thực hành thiết kế, cấu hình mạng và an toàn thông tin."
     },
     {
         "id": "lab-a10-201",
@@ -87,7 +77,57 @@ ROOMS: list[dict[str, Any]] = [
         "manager_role": "lab_manager",
         "capacity": 30,
         "status": "active",
+        "description": "Phòng thí nghiệm đo lường điện, khí cụ điện và mạch vi điều khiển."
+    }
+]
+
+ASSETS: list[dict[str, Any]] = [
+    {
+        "id": "AST-PC-305-01",
+        "code": "TS-2024-00101",
+        "name": "Máy tính trạm Dell OptiPlex 7090",
+        "category": "computer",
+        "room_id": "lab-a1-305",
+        "room_code": "A1-305",
+        "org_path": "/haui/sict/khmt/lab-a1-305",
+        "tech_unit_path": "/haui/tt-cntt",
+        "model": "Dell OptiPlex 7090 Tower",
+        "serial_number": "SN-DELL-7090-00101",
+        "purchase_year": 2023,
+        "warranty_expiry": "2026-12-31",
+        "original_value_vnd": 24500000,
+        "current_value_vnd": 18000000,
+        "status": "in_use",
+        "specifications": {
+            "cpu": "Intel Core i7-11700",
+            "ram": "32GB DDR4",
+            "storage": "512GB NVMe SSD + 1TB HDD",
+            "os": "Ubuntu 24.04 LTS"
+        }
     },
+    {
+        "id": "AST-PC-305-02",
+        "code": "TS-2024-00102",
+        "name": "Máy tính giảng viên HP ProDesk 400 G7",
+        "category": "computer",
+        "room_id": "lab-a1-305",
+        "room_code": "A1-305",
+        "org_path": "/haui/sict/khmt/lab-a1-305",
+        "tech_unit_path": "/haui/tt-cntt",
+        "model": "HP ProDesk 400 G7 SFF",
+        "serial_number": "SN-HP-400G7-00102",
+        "purchase_year": 2023,
+        "warranty_expiry": "2026-11-30",
+        "original_value_vnd": 19500000,
+        "current_value_vnd": 14000000,
+        "status": "in_use",
+        "specifications": {
+            "cpu": "Intel Core i5-10500",
+            "ram": "16GB DDR4",
+            "storage": "256GB SSD",
+            "os": "Windows 11 Pro Education"
+        }
+    }
 ]
 
 ROOMS_SOURCE = "data/rooms.json của dự án DX-Lab (APP-03)"
