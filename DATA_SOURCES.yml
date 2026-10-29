@@ -1,0 +1,149 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: CC-BY-4.0
+
+version: "1.0.0"
+title: "Bảng kê nguồn gốc dữ liệu mẫu DX-Lab (Data Sources Manifest)"
+description: >
+  Tài liệu công bố nguồn gốc, bản quyền và độ toàn vẹn của các tập dữ liệu mẫu
+  dùng cho phát triển, kiểm thử và demo trong dự án DX-Lab.
+  Toàn bộ dữ liệu do nhóm phát triển tự biên soạn, giả định theo cây tổ chức trong docs/AUTHZ.md,
+  không sử dụng thông tin cá nhân thật và không sao chép tài liệu có bản quyền.
+
+default_license: "CC-BY-4.0"
+copyright_holder: "DX-Lab contributors"
+year: 2026
+
+datasets:
+  - id: "dataset-rooms"
+    title: "Danh mục phòng thực hành và phòng thí nghiệm mẫu"
+    path: "data/rooms.json"
+    format: "application/json"
+    description: >
+      Danh sách 5 phòng thực hành mẫu (A1-305, A1-306, A1-601, A10-201, CSVC-KHO-01)
+      gắn liền với cấu trúc cây đơn vị và phân quyền trong docs/AUTHZ.md.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự tạo giả định, không chứa dữ liệu thật"
+    checksum:
+      algorithm: "sha256"
+      value: "2a3b15fb3a1a0bb43185cd6afd957e4791d3e298eb334fd3e486a423240bfc94"
+
+  - id: "dataset-assets"
+    title: "Danh mục tài sản và trang thiết bị kỹ thuật mẫu"
+    path: "data/assets.json"
+    format: "application/json"
+    description: >
+      Danh sách 12 tài sản mẫu thuộc 6 nhóm kỹ thuật: máy tính, máy chiếu, mạng LAN/WiFi,
+      điều hòa không khí, điện chiếu sáng, và thiết bị đo kiểm điện tử.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự tạo giả định, không chứa dữ liệu thật"
+    checksum:
+      algorithm: "sha256"
+      value: "025aaa3ddc7e900fd06dde8541f1e8148a189b1e8c391048ee36c7de22ed815f"
+
+  - id: "sop-pc-01"
+    title: "SOP-IT-01: Kiểm tra và khắc phục sự cố máy tính không lên nguồn"
+    path: "data/sop/sop-pc-khong-len-nguon.md"
+    format: "text/markdown"
+    description: >
+      Hướng dẫn quy trình 4 bước chẩn đoán và xử lý sự cố máy tính mất nguồn,
+      phục vụ kịch bản tìm kiếm tri thức của CORE-08 và POR-05.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật, tuân thủ an toàn lao động"
+    checksum:
+      algorithm: "sha256"
+      value: "6ae85a85c1dba5003bc605c174591a5822b67f07692c7fead9259576e68defb3"
+
+  - id: "sop-proj-01"
+    title: "SOP-IT-02: Xử lý sự cố máy chiếu không nhận tín hiệu hoặc mờ hình"
+    path: "data/sop/sop-may-chieu-mat-tin-hieu.md"
+    format: "text/markdown"
+    description: >
+      Quy trình kiểm tra cáp HDMI/VGA, cân chỉnh độ phân giải, lấy nét và vệ sinh lưới lọc bụi.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật"
+    checksum:
+      algorithm: "sha256"
+      value: "20963a5fb30730982dbb5bd00aefa8a2115d51fdb1b4552e3a1899d02cb5023a"
+
+  - id: "sop-net-01"
+    title: "SOP-NET-01: Xử lý sự cố mất kết nối mạng LAN phòng máy"
+    path: "data/sop/sop-mat-ket-noi-mang-lan.md"
+    format: "text/markdown"
+    description: >
+      Trình tự kiểm tra tầng vật lý RJ45, cấu hình DHCP/IP, phân đoạn mạng bằng lệnh Ping và thiết bị Switch.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật"
+    checksum:
+      algorithm: "sha256"
+      value: "c6b59e33851718c725b2f31df2d895019422feb596087a205c05711503163af6"
+
+  - id: "sop-fac-01"
+    title: "SOP-FAC-01: Xử lý sự cố điều hòa không mát hoặc chảy nước"
+    path: "data/sop/sop-dieu-hoa-khong-mat-chay-nuoc.md"
+    format: "text/markdown"
+    description: >
+      Hướng dẫn vệ sinh lưới lọc dàn lạnh, thông tắc đường ống xả ngưng và kiểm tra cục nóng.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật"
+    checksum:
+      algorithm: "sha256"
+      value: "1a91ff5b1db64109298cfa5f51a784846cdc5914e5c5cd816fc365f2ff524746"
+
+  - id: "sop-fac-02"
+    title: "SOP-FAC-02: Xử lý sự cố hệ thống đèn chiếu sáng chập chờn"
+    path: "data/sop/sop-den-chieu-sang-chap-chon.md"
+    format: "text/markdown"
+    description: >
+      Quy chuẩn an toàn điện ngắt aptomat, kiểm tra tiếp xúc đui đèn, thay tắc-te và bộ nguồn LED Driver.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật"
+    checksum:
+      algorithm: "sha256"
+      value: "de32200e7156e33f7065ffdaa28659604815810cfaab5344045207fb55f513ea"
+
+  - id: "sop-it-03"
+    title: "SOP-IT-03: Xử lý sự cố máy in bị kẹt giấy hoặc mờ mực"
+    path: "data/sop/sop-may-in-ket-giay-mo-muc.md"
+    format: "text/markdown"
+    description: >
+      Quy trình rút giấy kẹt an toàn hai tay, vệ sinh quả đào kéo giấy và xử lý hiện tượng mờ mực/trống Drum.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật"
+    checksum:
+      algorithm: "sha256"
+      value: "502ca9ff51794719a844d9b840436774824218ac22f8a2ff976cdbd8bfd234df"
+
+  - id: "sop-lab-01"
+    title: "SOP-LAB-01: Kiểm tra và bảo dưỡng thiết bị đo lường điện tử"
+    path: "data/sop/sop-dao-dong-ky-dong-ho-van-nang.md"
+    format: "text/markdown"
+    description: >
+      Quy trình kiểm tra cầu chì đồng hồ vạn năng, bù tụ que đo dao động ký và chạy tự cân chỉnh Self-Cal.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật"
+    checksum:
+      algorithm: "sha256"
+      value: "682c737c7d23b729c618dd65d2931fd93a19d6c666f60426b239ad527c067b98"
+
+  - id: "sop-lab-02"
+    title: "SOP-LAB-02: Xử lý sự cố trạm hàn nhiệt không gia nhiệt hoặc hỏng mũi hàn"
+    path: "data/sop/sop-tram-han-khong-nong.md"
+    format: "text/markdown"
+    description: >
+      Các bước đo kiểm tra điện trở lõi gia nhiệt và cảm biến nhiệt, thay lõi gốm và phục hồi mũi hàn bị oxit.
+    creator: "DX-Lab contributors"
+    license: "CC-BY-4.0"
+    origin: "Tự viết nội dung kỹ thuật"
+    checksum:
+      algorithm: "sha256"
+      value: "52107111c29fafa69dfaf0f0d19e587ad2d46675d8a6ec37aab1e8dd6857b5cb"
