@@ -176,6 +176,7 @@ Biến đặt trong `.env`:
 | `KC_BOOTSTRAP_ADMIN_USERNAME`, `KC_BOOTSTRAP_ADMIN_PASSWORD` | Keycloak | `admin` / (secret) | Chỉ để vào trang quản trị |
 | `DXLAB_PORTAL_CLIENT_SECRET` | Keycloak (realm import), portal | (secret) | Secret của client `dxlab-portal` |
 | `DXLAB_DEMO_PASSWORD` | Keycloak (realm import) | (secret) | Mật khẩu chung của tài khoản demo, chỉ dùng cho demo |
+| `DXLAB_DEMO_OTP_SECRET` | Keycloak (realm import), script demo | (secret) | Khóa OTP chung nạp sẵn cho tài khoản demo phải xác thực hai bước, chỉ dùng cho demo |
 | `DXLAB_PORTAL_SESSION_SECRET` | portal | (secret) | Ký cookie phiên |
 | `DXLAB_LOG_LEVEL` | core, portal | `INFO` | |
 | `DXLAB_EMBEDDING_MODEL` | core | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | Thiếu mô hình thì `/api/search` chỉ dùng FTS |
