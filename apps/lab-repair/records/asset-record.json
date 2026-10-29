@@ -42,7 +42,7 @@
     },
     "category": {
       "title": "Loại thiết bị",
-      "description": "Quyết định đơn vị kỹ thuật qua routing.dmn. Gồm danh mục AUTHZ mục 6 và các tên đang dùng ở form report, dữ liệu mẫu (hvac, lab_instrument, printer, other).",
+      "description": "Quyết định đơn vị kỹ thuật qua routing.dmn theo danh mục AUTHZ mục 6.",
       "oneOf": [
         {
           "const": "computer",
@@ -79,22 +79,6 @@
         {
           "const": "lab_equipment",
           "title": "Thiết bị thí nghiệm chuyên dùng"
-        },
-        {
-          "const": "hvac",
-          "title": "Điều hòa (tên trong form)"
-        },
-        {
-          "const": "lab_instrument",
-          "title": "Thiết bị thí nghiệm (tên trong form)"
-        },
-        {
-          "const": "printer",
-          "title": "Máy in"
-        },
-        {
-          "const": "other",
-          "title": "Khác"
         }
       ]
     },
