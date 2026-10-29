@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-Kind = Literal["text", "textarea", "email", "date", "number", "integer", "select", "radio", "checkbox"]
+Kind = Literal["text", "textarea", "email", "date", "number", "integer", "select", "radio", "checkbox", "array"]
 
 SCOPE_PREFIX = "#/properties/"
 DEFAULT_TEXTAREA_ROWS = 4
@@ -97,6 +97,8 @@ def _enum_options(prop: dict[str, Any]) -> list[Option]:
 
 def _kind(prop: dict[str, Any], ui_options: dict[str, Any]) -> Kind | None:
     type_ = prop.get("type")
+    if type_ == "array":
+        return "array"
     if type_ not in ("string", "integer", "number", "boolean"):
         return None
     if type_ == "boolean":
@@ -112,6 +114,9 @@ def _kind(prop: dict[str, Any], ui_options: dict[str, Any]) -> Kind | None:
 
 def _initial(kind: Kind, prop: dict[str, Any]) -> Any:
     default = prop.get("default")
+    if kind == "array":
+        import json
+        return json.dumps(default, ensure_ascii=False) if default is not None else ""
     if kind == "checkbox":
         # Ô đồng thuận không bao giờ tick sẵn (AUTHZ §8): chỉ tick sẵn khi schema đặt mặc định true
         # cho ô không bị ép ``const``.

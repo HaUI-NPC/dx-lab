@@ -42,7 +42,7 @@ class TabDef:
 
 # Thứ tự ở đây là thứ tự hiển thị.
 TABS: list[TabDef] = [
-    TabDef("tasks", "Việc của tôi", my_tasks.render),
+    TabDef("tasks", "Việc của tôi", my_tasks.render, my_tasks.load, my_tasks.state),
     TabDef("report", "Báo hỏng", report.render, report.load, report.state),
     TabDef("lookup", "Tra cứu", lookup.render),
     TabDef("dashboard", "Dashboard", dashboard.render),

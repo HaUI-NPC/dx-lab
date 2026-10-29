@@ -11,7 +11,9 @@ trong ``error``. Chưa đăng nhập thì trả 401 như mọi route của porta
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
+from urllib.parse import quote
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, Response
@@ -77,8 +79,18 @@ def _core_field_errors(result: CoreResult, spec: FormSpec) -> tuple[dict[str, st
     return per_field, other
 
 
-@router.post("/ui/forms/start/{app_id}")
-async def submit_start_form(app_id: str, body: SubmitBody, request: Request) -> Response:
+async def _submit(
+    request: Request,
+    values: dict[str, Any],
+    *,
+    form_path: str,
+    submit_path: str,
+    payload: Callable[[dict[str, Any]], dict[str, Any]],
+) -> Response:
+    """Luồng chung: lấy form (schema) từ core, kiểm tra tiếng Việt, gửi sang core.
+
+    ``form_path`` trả ``{"schema", "uischema"}`` (trực tiếp hoặc trong ``form``); ``payload`` dựng body gửi core.
+    """
     state = portal_state(request)
     if not same_origin(request, state.settings.public_url):
         return error_response(
@@ -91,28 +103,53 @@ async def submit_start_form(app_id: str, body: SubmitBody, request: Request) -> 
         )
     token = session.access_token
 
-    definition = await state.core.call("GET", f"/definitions/{app_id}/start-form", token=token)
-    if not definition.ok or not isinstance(definition.json, dict):
+    definition = await state.core.call("GET", form_path, token=token)
+    form = definition.json.get("form", definition.json) if isinstance(definition.json, dict) else None
+    if not definition.ok or not isinstance(form, dict):
         return _envelope(None, error=_error_envelope(definition))
-    spec = build_form(definition.json.get("schema") or {}, definition.json.get("uischema"))
+    spec = build_form(form.get("schema") or {}, form.get("uischema"))
 
-    data, errors = validate_form(spec, body.values)
+    data, errors = validate_form(spec, values)
     if errors:
         return _envelope(
             spec, errors=errors, message=f"Vui lòng kiểm tra lại {len(errors)} trường được đánh dấu đỏ."
         )
 
-    created = await state.core.call("POST", "/workflows", token=token, json={"app_id": app_id, "data": data})
-    if created.ok and isinstance(created.json, dict):
-        return _envelope(spec, ok=True, workflow=created.json)
-    if created.status == 422 and (created.error or {}).get("code") == "VALIDATION_FAILED":
-        per_field, other = _core_field_errors(created, spec)
+    sent = await state.core.call("POST", submit_path, token=token, json=payload(data))
+    if sent.ok and isinstance(sent.json, dict):
+        return _envelope(spec, ok=True, workflow=sent.json)
+    if sent.status == 422 and (sent.error or {}).get("code") == "VALIDATION_FAILED":
+        per_field, other = _core_field_errors(sent, spec)
         message = (
             "; ".join(other)
             if other
-            else (
-                "Core từ chối dữ liệu; xem thông báo ở từng trường." if per_field else created.error_message()
-            )
+            else ("Core từ chối dữ liệu; xem thông báo ở từng trường." if per_field else sent.error_message())
         )
         return _envelope(spec, errors=per_field, message=message)
-    return _envelope(spec, error=_error_envelope(created))
+    return _envelope(spec, error=_error_envelope(sent))
+
+
+@router.post("/ui/forms/start/{app_id}")
+async def submit_start_form(app_id: str, body: SubmitBody, request: Request) -> Response:
+    """Tạo phiếu mới: form lấy từ ``/definitions/{app_id}/start-form``, gửi ``POST /workflows``."""
+    app = quote(app_id, safe="")
+    return await _submit(
+        request,
+        body.values,
+        form_path=f"/definitions/{app}/start-form",
+        submit_path="/workflows",
+        payload=lambda data: {"app_id": app_id, "data": data},
+    )
+
+
+@router.post("/ui/forms/task/{task_id}")
+async def submit_task_form(task_id: str, body: SubmitBody, request: Request) -> Response:
+    """Hoàn thành một bước: form lấy từ ``/tasks/{task_id}``, gửi ``POST /tasks/{task_id}/complete``."""
+    task = quote(task_id, safe="")
+    return await _submit(
+        request,
+        body.values,
+        form_path=f"/tasks/{task}",
+        submit_path=f"/tasks/{task}/complete",
+        payload=lambda data: {"data": data},
+    )
