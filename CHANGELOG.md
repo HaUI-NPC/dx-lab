@@ -13,6 +13,10 @@ và dự án tuân theo [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0
 
 ## [Unreleased]
 
+## [0.1.0] - Chưa phát hành
+
+Ngày phát hành và nội dung tích hợp cuối cùng sẽ được chốt sau khi các phụ thuộc release được merge và kiểm chứng.
+
 ### Added
 
 - Giấy phép Apache-2.0 cho mã nguồn và CC BY 4.0 cho tài liệu, kèm toàn văn trong `LICENSES/`.
