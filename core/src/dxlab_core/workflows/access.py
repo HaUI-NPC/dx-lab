@@ -49,7 +49,7 @@ def authorize_task(session: Session, principal: Principal, instance: Workflow, t
         if instance.created_by != principal.username:
             raise ApiError(403, "FORBIDDEN_SCOPE", "Chỉ người tạo được làm bước này.", {"layer": 2})
         return
-    if role == "lab_manager" and not principal.has_role(role) and principal.has_role("faculty_head"):
+    if role == "lab_manager" and instance.data.get("room_manager_role") == "faculty_head":
         role = "faculty_head"
     if not role or not principal.has_role(role):
         raise ApiError(403, "FORBIDDEN_ROLE", "Bạn không giữ vai trò của bước này.", {"layer": 1, "role": role})

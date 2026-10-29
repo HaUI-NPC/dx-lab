@@ -28,6 +28,8 @@ def apply_record_bindings(session: Session, app_id: str, metadata: dict, data: d
                 raise ApiError(422, "VALIDATION_FAILED", "Đối tượng liên kết thiếu thuộc tính bắt buộc.")
             data[destination] = record.data[source]
             bound_room = bound_room or destination == "room_unit"
+            if destination == "room_unit":
+                data["room_manager_role"] = record.data.get("manager_role", "lab_manager")
     room = data.get("room_unit")
     if bound_room:
         if not isinstance(room, str) or not room.startswith("/") or len(room.strip("/").split("/")) < 4:
