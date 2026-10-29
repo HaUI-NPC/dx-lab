@@ -4,6 +4,7 @@
 
 """Phiếu giữ nguyên luật khi phiên bản mới được duyệt; form không cho giả mạo output luật."""
 import json
+import uuid
 from test_definitions import PGD_MINH, QT_SON, package, upload
 
 
@@ -91,3 +92,19 @@ def test_actor_exclusion_applies_to_direct_completion_not_only_queue(client, hea
     denied = client.post(f"/api/tasks/{task_id}/complete", headers=technician, json={"data": {"ok": True}})
     assert denied.status_code == 403
     assert denied.json()["error"]["code"] == "FORBIDDEN_SOD"
+
+
+def test_restore_keeps_task_data_when_json_object_order_is_lost(client, headers_for, app):
+    # JSONB của PostgreSQL xếp lại khóa theo chữ cái; Spiff cần thứ tự cha trước con để dựng lại dữ liệu.
+    from dxlab_core.workflows import service
+
+    activate(client, headers_for, task_package())
+    created = client.post("/api/workflows", headers=headers_for("sv.an"),
+                          json={"app_id": "mini", "data": {"cost": 3500000}}).json()
+    with app.state.sessionmaker() as session:
+        instance = service.find(session, uuid.UUID(created["workflow_id"]))
+        tasks = instance.engine_state["tasks"]
+        instance.engine_state = {**instance.engine_state, "tasks": dict(reversed(list(tasks.items())))}
+        restored = service.restore(instance)
+        (task,) = service.ready_tasks(restored)
+        assert (task.data["cost"], task.data["level"]) == (3500000, "high")

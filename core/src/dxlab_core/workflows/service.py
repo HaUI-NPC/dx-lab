@@ -63,8 +63,31 @@ def save_engine(instance: Workflow, engine: BpmnWorkflow) -> None:
     instance.engine_state = json.loads(SERIALIZER.serialize_json(engine))
 
 
+def _parents_first(tasks: dict[str, Any]) -> dict[str, Any]:
+    """Thứ tự cha trước con. Spiff dựng lại dữ liệu mỗi task từ delta của cha nên cần đúng thứ tự này,
+    nhưng JSONB của PostgreSQL xếp lại khóa của object theo chữ cái, làm mất thứ tự tạo task."""
+    ordered: dict[str, Any] = {}
+
+    def visit(key: str) -> None:
+        if key in ordered or key not in tasks:
+            return
+        parent = tasks[key].get("parent")
+        if parent:
+            visit(parent)
+        ordered[key] = tasks[key]
+
+    for key in tasks:
+        visit(key)
+    return ordered
+
+
 def restore(instance: Workflow) -> BpmnWorkflow:
-    return SERIALIZER.deserialize_json(json.dumps(instance.engine_state))
+    state = dict(instance.engine_state)
+    state["tasks"] = _parents_first(state["tasks"])
+    state["subprocesses"] = {
+        pid: {**sub, "tasks": _parents_first(sub["tasks"])} for pid, sub in state.get("subprocesses", {}).items()
+    }
+    return SERIALIZER.deserialize_json(json.dumps(state))
 
 
 def create(session: Session, principal: Principal, app_id: str, data: dict[str, Any]) -> Workflow:
