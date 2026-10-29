@@ -35,7 +35,7 @@ def error_response(status: int, code: str, message: str) -> JSONResponse:
     )
 
 
-def _same_origin(request: Request, public_url: str) -> bool:
+def same_origin(request: Request, public_url: str) -> bool:
     """Chặn yêu cầu ghi từ trang khác: nếu có ``Origin`` thì phải trùng địa chỉ công khai của portal."""
     origin = request.headers.get("origin")
     if origin is None:
@@ -48,7 +48,7 @@ def _same_origin(request: Request, public_url: str) -> bool:
 @router.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE"], name="api_proxy")
 async def api_proxy(path: str, request: Request) -> Response:
     state = portal_state(request)
-    if request.method not in _SAFE_METHODS and not _same_origin(request, state.settings.public_url):
+    if request.method not in _SAFE_METHODS and not same_origin(request, state.settings.public_url):
         return error_response(
             403, "FORBIDDEN_ORIGIN", "Yêu cầu ghi bị từ chối vì không xuất phát từ trang của portal."
         )

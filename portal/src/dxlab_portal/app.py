@@ -25,7 +25,8 @@ from dxlab_portal.bff.session import SessionStore
 from dxlab_portal.bff.state import PortalState, current_session, portal_state
 from dxlab_portal.config import Settings, load_settings
 from dxlab_portal.pages.context import PageContext
-from dxlab_portal.pages.shell import render_html
+from dxlab_portal.pages.forms import routes as form_routes
+from dxlab_portal.pages.shell import load_tabs, render_html
 from dxlab_portal.pages.user import user_from_claims, user_from_me
 
 # Cookie tạm giữ state/nonce/PKCE trong lúc chuyển sang Keycloak, khác cookie phiên chính.
@@ -97,6 +98,7 @@ def create_app(
 
     app.include_router(auth.router)
     app.include_router(proxy.router)
+    app.include_router(form_routes.router)
 
     @app.get("/healthz", include_in_schema=False)
     async def healthz() -> dict[str, str]:
@@ -115,7 +117,7 @@ def create_app(
         ctx = PageContext(
             user=user, access_token=session.access_token, core=portal_state(request).core, tab=tab
         )
-        return HTMLResponse(render_html(ctx))
+        return HTMLResponse(render_html(ctx, await load_tabs(ctx)))
 
     return app
 
