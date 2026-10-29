@@ -57,10 +57,52 @@ def state(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "Có" if value else "Không"
     if isinstance(value, (dict, list)):
         value = json.dumps(value, ensure_ascii=False)
     text = str(value) if value is not None else "—"
     return text + (" (giả định)" if "GĐ-" in text and "giả định" not in text.lower() else "")
+
+
+def _field_text(key: str, value: Any) -> str:
+    """Một giá trị của phiếu thành chữ người đọc: tiền có dấu chấm, Có/Không, danh sách mỗi mục một đoạn."""
+    if isinstance(value, bool) or value is None:
+        return _value(value)
+    if isinstance(value, int) and key.endswith("_vnd"):
+        return f"{value:,}".replace(",", ".") + " đ"
+    if isinstance(value, list):
+        return "; ".join(_field_text(key, item) for item in value) or "—"
+    if isinstance(value, dict):
+        return " · ".join(_field_text(k, v) for k, v in value.items())
+    return _value(value)
+
+
+def describe_fields(data: dict[str, Any], titles: dict[str, str]) -> list[tuple[str, str]]:
+    """Chỉ các trường có tiêu đề trong form của gói; trường không có tiêu đề là dữ liệu nội bộ của engine."""
+    return [(title, _field_text(key, data[key])) for key, title in titles.items() if key in data]
+
+
+_ACTIONS = {"report.create": "Tạo phiếu", "task.complete": "Hoàn thành bước", "repair.approve": "Duyệt"}
+_SIGNING = {"direct": "trực tiếp", "kt": "KT.", "tuq": "TUQ."}
+
+
+def describe_history(events: list[Any]) -> list[str]:
+    """Mỗi sự kiện một dòng: thời điểm · người làm · việc đã làm (kèm hình thức ký và căn cứ nếu có)."""
+    lines = []
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        details = event.get("details") or {}
+        action = _ACTIONS.get(str(event.get("action")), str(event.get("action") or "—"))
+        step = details.get("step_name") or event.get("step_id")
+        parts = [_date(event.get("at")), str(event.get("actor") or "—"), f"{action}: {step}" if step else action]
+        if details.get("signing_type"):
+            parts.append(f"ký {_SIGNING.get(str(details['signing_type']), details['signing_type'])}")
+        if details.get("authority_basis"):
+            parts.append(f"căn cứ {_value(details['authority_basis'])}")
+        lines.append(" · ".join(parts))
+    return lines
 
 
 def render(data: dict[str, Any]) -> None:
@@ -81,8 +123,12 @@ def render(data: dict[str, Any]) -> None:
                             Link(
                                 str(item.get("step_name") or item.get("step_id") or "Chi tiết việc"),
                                 href=f"/?tab=tasks&task_id={quote(str(item.get('task_id', '')), safe='')}",
+                                target="_self",
                             )
-                            Muted(f"Phiếu: {item.get('workflow_id', '—')} · Hạn: {_date(item.get('due_at'))}")
+                            Muted(
+                                f"Phiếu {str(item.get('workflow_id', '—'))[:8]} · {item.get('app_id', '—')} · "
+                                f"Hạn: {_date(item.get('due_at'))}"
+                            )
                             if item.get("overdue"):
                                 Badge("Quá hạn", variant="destructive")
         task = data["task"]
@@ -113,17 +159,13 @@ def render(data: dict[str, Any]) -> None:
                         CardTitle("Chi tiết phiếu")
                     with CardContent():
                         Text(
-                            f"Mã phiếu: {item.get('workflow_id', '—')} · "
-                            f"Trạng thái: {item.get('status_name') or item.get('status', '—')}"
+                            f"Trạng thái: {item.get('status_name') or item.get('status', '—')} · "
+                            f"Mã phiếu: {str(item.get('workflow_id', '—'))[:8]} · Hạn: {_date(item.get('due_at'))}"
                         )
-                        for key, value in (item.get("data") or {}).items():
-                            Text(f"{key}: {_value(value)}")
+                        with Column(gap=1):
+                            for title, text in describe_fields(item.get("data") or {}, item.get("field_titles") or {}):
+                                Text(f"{title}: {text}")
                         Text("Lịch sử", bold=True)
-                        for event in item.get("history") or []:
-                            if isinstance(event, dict):
-                                Text(" · ".join(
-                                    f"{key}: {_date(value) if key == 'at' or key.endswith('_at') else _value(value)}"
-                                    for key, value in event.items()
-                                ))
-                            else:
-                                Text(_value(event))
+                        with Column(gap=1):
+                            for line in describe_history(item.get("history") or []):
+                                Text(line)
