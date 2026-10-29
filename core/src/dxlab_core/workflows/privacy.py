@@ -55,6 +55,16 @@ def mask_personal_data(instance: Any, data: dict) -> dict:
     return {} if result is _REDACTED else result
 
 
+def mask_history(instance: Any, value: Any) -> Any:
+    """Audit không trả lại dữ liệu form, kể cả khi nằm trong một đối tượng bọc."""
+    if isinstance(value, dict):
+        return {key: mask_history(instance, item)
+                for key, item in mask_personal_data(instance, value).items()}
+    if isinstance(value, list):
+        return [mask_history(instance, item) for item in value]
+    return value
+
+
 def export_personal_data(session: Any, principal: Any, instance: Any, reason: str) -> dict:
     """Xuất có kiểm soát; audit chỉ chứa lý do, không chứa nội dung xuất."""
     if principal.is_system_admin or not principal.has_role("internal_auditor"):
