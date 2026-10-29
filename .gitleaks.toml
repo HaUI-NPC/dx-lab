@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 DX-Lab contributors
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Cấu hình gitleaks cho CI (job `Quét secret (gitleaks)` trong .github/workflows/ci.yml).
+# Dùng nguyên bộ luật mặc định của gitleaks; không có ngoại lệ nào. Khi gặp dương tính giả,
+# thêm `[[allowlists]]` hẹp (theo `paths` hoặc `regexes` của đúng một tệp) kèm lý do ngay tại đây,
+# không tắt luật và không bỏ qua cả thư mục.
+
+title = "DX-Lab gitleaks"
+
+[extend]
+useDefault = true
