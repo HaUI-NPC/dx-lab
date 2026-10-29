@@ -19,6 +19,7 @@ from dxlab_core.health.router import router as health_router
 from dxlab_core.records.router import router as records_router
 from dxlab_core.request_id import RequestIdMiddleware, configure_logging
 from dxlab_core.tasks.router import router as tasks_router
+from dxlab_core.stats.router import router as stats_router
 from dxlab_core.workflows.router import router as workflows_router
 from dxlab_core.search.engine import SearchEngine
 from dxlab_core.search.router import router as search_router
@@ -56,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(records_router, prefix=API_PREFIX)
     app.include_router(documents_router, prefix=API_PREFIX)
     app.include_router(search_router, prefix=API_PREFIX)
+    app.include_router(stats_router, prefix=API_PREFIX)
     return app
 
 
