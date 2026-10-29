@@ -41,21 +41,6 @@
           <text>"QĐ 1152 Đ15.4b"</text>
         </outputEntry>
       </rule>
-      <rule id="routing_t_r3">
-        <description>Máy in: Trung tâm CNTT (giả định)</description>
-        <inputEntry id="routing_t_r3_i1">
-          <text>"printer"</text>
-        </inputEntry>
-        <outputEntry id="routing_t_r3_o1">
-          <text>"/haui/tt-cntt"</text>
-        </outputEntry>
-        <outputEntry id="routing_t_r3_o2">
-          <text>"it_technician"</text>
-        </outputEntry>
-        <outputEntry id="routing_t_r3_o3">
-          <text>"GĐ-TC-2026"</text>
-        </outputEntry>
-      </rule>
       <rule id="routing_t_r4">
         <description>Mạng: Trung tâm CNTT (giả định)</description>
         <inputEntry id="routing_t_r4_i1">
@@ -83,21 +68,6 @@
           <text>"facility_technician"</text>
         </outputEntry>
         <outputEntry id="routing_t_r5_o3">
-          <text>"QĐ 1152 Đ15.4b"</text>
-        </outputEntry>
-      </rule>
-      <rule id="routing_t_r6">
-        <description>Điều hòa (tên trong form): Ban CSVC</description>
-        <inputEntry id="routing_t_r6_i1">
-          <text>"hvac"</text>
-        </inputEntry>
-        <outputEntry id="routing_t_r6_o1">
-          <text>"/haui/ban-csvc"</text>
-        </outputEntry>
-        <outputEntry id="routing_t_r6_o2">
-          <text>"facility_technician"</text>
-        </outputEntry>
-        <outputEntry id="routing_t_r6_o3">
           <text>"QĐ 1152 Đ15.4b"</text>
         </outputEntry>
       </rule>
@@ -159,21 +129,6 @@
         </outputEntry>
         <outputEntry id="routing_t_r10_o3">
           <text>"QĐ 1152 Đ15.4b"</text>
-        </outputEntry>
-      </rule>
-      <rule id="routing_t_r11">
-        <description>Thiết bị chuyên dùng (tên trong form): kỹ thuật viên của khoa sở hữu phòng; core tra khoa từ phòng</description>
-        <inputEntry id="routing_t_r11_i1">
-          <text>"lab_instrument"</text>
-        </inputEntry>
-        <outputEntry id="routing_t_r11_o1">
-          <text>"owner_faculty"</text>
-        </outputEntry>
-        <outputEntry id="routing_t_r11_o2">
-          <text>"lab_technician"</text>
-        </outputEntry>
-        <outputEntry id="routing_t_r11_o3">
-          <text>"GĐ-TC-2026"</text>
         </outputEntry>
       </rule>
       <rule id="routing_t_r12">

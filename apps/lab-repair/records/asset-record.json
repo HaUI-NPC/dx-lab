@@ -42,7 +42,7 @@
     },
     "category": {
       "title": "Loại thiết bị",
-      "description": "Quyết định đơn vị kỹ thuật qua routing.dmn.",
+      "description": "Quyết định đơn vị kỹ thuật qua routing.dmn theo danh mục AUTHZ mục 6.",
       "oneOf": [
         {
           "const": "computer",
