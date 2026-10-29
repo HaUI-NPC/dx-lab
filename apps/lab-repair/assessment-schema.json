@@ -19,7 +19,8 @@
       "title": "Kỹ thuật viên kiểm tra",
       "description": "Họ và tên cán bộ kỹ thuật được phân công",
       "minLength": 2,
-      "maxLength": 100
+      "maxLength": 100,
+      "x-personal-data": true
     },
     "inspection_date": {
       "type": "string",

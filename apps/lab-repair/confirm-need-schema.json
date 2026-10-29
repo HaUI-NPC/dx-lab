@@ -16,7 +16,8 @@
       "title": "Trưởng phòng thí nghiệm",
       "description": "Họ và tên cán bộ quản lý phòng lab",
       "minLength": 2,
-      "maxLength": 100
+      "maxLength": 100,
+      "x-personal-data": true
     },
     "confirm_date": {
       "type": "string",

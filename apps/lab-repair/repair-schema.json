@@ -17,7 +17,8 @@
       "title": "Kỹ thuật viên thực hiện",
       "description": "Họ và tên cán bộ kỹ thuật trực tiếp sửa chữa",
       "minLength": 2,
-      "maxLength": 100
+      "maxLength": 100,
+      "x-personal-data": true
     },
     "repair_date": {
       "type": "string",
