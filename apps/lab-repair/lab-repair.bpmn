@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_lab_repair" targetNamespace="dxlab" exporter="DX-Lab" exporterVersion="1">
+  <bpmn:collaboration id="Collaboration_lab_repair">
+    <bpmn:documentation>Quy trình báo hỏng và sửa chữa thiết bị phòng lab (docs/AUTHZ.md). Id bước người dùng là trạng thái của phiếu; con số nghiệp vụ nằm trong các bảng luật .dmn.</bpmn:documentation>
+    <bpmn:participant id="Participant_lab_repair" name="Sửa chữa thiết bị phòng lab" processRef="lab_repair" />
+  </bpmn:collaboration>
+  <bpmn:process id="lab_repair" name="Sửa chữa thiết bị phòng lab" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_lab_repair">
+      <bpmn:lane id="Lane_reporter" name="reporter">
+        <bpmn:flowNodeRef>start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>report</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_system" name="system">
+        <bpmn:flowNodeRef>route</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>triage</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>authority</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_outside</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_quotes</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_required</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>cost_overrun</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_overrun</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>authority_recheck</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_technician" name="technician">
+        <bpmn:flowNodeRef>pending_assessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_assessment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>closed_invalid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>repairing</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_lab_manager" name="lab_manager">
+        <bpmn:flowNodeRef>awaiting_handoff</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>handed_off</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>awaiting_endorsement</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_endorse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>awaiting_acceptance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_acceptance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>completed</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_approver" name="approver">
+        <bpmn:flowNodeRef>closed_rejected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>awaiting_approval</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_approval</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="start" name="Có sự cố">
+      <bpmn:outgoing>flow_start_report</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="report" name="Báo hỏng">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="report-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="report-uischema.json" />
+        </spiffworkflow:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_start_report</bpmn:incoming>
+      <bpmn:outgoing>flow_report_route</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:businessRuleTask id="route" name="Định tuyến đơn vị kỹ thuật">
+      <bpmn:extensionElements>
+        <spiffworkflow:calledDecisionId>routing</spiffworkflow:calledDecisionId>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_report_route</bpmn:incoming>
+      <bpmn:outgoing>flow_route_triage</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:businessRuleTask id="triage" name="Phân loại và xếp ưu tiên">
+      <bpmn:extensionElements>
+        <spiffworkflow:calledDecisionId>triage</spiffworkflow:calledDecisionId>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_route_triage</bpmn:incoming>
+      <bpmn:outgoing>flow_triage_pending_assessment</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:userTask id="pending_assessment" name="Chờ kiểm tra">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="assessment-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="assessment-uischema.json" />
+        </spiffworkflow:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_triage_pending_assessment</bpmn:incoming>
+      <bpmn:incoming>flow_gw_quotes_pending_assessment</bpmn:incoming>
+      <bpmn:outgoing>flow_pending_assessment_gw_assessment</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gw_assessment" name="Kết quả kiểm tra?">
+      <bpmn:incoming>flow_pending_assessment_gw_assessment</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_assessment_authority</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_assessment_awaiting_handoff</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_assessment_closed_invalid</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="closed_invalid" name="Đóng — báo nhầm">
+      <bpmn:incoming>flow_gw_assessment_closed_invalid</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:businessRuleTask id="authority" name="Tra thẩm quyền duyệt">
+      <bpmn:extensionElements>
+        <spiffworkflow:calledDecisionId>authority</spiffworkflow:calledDecisionId>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_gw_assessment_authority</bpmn:incoming>
+      <bpmn:outgoing>flow_authority_gw_outside</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="gw_outside" name="Ngoài hệ thống?">
+      <bpmn:incoming>flow_authority_gw_outside</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_outside_awaiting_handoff</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_outside_gw_quotes</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="gw_quotes" name="Đủ báo giá?">
+      <bpmn:incoming>flow_gw_outside_gw_quotes</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_quotes_pending_assessment</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_quotes_gw_required</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="gw_required" name="Cần duyệt?">
+      <bpmn:incoming>flow_gw_quotes_gw_required</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_required_awaiting_endorsement</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_required_repairing</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="awaiting_handoff" name="Chờ chuyển Ban CSVC">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="handoff-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="handoff-uischema.json" />
+        </spiffworkflow:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_gw_assessment_awaiting_handoff</bpmn:incoming>
+      <bpmn:incoming>flow_gw_outside_awaiting_handoff</bpmn:incoming>
+      <bpmn:outgoing>flow_awaiting_handoff_handed_off</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="handed_off" name="Đã chuyển Ban CSVC">
+      <bpmn:incoming>flow_awaiting_handoff_handed_off</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="awaiting_endorsement" name="Chờ xác nhận nhu cầu">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="confirm-need-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="confirm-need-uischema.json" />
+        </spiffworkflow:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_gw_required_awaiting_endorsement</bpmn:incoming>
+      <bpmn:outgoing>flow_awaiting_endorsement_gw_endorse</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gw_endorse" name="Cần sửa?">
+      <bpmn:incoming>flow_awaiting_endorsement_gw_endorse</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_endorse_awaiting_approval</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_endorse_closed_rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="closed_rejected" name="Đóng — không sửa">
+      <bpmn:incoming>flow_gw_endorse_closed_rejected</bpmn:incoming>
+      <bpmn:incoming>flow_gw_approval_closed_rejected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="awaiting_approval" name="Chờ duyệt">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="approval-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="approval-uischema.json" />
+          <spiffworkflow:property name="dxlabExcludeActorsOf" value="report" />
+        </spiffworkflow:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_gw_endorse_awaiting_approval</bpmn:incoming>
+      <bpmn:incoming>flow_authority_recheck_awaiting_approval</bpmn:incoming>
+      <bpmn:outgoing>flow_awaiting_approval_gw_approval</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gw_approval" name="Quyết định duyệt?">
+      <bpmn:incoming>flow_awaiting_approval_gw_approval</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_approval_repairing</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_approval_closed_rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="repairing" name="Đang sửa">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="repair-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="repair-uischema.json" />
+        </spiffworkflow:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_gw_required_repairing</bpmn:incoming>
+      <bpmn:incoming>flow_gw_approval_repairing</bpmn:incoming>
+      <bpmn:incoming>flow_gw_acceptance_repairing</bpmn:incoming>
+      <bpmn:outgoing>flow_repairing_cost_overrun</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:businessRuleTask id="cost_overrun" name="Kiểm tra chi phí thực tế (E2)">
+      <bpmn:extensionElements>
+        <spiffworkflow:calledDecisionId>cost_overrun</spiffworkflow:calledDecisionId>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_repairing_cost_overrun</bpmn:incoming>
+      <bpmn:outgoing>flow_cost_overrun_gw_overrun</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:exclusiveGateway id="gw_overrun" name="Vượt chi phí đã duyệt?">
+      <bpmn:incoming>flow_cost_overrun_gw_overrun</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_overrun_authority_recheck</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_overrun_awaiting_acceptance</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:businessRuleTask id="authority_recheck" name="Tra lại thẩm quyền duyệt (E2)">
+      <bpmn:extensionElements>
+        <spiffworkflow:calledDecisionId>authority</spiffworkflow:calledDecisionId>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_gw_overrun_authority_recheck</bpmn:incoming>
+      <bpmn:outgoing>flow_authority_recheck_awaiting_approval</bpmn:outgoing>
+    </bpmn:businessRuleTask>
+    <bpmn:userTask id="awaiting_acceptance" name="Chờ nghiệm thu">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="acceptance-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="acceptance-uischema.json" />
+          <spiffworkflow:property name="dxlabExcludeActorsOf" value="pending_assessment,repairing" />
+        </spiffworkflow:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_gw_overrun_awaiting_acceptance</bpmn:incoming>
+      <bpmn:outgoing>flow_awaiting_acceptance_gw_acceptance</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="gw_acceptance" name="Kết quả nghiệm thu?">
+      <bpmn:incoming>flow_awaiting_acceptance_gw_acceptance</bpmn:incoming>
+      <bpmn:outgoing>flow_gw_acceptance_completed</bpmn:outgoing>
+      <bpmn:outgoing>flow_gw_acceptance_repairing</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="completed" name="Hoàn tất">
+      <bpmn:incoming>flow_gw_acceptance_completed</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_start_report" sourceRef="start" targetRef="report" />
+    <bpmn:sequenceFlow id="flow_report_route" sourceRef="report" targetRef="route" />
+    <bpmn:sequenceFlow id="flow_route_triage" sourceRef="route" targetRef="triage" />
+    <bpmn:sequenceFlow id="flow_triage_pending_assessment" sourceRef="triage" targetRef="pending_assessment" />
+    <bpmn:sequenceFlow id="flow_pending_assessment_gw_assessment" sourceRef="pending_assessment" targetRef="gw_assessment" />
+    <bpmn:sequenceFlow id="flow_gw_assessment_authority" name="Sửa được" sourceRef="gw_assessment" targetRef="authority">
+      <bpmn:conditionExpression>assessment_result == "fix_no_cost" or assessment_result == "needs_cost"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_assessment_awaiting_handoff" name="Không sửa được" sourceRef="gw_assessment" targetRef="awaiting_handoff">
+      <bpmn:conditionExpression>assessment_result == "not_repairable"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_assessment_closed_invalid" name="Báo nhầm" sourceRef="gw_assessment" targetRef="closed_invalid">
+      <bpmn:conditionExpression>assessment_result == "invalid"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_authority_gw_outside" sourceRef="authority" targetRef="gw_outside" />
+    <bpmn:sequenceFlow id="flow_gw_outside_awaiting_handoff" name="Mua thay thế, nâng cấp" sourceRef="gw_outside" targetRef="awaiting_handoff">
+      <bpmn:conditionExpression>outside_system</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_outside_gw_quotes" name="Sửa chữa" sourceRef="gw_outside" targetRef="gw_quotes">
+      <bpmn:conditionExpression>not outside_system</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_quotes_pending_assessment" name="Thiếu báo giá" sourceRef="gw_quotes" targetRef="pending_assessment">
+      <bpmn:conditionExpression>quote_count &lt; quotes_required</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_quotes_gw_required" name="Đủ báo giá" sourceRef="gw_quotes" targetRef="gw_required">
+      <bpmn:conditionExpression>quote_count &gt;= quotes_required</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_required_awaiting_endorsement" name="Cần duyệt" sourceRef="gw_required" targetRef="awaiting_endorsement">
+      <bpmn:conditionExpression>approval_required</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_required_repairing" name="Không cần duyệt" sourceRef="gw_required" targetRef="repairing">
+      <bpmn:conditionExpression>not approval_required</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_awaiting_handoff_handed_off" sourceRef="awaiting_handoff" targetRef="handed_off" />
+    <bpmn:sequenceFlow id="flow_awaiting_endorsement_gw_endorse" sourceRef="awaiting_endorsement" targetRef="gw_endorse" />
+    <bpmn:sequenceFlow id="flow_gw_endorse_awaiting_approval" name="Cần sửa" sourceRef="gw_endorse" targetRef="awaiting_approval">
+      <bpmn:conditionExpression>need_confirmed</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_endorse_closed_rejected" name="Không cần sửa" sourceRef="gw_endorse" targetRef="closed_rejected">
+      <bpmn:conditionExpression>not need_confirmed</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_awaiting_approval_gw_approval" sourceRef="awaiting_approval" targetRef="gw_approval" />
+    <bpmn:sequenceFlow id="flow_gw_approval_repairing" name="Duyệt" sourceRef="gw_approval" targetRef="repairing">
+      <bpmn:conditionExpression>decision == "approved"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_approval_closed_rejected" name="Không duyệt" sourceRef="gw_approval" targetRef="closed_rejected">
+      <bpmn:conditionExpression>decision == "rejected"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_repairing_cost_overrun" sourceRef="repairing" targetRef="cost_overrun" />
+    <bpmn:sequenceFlow id="flow_cost_overrun_gw_overrun" sourceRef="cost_overrun" targetRef="gw_overrun" />
+    <bpmn:sequenceFlow id="flow_gw_overrun_authority_recheck" name="Vượt: duyệt lại" sourceRef="gw_overrun" targetRef="authority_recheck">
+      <bpmn:conditionExpression>cost_recheck_required</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_overrun_awaiting_acceptance" name="Trong ngưỡng" sourceRef="gw_overrun" targetRef="awaiting_acceptance">
+      <bpmn:conditionExpression>not cost_recheck_required</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_authority_recheck_awaiting_approval" sourceRef="authority_recheck" targetRef="awaiting_approval" />
+    <bpmn:sequenceFlow id="flow_awaiting_acceptance_gw_acceptance" sourceRef="awaiting_acceptance" targetRef="gw_acceptance" />
+    <bpmn:sequenceFlow id="flow_gw_acceptance_completed" name="Đạt" sourceRef="gw_acceptance" targetRef="completed">
+      <bpmn:conditionExpression>acceptance_result == "accepted"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_gw_acceptance_repairing" name="Chưa đạt" sourceRef="gw_acceptance" targetRef="repairing">
+      <bpmn:conditionExpression>acceptance_result == "rejected"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_lab_repair">
+    <bpmndi:BPMNPlane id="BPMNPlane_lab_repair" bpmnElement="Collaboration_lab_repair">
+      <bpmndi:BPMNShape id="Participant_lab_repair_di" bpmnElement="Participant_lab_repair" isHorizontal="true">
+        <dc:Bounds x="160" y="0" width="2740" height="1000" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_approver_di" bpmnElement="Lane_approver" isHorizontal="true">
+        <dc:Bounds x="190" y="800" width="2710" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_lab_manager_di" bpmnElement="Lane_lab_manager" isHorizontal="true">
+        <dc:Bounds x="190" y="600" width="2710" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_technician_di" bpmnElement="Lane_technician" isHorizontal="true">
+        <dc:Bounds x="190" y="400" width="2710" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_system_di" bpmnElement="Lane_system" isHorizontal="true">
+        <dc:Bounds x="190" y="200" width="2710" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_reporter_di" bpmnElement="Lane_reporter" isHorizontal="true">
+        <dc:Bounds x="190" y="0" width="2710" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="232" y="82" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="190" y="122" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="report_di" bpmnElement="report">
+        <dc:Bounds x="320" y="60" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="route_di" bpmnElement="route">
+        <dc:Bounds x="470" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="triage_di" bpmnElement="triage">
+        <dc:Bounds x="610" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="pending_assessment_di" bpmnElement="pending_assessment">
+        <dc:Bounds x="750" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_assessment_di" bpmnElement="gw_assessment" isMarkerVisible="true">
+        <dc:Bounds x="915" y="475" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="880" y="529" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="closed_invalid_di" bpmnElement="closed_invalid">
+        <dc:Bounds x="1042" y="482" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1000" y="522" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="authority_di" bpmnElement="authority">
+        <dc:Bounds x="1070" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_outside_di" bpmnElement="gw_outside" isMarkerVisible="true">
+        <dc:Bounds x="1225" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1190" y="329" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_quotes_di" bpmnElement="gw_quotes" isMarkerVisible="true">
+        <dc:Bounds x="1345" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1310" y="329" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_required_di" bpmnElement="gw_required" isMarkerVisible="true">
+        <dc:Bounds x="1465" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1430" y="329" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="awaiting_handoff_di" bpmnElement="awaiting_handoff">
+        <dc:Bounds x="1070" y="660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="handed_off_di" bpmnElement="handed_off">
+        <dc:Bounds x="1302" y="682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1260" y="722" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="awaiting_endorsement_di" bpmnElement="awaiting_endorsement">
+        <dc:Bounds x="1610" y="660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_endorse_di" bpmnElement="gw_endorse" isMarkerVisible="true">
+        <dc:Bounds x="1775" y="675" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1740" y="729" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="closed_rejected_di" bpmnElement="closed_rejected">
+        <dc:Bounds x="1782" y="882" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1740" y="922" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="awaiting_approval_di" bpmnElement="awaiting_approval">
+        <dc:Bounds x="1950" y="860" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_approval_di" bpmnElement="gw_approval" isMarkerVisible="true">
+        <dc:Bounds x="2115" y="875" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2080" y="929" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="repairing_di" bpmnElement="repairing">
+        <dc:Bounds x="2200" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cost_overrun_di" bpmnElement="cost_overrun">
+        <dc:Bounds x="2350" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_overrun_di" bpmnElement="gw_overrun" isMarkerVisible="true">
+        <dc:Bounds x="2515" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2480" y="329" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="authority_recheck_di" bpmnElement="authority_recheck">
+        <dc:Bounds x="2640" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="awaiting_acceptance_di" bpmnElement="awaiting_acceptance">
+        <dc:Bounds x="2490" y="660" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_acceptance_di" bpmnElement="gw_acceptance" isMarkerVisible="true">
+        <dc:Bounds x="2655" y="675" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2620" y="729" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="completed_di" bpmnElement="completed">
+        <dc:Bounds x="2772" y="682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2730" y="722" width="120" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="flow_start_report_di" bpmnElement="flow_start_report">
+        <di:waypoint x="268" y="100" />
+        <di:waypoint x="320" y="100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_report_route_di" bpmnElement="flow_report_route">
+        <di:waypoint x="420" y="100" />
+        <di:waypoint x="445" y="100" />
+        <di:waypoint x="445" y="300" />
+        <di:waypoint x="470" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_route_triage_di" bpmnElement="flow_route_triage">
+        <di:waypoint x="570" y="300" />
+        <di:waypoint x="610" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_triage_pending_assessment_di" bpmnElement="flow_triage_pending_assessment">
+        <di:waypoint x="710" y="300" />
+        <di:waypoint x="730" y="300" />
+        <di:waypoint x="730" y="500" />
+        <di:waypoint x="750" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_pending_assessment_gw_assessment_di" bpmnElement="flow_pending_assessment_gw_assessment">
+        <di:waypoint x="850" y="500" />
+        <di:waypoint x="915" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_assessment_authority_di" bpmnElement="flow_gw_assessment_authority">
+        <di:waypoint x="940" y="475" />
+        <di:waypoint x="940" y="300" />
+        <di:waypoint x="1070" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_assessment_awaiting_handoff_di" bpmnElement="flow_gw_assessment_awaiting_handoff">
+        <di:waypoint x="940" y="525" />
+        <di:waypoint x="940" y="700" />
+        <di:waypoint x="1070" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_assessment_closed_invalid_di" bpmnElement="flow_gw_assessment_closed_invalid">
+        <di:waypoint x="965" y="500" />
+        <di:waypoint x="1042" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_authority_gw_outside_di" bpmnElement="flow_authority_gw_outside">
+        <di:waypoint x="1170" y="300" />
+        <di:waypoint x="1225" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_outside_awaiting_handoff_di" bpmnElement="flow_gw_outside_awaiting_handoff">
+        <di:waypoint x="1250" y="325" />
+        <di:waypoint x="1250" y="620" />
+        <di:waypoint x="1120" y="620" />
+        <di:waypoint x="1120" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_outside_gw_quotes_di" bpmnElement="flow_gw_outside_gw_quotes">
+        <di:waypoint x="1275" y="300" />
+        <di:waypoint x="1345" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_quotes_pending_assessment_di" bpmnElement="flow_gw_quotes_pending_assessment">
+        <di:waypoint x="1370" y="275" />
+        <di:waypoint x="1370" y="225" />
+        <di:waypoint x="800" y="225" />
+        <di:waypoint x="800" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_quotes_gw_required_di" bpmnElement="flow_gw_quotes_gw_required">
+        <di:waypoint x="1395" y="300" />
+        <di:waypoint x="1465" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_required_awaiting_endorsement_di" bpmnElement="flow_gw_required_awaiting_endorsement">
+        <di:waypoint x="1515" y="300" />
+        <di:waypoint x="1560" y="300" />
+        <di:waypoint x="1560" y="700" />
+        <di:waypoint x="1610" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_required_repairing_di" bpmnElement="flow_gw_required_repairing">
+        <di:waypoint x="1490" y="325" />
+        <di:waypoint x="1490" y="500" />
+        <di:waypoint x="2200" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_awaiting_handoff_handed_off_di" bpmnElement="flow_awaiting_handoff_handed_off">
+        <di:waypoint x="1170" y="700" />
+        <di:waypoint x="1302" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_awaiting_endorsement_gw_endorse_di" bpmnElement="flow_awaiting_endorsement_gw_endorse">
+        <di:waypoint x="1710" y="700" />
+        <di:waypoint x="1775" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_endorse_awaiting_approval_di" bpmnElement="flow_gw_endorse_awaiting_approval">
+        <di:waypoint x="1825" y="700" />
+        <di:waypoint x="1900" y="700" />
+        <di:waypoint x="1900" y="900" />
+        <di:waypoint x="1950" y="900" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_endorse_closed_rejected_di" bpmnElement="flow_gw_endorse_closed_rejected">
+        <di:waypoint x="1800" y="725" />
+        <di:waypoint x="1800" y="882" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_awaiting_approval_gw_approval_di" bpmnElement="flow_awaiting_approval_gw_approval">
+        <di:waypoint x="2050" y="900" />
+        <di:waypoint x="2115" y="900" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_approval_repairing_di" bpmnElement="flow_gw_approval_repairing">
+        <di:waypoint x="2140" y="875" />
+        <di:waypoint x="2140" y="500" />
+        <di:waypoint x="2200" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_approval_closed_rejected_di" bpmnElement="flow_gw_approval_closed_rejected">
+        <di:waypoint x="2140" y="925" />
+        <di:waypoint x="2140" y="975" />
+        <di:waypoint x="1800" y="975" />
+        <di:waypoint x="1800" y="918" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_repairing_cost_overrun_di" bpmnElement="flow_repairing_cost_overrun">
+        <di:waypoint x="2300" y="500" />
+        <di:waypoint x="2400" y="500" />
+        <di:waypoint x="2400" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_cost_overrun_gw_overrun_di" bpmnElement="flow_cost_overrun_gw_overrun">
+        <di:waypoint x="2450" y="300" />
+        <di:waypoint x="2515" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_overrun_authority_recheck_di" bpmnElement="flow_gw_overrun_authority_recheck">
+        <di:waypoint x="2565" y="300" />
+        <di:waypoint x="2640" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_overrun_awaiting_acceptance_di" bpmnElement="flow_gw_overrun_awaiting_acceptance">
+        <di:waypoint x="2540" y="325" />
+        <di:waypoint x="2540" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_authority_recheck_awaiting_approval_di" bpmnElement="flow_authority_recheck_awaiting_approval">
+        <di:waypoint x="2690" y="260" />
+        <di:waypoint x="2690" y="225" />
+        <di:waypoint x="2000" y="225" />
+        <di:waypoint x="2000" y="860" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_awaiting_acceptance_gw_acceptance_di" bpmnElement="flow_awaiting_acceptance_gw_acceptance">
+        <di:waypoint x="2590" y="700" />
+        <di:waypoint x="2655" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_acceptance_completed_di" bpmnElement="flow_gw_acceptance_completed">
+        <di:waypoint x="2705" y="700" />
+        <di:waypoint x="2772" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="flow_gw_acceptance_repairing_di" bpmnElement="flow_gw_acceptance_repairing">
+        <di:waypoint x="2680" y="675" />
+        <di:waypoint x="2680" y="565" />
+        <di:waypoint x="2250" y="565" />
+        <di:waypoint x="2250" y="540" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

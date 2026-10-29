@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="authority_defs" name="authority" namespace="dxlab">
+  <decision id="authority" name="Thẩm quyền duyệt theo hạn mức">
+    <description>docs/AUTHZ.md mục 5. Chỉ áp cho sửa chữa khôi phục. Luật leo thang E1 (người duyệt trùng người tạo, người xác nhận) do core thực thi. approval_limit_vnd của Giám đốc là số lớn đại diện cho không giới hạn.</description>
+    <decisionTable id="authority_t" hitPolicy="FIRST">
+      <input id="authority_t_in1" label="Loại việc">
+        <inputExpression id="authority_t_ie1" typeRef="string">
+          <text>action_type</text>
+        </inputExpression>
+      </input>
+      <input id="authority_t_in2" label="Chi phí dự kiến (đồng, gồm VAT)">
+        <inputExpression id="authority_t_ie2" typeRef="number">
+          <text>estimated_cost_vnd</text>
+        </inputExpression>
+      </input>
+      <output id="authority_t_out1" label="Ngoài hệ thống" name="outside_system" typeRef="boolean" />
+      <output id="authority_t_out2" label="Cần duyệt" name="approval_required" typeRef="boolean" />
+      <output id="authority_t_out3" label="Người duyệt" name="approver_role" typeRef="string" />
+      <output id="authority_t_out4" label="Phạm vi" name="approval_scope" typeRef="string" />
+      <output id="authority_t_out5" label="Hình thức" name="signing_type" typeRef="string" />
+      <output id="authority_t_out6" label="Căn cứ" name="authority_basis" typeRef="string" />
+      <output id="authority_t_out7" label="Số báo giá tối thiểu" name="quotes_required" typeRef="number" />
+      <output id="authority_t_out8" label="Hạn mức của người duyệt (đồng)" name="approval_limit_vnd" typeRef="number" />
+      <rule id="authority_t_r1">
+        <description>Mua thay thế: ngoài hệ thống, xuất phiếu đề nghị gửi Ban CSVC</description>
+        <inputEntry id="authority_t_r1_i1">
+          <text>"replace"</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r1_i2">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r1_o1">
+          <text>True</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r1_o2">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r1_o3">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r1_o4">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r1_o5">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r1_o6">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r1_o7">
+          <text>0</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r1_o8">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+      <rule id="authority_t_r2">
+        <description>Cải tạo, nâng cấp: ngoài hệ thống</description>
+        <inputEntry id="authority_t_r2_i1">
+          <text>"upgrade"</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r2_i2">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r2_o1">
+          <text>True</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r2_o2">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r2_o3">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r2_o4">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r2_o5">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r2_o6">
+          <text>"TT 65/2021/TT-BTC Đ3.1"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r2_o7">
+          <text>0</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r2_o8">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+      <rule id="authority_t_r3">
+        <description>Sửa không phát sinh chi phí: không cần duyệt</description>
+        <inputEntry id="authority_t_r3_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r3_i2">
+          <text>&lt;= 0</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r3_o1">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r3_o2">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r3_o3">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r3_o4">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r3_o5">
+          <text>"none"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r3_o6">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r3_o7">
+          <text>0</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r3_o8">
+          <text>0</text>
+        </outputEntry>
+      </rule>
+      <rule id="authority_t_r4">
+        <description>Đến 5 triệu: trưởng khoa duyệt trong khoa sở hữu phòng; 1 báo giá hoặc ước tính</description>
+        <inputEntry id="authority_t_r4_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r4_i2">
+          <text>&lt;= 5000000</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r4_o1">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r4_o2">
+          <text>True</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r4_o3">
+          <text>"faculty_head"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r4_o4">
+          <text>"faculty"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r4_o5">
+          <text>"direct"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r4_o6">
+          <text>"GĐ-PC-01/2026"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r4_o7">
+          <text>1</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r4_o8">
+          <text>5000000</text>
+        </outputEntry>
+      </rule>
+      <rule id="authority_t_r5">
+        <description>Trên 5 triệu đến dưới 20 triệu: hiệu trưởng trường thành viên duyệt; 1 báo giá</description>
+        <inputEntry id="authority_t_r5_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r5_i2">
+          <text>&lt; 20000000</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r5_o1">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r5_o2">
+          <text>True</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r5_o3">
+          <text>"school_head"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r5_o4">
+          <text>"school"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r5_o5">
+          <text>"direct"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r5_o6">
+          <text>"GĐ-PC-01/2026"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r5_o7">
+          <text>1</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r5_o8">
+          <text>20000000</text>
+        </outputEntry>
+      </rule>
+      <rule id="authority_t_r6">
+        <description>Đúng 20 triệu: vẫn hiệu trưởng trường thành viên duyệt nhưng cần 3 báo giá (từ 20 triệu)</description>
+        <inputEntry id="authority_t_r6_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r6_i2">
+          <text>&lt;= 20000000</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r6_o1">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r6_o2">
+          <text>True</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r6_o3">
+          <text>"school_head"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r6_o4">
+          <text>"school"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r6_o5">
+          <text>"direct"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r6_o6">
+          <text>"GĐ-PC-01/2026"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r6_o7">
+          <text>3</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r6_o8">
+          <text>20000000</text>
+        </outputEntry>
+      </rule>
+      <rule id="authority_t_r7">
+        <description>Trên 20 triệu đến 100 triệu: Phó Giám đốc duyệt KT. Giám đốc; 3 báo giá</description>
+        <inputEntry id="authority_t_r7_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r7_i2">
+          <text>&lt;= 100000000</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r7_o1">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r7_o2">
+          <text>True</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r7_o3">
+          <text>"vice_president"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r7_o4">
+          <text>"university"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r7_o5">
+          <text>"kt"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r7_o6">
+          <text>"GĐ-PCBGĐ-2026"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r7_o7">
+          <text>3</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r7_o8">
+          <text>100000000</text>
+        </outputEntry>
+      </rule>
+      <rule id="authority_t_r8">
+        <description>Trên 100 triệu: Giám đốc duyệt trực tiếp; 3 báo giá</description>
+        <inputEntry id="authority_t_r8_i1">
+          <text>-</text>
+        </inputEntry>
+        <inputEntry id="authority_t_r8_i2">
+          <text>&gt; 100000000</text>
+        </inputEntry>
+        <outputEntry id="authority_t_r8_o1">
+          <text>False</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r8_o2">
+          <text>True</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r8_o3">
+          <text>"president"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r8_o4">
+          <text>"university"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r8_o5">
+          <text>"direct"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r8_o6">
+          <text>"QĐ 1152 Đ7, Đ15.1"</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r8_o7">
+          <text>3</text>
+        </outputEntry>
+        <outputEntry id="authority_t_r8_o8">
+          <text>999999999999</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

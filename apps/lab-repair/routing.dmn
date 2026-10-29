@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="routing_defs" name="routing" namespace="dxlab">
+  <decision id="routing" name="Định tuyến đơn vị kỹ thuật">
+    <description>docs/AUTHZ.md mục 6. tech_unit = owner_faculty nghĩa là khoa sở hữu phòng; core tra khoa theo phòng của phiếu.</description>
+    <decisionTable id="routing_t" hitPolicy="FIRST">
+      <input id="routing_t_in1" label="Loại thiết bị">
+        <inputExpression id="routing_t_ie1" typeRef="string">
+          <text>asset_category</text>
+        </inputExpression>
+      </input>
+      <output id="routing_t_out1" label="Đơn vị kỹ thuật" name="tech_unit" typeRef="string" />
+      <output id="routing_t_out2" label="Vai trò xử lý" name="tech_role" typeRef="string" />
+      <output id="routing_t_out3" label="Căn cứ" name="routing_basis" typeRef="string" />
+      <rule id="routing_t_r1">
+        <description>Máy tính: Trung tâm CNTT</description>
+        <inputEntry id="routing_t_r1_i1">
+          <text>"computer"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r1_o1">
+          <text>"/haui/tt-cntt"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r1_o2">
+          <text>"it_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r1_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r2">
+        <description>Máy chiếu: Trung tâm CNTT</description>
+        <inputEntry id="routing_t_r2_i1">
+          <text>"projector"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r2_o1">
+          <text>"/haui/tt-cntt"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r2_o2">
+          <text>"it_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r2_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r3">
+        <description>Máy in: Trung tâm CNTT (giả định)</description>
+        <inputEntry id="routing_t_r3_i1">
+          <text>"printer"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r3_o1">
+          <text>"/haui/tt-cntt"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r3_o2">
+          <text>"it_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r3_o3">
+          <text>"GĐ-TC-2026"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r4">
+        <description>Mạng: Trung tâm CNTT (giả định)</description>
+        <inputEntry id="routing_t_r4_i1">
+          <text>"network"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r4_o1">
+          <text>"/haui/tt-cntt"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r4_o2">
+          <text>"it_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r4_o3">
+          <text>"GĐ-TC-2026"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r5">
+        <description>Điện: Ban CSVC</description>
+        <inputEntry id="routing_t_r5_i1">
+          <text>"electrical"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r5_o1">
+          <text>"/haui/ban-csvc"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r5_o2">
+          <text>"facility_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r5_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r6">
+        <description>Điều hòa (tên trong form): Ban CSVC</description>
+        <inputEntry id="routing_t_r6_i1">
+          <text>"hvac"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r6_o1">
+          <text>"/haui/ban-csvc"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r6_o2">
+          <text>"facility_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r6_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r7">
+        <description>Điều hòa (tên trong AUTHZ mục 6): Ban CSVC</description>
+        <inputEntry id="routing_t_r7_i1">
+          <text>"air_conditioner"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r7_o1">
+          <text>"/haui/ban-csvc"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r7_o2">
+          <text>"facility_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r7_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r8">
+        <description>Chiếu sáng: Ban CSVC</description>
+        <inputEntry id="routing_t_r8_i1">
+          <text>"lighting"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r8_o1">
+          <text>"/haui/ban-csvc"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r8_o2">
+          <text>"facility_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r8_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r9">
+        <description>Bàn ghế: Ban CSVC</description>
+        <inputEntry id="routing_t_r9_i1">
+          <text>"furniture"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r9_o1">
+          <text>"/haui/ban-csvc"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r9_o2">
+          <text>"facility_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r9_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r10">
+        <description>Cấp thoát nước: Ban CSVC</description>
+        <inputEntry id="routing_t_r10_i1">
+          <text>"plumbing"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r10_o1">
+          <text>"/haui/ban-csvc"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r10_o2">
+          <text>"facility_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r10_o3">
+          <text>"QĐ 1152 Đ15.4b"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r11">
+        <description>Thiết bị chuyên dùng (tên trong form): kỹ thuật viên của khoa sở hữu phòng; core tra khoa từ phòng</description>
+        <inputEntry id="routing_t_r11_i1">
+          <text>"lab_instrument"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r11_o1">
+          <text>"owner_faculty"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r11_o2">
+          <text>"lab_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r11_o3">
+          <text>"GĐ-TC-2026"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r12">
+        <description>Thiết bị chuyên dùng (tên trong AUTHZ mục 6): kỹ thuật viên của khoa sở hữu phòng</description>
+        <inputEntry id="routing_t_r12_i1">
+          <text>"lab_equipment"</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r12_o1">
+          <text>"owner_faculty"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r12_o2">
+          <text>"lab_technician"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r12_o3">
+          <text>"GĐ-TC-2026"</text>
+        </outputEntry>
+      </rule>
+      <rule id="routing_t_r13">
+        <description>Còn lại: Ban CSVC, chuyên viên định tuyến lại</description>
+        <inputEntry id="routing_t_r13_i1">
+          <text>-</text>
+        </inputEntry>
+        <outputEntry id="routing_t_r13_o1">
+          <text>"/haui/ban-csvc"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r13_o2">
+          <text>"facility_officer"</text>
+        </outputEntry>
+        <outputEntry id="routing_t_r13_o3">
+          <text>"GĐ-TC-2026"</text>
+        </outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
