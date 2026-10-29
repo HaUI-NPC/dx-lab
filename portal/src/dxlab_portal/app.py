@@ -15,6 +15,7 @@ from urllib.parse import quote
 import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from pydantic import BaseModel
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -41,6 +42,9 @@ CONTENT_SECURITY_POLICY = (
     "style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; "
     "connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 )
+
+class SearchBody(BaseModel):
+    query: str
 
 
 def create_app(
@@ -105,6 +109,30 @@ def create_app(
     @app.get("/healthz", include_in_schema=False)
     async def healthz() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.post("/ui/search", include_in_schema=False)
+    async def search(body: SearchBody, request: Request) -> Response:
+        if not proxy.same_origin(request, settings.public_url):
+            return proxy.error_response(403, "FORBIDDEN_ORIGIN", "Yêu cầu không xuất phát từ portal.")
+        session = await current_session(request)
+        if session is None:
+            return proxy.error_response(401, "UNAUTHENTICATED", "Vui lòng đăng nhập lại.")
+        result = await state.core.call("GET", "/search", token=session.access_token, params={"q": body.query})
+        if not result.ok or not isinstance(result.json, dict):
+            return JSONResponse(result.json or {"error": {"message": result.error_message()}}, status_code=result.status)
+        output = dict(result.json)
+        output["items"] = []
+        for item in result.json.get("items", []):
+            document = item.get("document") or {}
+            snippet = item.get("snippet") or {}
+            provenance = " · ".join(str(document[k]) for k in ("source", "license", "source_ref") if document.get(k))
+            output["items"].append({
+                **item,
+                "href": f"/api/documents/{quote(str(document.get('id', '')), safe='')}/content",
+                "snippet_text": snippet.get("text", ""),
+                "provenance": provenance,
+            })
+        return JSONResponse(output)
 
     @app.get("/ui/status", include_in_schema=False)
     async def status_json() -> JSONResponse:
