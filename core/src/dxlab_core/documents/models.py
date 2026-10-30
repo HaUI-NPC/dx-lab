@@ -34,12 +34,12 @@ class Document(Base):
     # Văn bản trích từ tệp `.md` / `text/*` để CORE-08 đánh chỉ mục; tệp khác để trống.
     text: Mapped[str | None] = mapped_column(Text, deferred=True)
     # Chỉ mục toàn văn của CORE-08: tiêu đề (trọng số A) và nội dung (B), `simple` + bỏ dấu qua hàm `dxlab_unaccent`
-    # do migration tạo. `left(…, 500000)` giữ tsvector dưới giới hạn 1 MB của PostgreSQL.
+    # do migration tạo. `left(…, 150000)` giữ tsvector dưới giới hạn 1 MiB của PostgreSQL (tính theo byte tsvector, xem migration 0006).
     fts: Mapped[str] = mapped_column(
         TSVECTOR,
         Computed(
             "setweight(to_tsvector('simple', dxlab_unaccent(title)), 'A') || "
-            "setweight(to_tsvector('simple', dxlab_unaccent(left(coalesce(\"text\", ''), 500000))), 'B')",
+            "setweight(to_tsvector('simple', dxlab_unaccent(left(coalesce(\"text\", ''), 150000))), 'B')",
             persisted=True,
         ),
         deferred=True,
