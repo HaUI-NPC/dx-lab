@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 
 from dxlab_core.audit.service import events_for, record
 from dxlab_core.auth.principal import Principal, unit_contains
+from dxlab_core.delegations.models import Delegation
+from dxlab_core.delegations.service import active_for, applicable
 from dxlab_core.definitions.engine import task_properties
 from dxlab_core.errors import ApiError
 from dxlab_core.workflows.models import Workflow, WorkflowTask
@@ -39,7 +41,10 @@ def required_unit(instance: Workflow, task) -> str:
     return str(instance.data.get("room_unit", ""))
 
 
-def authorize_task(session: Session, principal: Principal, instance: Workflow, task) -> None:
+def authorize_task(session: Session, principal: Principal, instance: Workflow, task,
+                   delegations: list[Delegation] | None = None) -> Delegation | None:
+    """Từ chối bằng `ApiError` nếu người gọi không được làm bước. Trả ủy quyền TUQ. đã dùng, hoặc `None` khi người gọi
+    tự giữ thẩm quyền. `delegations`: ủy quyền đang hiệu lực của người gọi, truyền sẵn khi duyệt cả hộp việc."""
     if principal.is_system_admin:
         raise ApiError(403, "FORBIDDEN_ROLE", "Quản trị hệ thống không được làm nghiệp vụ.", {"layer": 1, "rule": "SoD-4"})
     excludes = task_properties(task.task_spec).get("dxlabExcludeActorsOf", "")
@@ -55,11 +60,20 @@ def authorize_task(session: Session, principal: Principal, instance: Workflow, t
     if role == "lab_manager" and instance.data.get("room_manager_role") == "faculty_head":
         role = "faculty_head"
     if not role or not principal.has_role(role):
+        if role and task.task_spec.lane == "approver":
+            held = delegations if delegations is not None else active_for(session, principal.username)
+            delegation = applicable(principal, held, role, required_unit(instance, task))
+            if delegation is not None:
+                return delegation
+            if held:
+                raise ApiError(403, "FORBIDDEN_AUTHORITY", "Ủy quyền đang có không gồm bước duyệt này: khác vai trò, "
+                               "khác đơn vị hoặc vượt hạn mức của người ủy quyền.", {"layer": 3, "role": role})
         raise ApiError(403, "FORBIDDEN_ROLE", "Bạn không giữ vai trò của bước này.", {"layer": 1, "role": role})
     unit = required_unit(instance, task)
     university = task.task_spec.lane == "approver" and instance.data.get("approval_scope") == "university"
     if not university and (not unit or not any(unit_contains(u, unit) for u in principal.units_for(role))):
         raise ApiError(403, "FORBIDDEN_SCOPE", "Bước nằm ngoài phạm vi đơn vị của bạn.", {"layer": 2})
+    return None
 
 
 def can_read(principal: Principal, instance: Workflow) -> bool:

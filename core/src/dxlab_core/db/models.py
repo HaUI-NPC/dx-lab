@@ -10,5 +10,6 @@ from dxlab_core.definitions import models as definitions_models  # noqa: F401
 from dxlab_core.workflows import models as workflows_models  # noqa: F401
 from dxlab_core.documents import models as documents_models  # noqa: F401
 from dxlab_core.records import models as records_models  # noqa: F401
+from dxlab_core.delegations import models as delegations_models  # noqa: F401
 
 metadata = Base.metadata
