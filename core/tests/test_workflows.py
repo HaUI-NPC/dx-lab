@@ -150,3 +150,54 @@ def test_form_errors_point_at_the_field_and_are_vietnamese(client, headers_for):
     assert missing.status_code == wrong_type.status_code == 422
     assert missing.json()["error"]["details"]["errors"] == [{"path": "cost", "message": "Thiếu trường bắt buộc."}]
     assert wrong_type.json()["error"]["details"]["errors"] == [{"path": "cost", "message": "Sai kiểu dữ liệu."}]
+
+
+AUTHORITY_DMN = """<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="d" name="authority" namespace="dxlab">
+  <decision id="triage" name="Thẩm quyền">
+    <decisionTable id="t" hitPolicy="FIRST">
+      <input id="i1" label="Chi phí"><inputExpression id="ie1" typeRef="integer"><text>cost</text></inputExpression></input>
+      <output id="o1" name="approval_required" typeRef="boolean" />
+      <output id="o2" name="approver_role" typeRef="string" />
+      <output id="o3" name="approval_scope" typeRef="string" />
+      <output id="o4" name="approval_limit_vnd" typeRef="integer" />
+      <rule id="r1"><inputEntry id="a1"><text>&lt;= 5000000</text></inputEntry>
+        <outputEntry id="b1"><text>True</text></outputEntry><outputEntry id="b2"><text>"faculty_head"</text></outputEntry>
+        <outputEntry id="b3"><text>"faculty"</text></outputEntry><outputEntry id="b4"><text>5 * 1000000</text></outputEntry></rule>
+      <rule id="r2"><inputEntry id="a2"><text>-</text></inputEntry>
+        <outputEntry id="c1"><text>True</text></outputEntry><outputEntry id="c2"><text>"school_head"</text></outputEntry>
+        <outputEntry id="c3"><text>"school"</text></outputEntry><outputEntry id="c4"><text>20 * 1000000</text></outputEntry></rule>
+    </decisionTable>
+  </decision>
+</definitions>
+"""
+
+
+def approval_package():
+    """`report → bảng thẩm quyền → duyệt`: bước duyệt xuất hiện ngay sau khi tạo phiếu, không qua bước trung gian."""
+    files = package()
+    files["mini.bpmn"] = files["mini.bpmn"].replace(b'name="approver"', b'name="approver"').replace(
+        b'<spiffworkflow:property name="formJsonSchemaFilename" value="approve-schema.json" />',
+        b'<spiffworkflow:property name="formJsonSchemaFilename" value="approve-schema.json" />'
+        b'<spiffworkflow:property name="dxlabExcludeActorsOf" value="report" />')
+    files["triage.dmn"] = AUTHORITY_DMN.encode()
+    files["mini.bpmn"] = files["mini.bpmn"].replace(b'level == "high"', b"approval_required == True")
+    metadata = json.loads(files["process_model.json"])
+    metadata["data_defaults"] = {"owner_faculty": "/haui/sict/khmt", "owner_school": "/haui/sict"}
+    files["process_model.json"] = json.dumps(metadata).encode()
+    return files
+
+
+def test_creator_holding_the_approving_role_is_escalated_at_creation(client, headers_for):
+    activate(client, headers_for, approval_package())
+    head = ("tk.hai", ["/haui/sict/khmt/faculty_head"])
+    school = ("ht.khanh", ["/haui/sict/school_head"])
+
+    created = client.post("/api/workflows", headers=headers_for(*head), json={"app_id": "mini", "data": {"cost": 3500000}})
+
+    assert created.status_code == 201, created.text
+    assert client.get("/api/tasks", headers=headers_for(*head)).json()["total"] == 0
+    queue = client.get("/api/tasks", headers=headers_for(*school)).json()
+    assert [t["workflow_id"] for t in queue["items"]] == [created.json()["workflow_id"]]
+    data = client.get(f"/api/workflows/{created.json()['workflow_id']}", headers=headers_for(*head)).json()["data"]
+    assert (data["approver_role"], data["approval_limit_vnd"]) == ("school_head", 20_000_000)

@@ -108,3 +108,31 @@ def test_scope_sod_and_admin_are_enforced(monkeypatch):
     with pytest.raises(ApiError) as denied:
         access.authorize_task(None, technician, workflow, task)
     assert denied.value.code == "FORBIDDEN_SOD"
+
+
+def test_personal_marker_inside_conditional_schema_is_still_masked():
+    schema = {"properties": {"kind": {"type": "string"}},
+              "if": {"properties": {"kind": {"const": "a"}}},
+              "then": {"properties": {"phone": {"type": "string", "x-personal-data": True}}},
+              "else": {"properties": {"email": {"type": "string", "x-personal-data": True}}}}
+    workflow = instance({"report-schema.json": json.dumps(schema).encode()})
+
+    masked = mask_personal_data(workflow, {"kind": "a", "phone": "0901234567", "email": "a@b.vn"})
+
+    assert masked == {"kind": "a"}
+
+
+def test_escalation_reads_arithmetic_outputs_like_the_dmn_engine_does():
+    dmn = b'''<definitions><decisionTable>
+      <output name="approval_required"/><output name="approver_role"/>
+      <output name="approval_scope"/><output name="approval_limit_vnd"/>
+      <rule><outputEntry><text>True</text></outputEntry><outputEntry><text>"local"</text></outputEntry><outputEntry><text>"faculty"</text></outputEntry><outputEntry><text>5 * 1000000</text></outputEntry></rule>
+      <rule><outputEntry><text>True</text></outputEntry><outputEntry><text>"higher"</text></outputEntry><outputEntry><text>"school"</text></outputEntry><outputEntry><text>20 * 1000000</text></outputEntry></rule>
+    </decisionTable></definitions>'''
+    workflow = instance({"rules.dmn": dmn})
+    event = SimpleNamespace(actor_roles=[{"role": "local", "unit": "/org/faculty"}])
+    data = {"approver_role": "local", "approval_scope": "faculty", "owner_faculty": "/org/faculty"}
+
+    escalate(workflow, data, [event])
+
+    assert (data["approver_role"], data["approval_limit_vnd"]) == ("higher", 20_000_000)
