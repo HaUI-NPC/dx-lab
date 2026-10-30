@@ -253,3 +253,20 @@ def test_upload_is_audited(app: FastAPI, client: TestClient, headers_for: Header
     assert (event.action, event.actor) == ("document.upload", "csvc.lan")
     assert event.details["sha256"] == doc["sha256"]
     assert event.details["kind"] == "sop"
+
+
+def test_text_file_below_upload_limit_but_too_big_for_tsvector_is_still_accepted(
+    client: TestClient, headers_for: HeadersFactory
+) -> None:
+    # Từ CJK 3 ký tự phân biệt (mỗi ký tự 3 byte UTF-8): ~492.000 ký tự, dưới giới hạn upload 20 MB nhưng nếu đưa
+    # nguyên vào chỉ mục thì biểu diễn tsvector khoảng 1,7 MB, vượt giới hạn 1 MiB của PostgreSQL.
+    words = (
+        chr(0x4E00 + i % 20000) + chr(0x4E00 + (i // 20000 * 131 + i * 7) % 20000) + chr(0x4E00 + (i * 13 + i // 20000 * 977) % 20000)
+        for i in range(123000)
+    )
+    text = " ".join(words)
+    assert len(text) > 400_000
+
+    response = upload(client, headers_for(*CSVC_LAN), text.encode(), filename="lon.txt", content_type="text/plain")
+
+    assert response.status_code == 201, response.text
