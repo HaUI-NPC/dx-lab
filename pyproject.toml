@@ -6,7 +6,7 @@
 # trình quản lý gói: `core` không khai báo, nên không thể import, bất kỳ thứ gì của `portal`.
 [project]
 name = "dx-lab"
-version = "0.1.0"
+version = "0.2.0"
 description = "DX-Lab HaUI – trạm điều hành số trên nền tảng DX-OS Open-Core"
 readme = "README.md"
 requires-python = ">=3.12"

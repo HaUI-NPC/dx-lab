@@ -16,8 +16,8 @@ thiết bị phòng thực hành tại Đại học Công nghiệp Hà Nội (Ha
 Sản phẩm dự thi của đội **HaUI.NPC**, khối Phần mềm nguồn mở OLP 2026, chủ đề
 [DX-OS Open-Core](https://vfossa.vn/tin-tuc/de-thi-phan-mem-nguon-mo-olp-2026-798.html).
 
-> **Trạng thái:** đang phát triển, **chưa phát hành phần mềm chạy được**. Kiến trúc dưới đây là
-> thiết kế mục tiêu; bảng [Trạng thái](#trạng-thái) ghi đúng những gì đã có.
+> **Trạng thái:** bản **0.2.0** chạy được đầu-cuối trên một máy bằng Docker Compose với dữ liệu và tài khoản demo
+> (tên giả, hạn mức giả định). Bảng [Trạng thái](#trạng-thái) ghi đúng những gì đã có và chưa có.
 
 ## Bài toán
 
@@ -73,37 +73,46 @@ Nguyên tắc: Tầng 1 không phục vụ giao diện và không biết ứng d
 
 | Thành phần | Vai trò | Giấy phép | Trạng thái |
 |---|---|---|---|
-| [FastAPI](https://fastapi.tiangolo.com/) | Core API (Tầng 1), máy chủ portal | MIT | Đã khai báo |
-| [SQLAlchemy](https://www.sqlalchemy.org/) | Truy cập dữ liệu của Core | MIT | Đã khai báo |
-| [psycopg](https://www.psycopg.org/) 3 | Driver PostgreSQL | LGPL-3.0 | Đã khai báo |
-| [Prefab](https://github.com/PrefectHQ/prefab) `prefab-ui==0.21.1` | Giao diện H-P-D-I viết bằng Python | Apache-2.0 | Đã khai báo |
-| [SpiffWorkflow](https://github.com/sartography/SpiffWorkflow) | Chạy quy trình BPMN và bảng luật DMN | LGPL-3.0 | Dự kiến |
-| [PostgreSQL](https://www.postgresql.org/) | Dữ liệu cấu trúc, tìm kiếm toàn văn | PostgreSQL License | Dự kiến |
-| [Keycloak](https://www.keycloak.org/) | Identity, SSO, RBAC | Apache-2.0 | Dự kiến |
-| [Apache APISIX](https://apisix.apache.org/) | API Gateway | Apache-2.0 | Dự kiến |
-| [Authlib](https://authlib.org/), [PyJWT](https://pyjwt.readthedocs.io/) | Đăng nhập OIDC ở portal, kiểm tra token ở Core | BSD-3-Clause, MIT | Dự kiến |
-| [zvec](https://github.com/alibaba/zvec), [fastembed](https://github.com/qdrant/fastembed) | Chỉ mục và embedding cho tìm kiếm ngữ nghĩa | Apache-2.0 | Dự kiến |
-| [FastMCP](https://github.com/PrefectHQ/fastmcp) | MCP server cho người dùng cuối | Apache-2.0 | Dự kiến |
+| [FastAPI](https://fastapi.tiangolo.com/) | Core API (Tầng 1), máy chủ portal | MIT | Đang dùng |
+| [SQLAlchemy](https://www.sqlalchemy.org/) | Truy cập dữ liệu của Core | MIT | Đang dùng |
+| [psycopg](https://www.psycopg.org/) 3 | Driver PostgreSQL | LGPL-3.0 | Đang dùng |
+| [Prefab](https://github.com/PrefectHQ/prefab) `prefab-ui==0.21.1` | Giao diện H-P-D-I viết bằng Python | Apache-2.0 | Đang dùng |
+| [SpiffWorkflow](https://github.com/sartography/SpiffWorkflow) | Chạy quy trình BPMN và bảng luật DMN | LGPL-3.0 | Đang dùng |
+| [PostgreSQL](https://www.postgresql.org/) | Dữ liệu cấu trúc, tìm kiếm toàn văn | PostgreSQL License | Đang dùng |
+| [Keycloak](https://www.keycloak.org/) | Identity, SSO, RBAC | Apache-2.0 | Đang dùng |
+| [Apache APISIX](https://apisix.apache.org/) | API Gateway | Apache-2.0 | Đang dùng |
+| [Authlib](https://authlib.org/), [PyJWT](https://pyjwt.readthedocs.io/) | Đăng nhập OIDC ở portal, kiểm tra token ở Core | BSD-3-Clause, MIT | Đang dùng |
+| [zvec](https://github.com/alibaba/zvec), [fastembed](https://github.com/qdrant/fastembed) | Chỉ mục và embedding cho tìm kiếm ngữ nghĩa | Apache-2.0 | Đang dùng |
+| [FastMCP](https://github.com/PrefectHQ/fastmcp) | MCP server cho người dùng cuối | Apache-2.0 | Đang dùng |
 
-Bảng đầy đủ kèm phiên bản và nguồn gốc của từng phụ thuộc sẽ có cùng bản phát hành đầu tiên.
+Phiên bản cụ thể của từng gói Python nằm trong `uv.lock`; image container ghim digest trong `deploy/compose.yaml`;
+mỗi bản phát hành đính kèm SBOM. Bảng phụ thuộc kèm nguồn gốc và giấy phép đang soạn (#46).
 
 ## Trạng thái
 
 | Hạng mục | Trạng thái |
 |---|---|
-| Khung nguồn mở: giấy phép, REUSE, CI, CONTRIBUTING, SECURITY, mẫu issue | Có |
-| Workspace `core/` + `portal/`, build được từ mã nguồn | Có |
-| Tầng 1: Keycloak, APISIX, Core API, workflow | Chưa |
-| Tầng 2/3: portal H-P-D-I, ứng dụng báo hỏng | Chưa |
-| Docker Compose, dữ liệu mẫu, tài khoản demo | Chưa |
+| Khung nguồn mở: giấy phép, REUSE, CI (pytest, gitleaks, kiểm gói), CONTRIBUTING, SECURITY, mẫu issue | Có |
+| Tầng 1: Keycloak, APISIX, Core API, workflow SpiffWorkflow, phân quyền 5 lớp, tìm kiếm, thống kê | Có |
+| Tầng 2: portal (báo hỏng, hộp việc, dashboard, tra cứu, trạng thái), MCP server, CLI `dxlab` | Có |
+| Tầng 3: `lab-repair`, `room-booking` | Có |
+| Docker Compose, dữ liệu mẫu, tài khoản demo, đặt lại dữ liệu | Có |
+| Ủy quyền TUQ. (#18), che dữ liệu cá nhân trong văn bản tự do (#97) | Chưa |
 
 ## Cấu trúc thư mục
 
 ```text
-core/      Gói dxlab-core: Open-Core headless (Tầng 1)
-portal/    Gói dxlab-portal: giao diện H-P-D-I và ứng dụng (Tầng 2/3)
+core/      Gói dxlab-core: Core API headless và CLI `dxlab` (Tầng 1)
+portal/    Gói dxlab-portal: giao diện web H-P-D-I (Tầng 2)
+mcp/       Gói dxlab-mcp: MCP server cho thao tác bằng câu lệnh (Tầng 2)
+apps/      Gói ứng dụng: lab-repair, room-booking (BPMN, DMN, form) (Tầng 3)
+data/      Dữ liệu mẫu: phòng, tài sản, hướng dẫn sửa chữa (DATA_SOURCES.yml ghi nguồn)
+deploy/    Docker Compose, realm Keycloak, cấu hình APISIX
+scripts/   up.sh, seed.sh, reset.sh, download-models.sh
+tools/     Spiff Editor (công cụ soạn quy trình, chỉ chạy trên máy người thiết kế)
+docs/      Kiến trúc, phân quyền, ghi chú AI
 LICENSES/  Toàn văn các giấy phép đang dùng trong repo
-.github/   CI và mẫu báo lỗi
+.github/   CI, workflow phát hành, mẫu báo lỗi
 .agents/   Skill hỗ trợ phát triển cho trợ lý lập trình
 ```
 
@@ -124,6 +133,38 @@ Kiểm tra build và tuân thủ giấy phép cấp tệp:
 ```bash
 uv build --all-packages
 uvx reuse lint
+```
+
+## Chạy thử bằng Docker Compose
+
+Yêu cầu thêm: Docker với Compose v2, `openssl`. Chạy trong thư mục gốc của mã nguồn (bản clone hoặc tệp `.tar.gz`
+của bản phát hành):
+
+```bash
+scripts/up.sh                 # tạo .env từ .env.example (sinh secret ngẫu nhiên), build, chờ mọi dịch vụ healthy
+scripts/download-models.sh    # tùy chọn: tải mô hình embedding vào cache để tìm theo ngữ nghĩa, chạy offline
+scripts/seed.sh               # nạp ứng dụng lab-repair, danh mục, hướng dẫn sửa chữa và phiếu mẫu (chạy lại không trùng)
+```
+
+| Dịch vụ | Địa chỉ |
+|---|---|
+| Portal | <http://localhost:8000> |
+| API (qua APISIX) | <http://localhost:9080/api>, tài liệu tại `/api/docs` |
+| Keycloak | <http://localhost:8180> |
+
+Tài khoản demo (tên giả) liệt kê ở [`docs/AUTHZ.md`](docs/AUTHZ.md) mục 11, mật khẩu chung là giá trị
+`DXLAB_DEMO_PASSWORD` trong `.env`. Ví dụ: `sv.an` (sinh viên báo hỏng), `ktv.cuong` (kỹ thuật viên), `tl.giang`
+(trưởng phòng lab). Vai trò duyệt và quản trị (ví dụ `tk.hai`, `ht.khanh`) phải nhập thêm mã xác thực hai bước; sinh
+mã từ khóa OTP demo trong `.env`:
+
+```bash
+python3 -c 'import hmac,hashlib,struct,time,sys;h=hmac.new(sys.argv[1].encode(),struct.pack(">Q",int(time.time())//30),hashlib.sha1).digest();o=h[-1]&15;print("%06d"%((struct.unpack(">I",h[o:o+4])[0]&0x7fffffff)%1000000))' "$(grep '^DXLAB_DEMO_OTP_SECRET=' .env | cut -d= -f2-)"
+```
+
+Mỗi mã dùng được một lần trong 30 giây. Đưa hệ thống về dữ liệu demo sạch (xóa mọi dữ liệu, dựng lại, nạp lại):
+
+```bash
+scripts/reset.sh --yes
 ```
 
 ## Giấy phép
