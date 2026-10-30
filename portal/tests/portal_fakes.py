@@ -230,6 +230,8 @@ VALID_REPORT: dict[str, Any] = {
     "issue_title": "Máy chiếu không lên hình",
     "issue_description": "Bật máy chiếu thì đèn báo nhấp nháy đỏ, không có hình.",
     "urgency": "high",
+    "impact": "single",
+    "safety_hazard": False,
     "data_processing_consent": True,
 }
 

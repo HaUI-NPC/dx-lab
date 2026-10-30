@@ -30,23 +30,6 @@ def names(node: Any) -> list[str]:
 # --- Form báo hỏng thật của APP-02 ---
 
 
-def test_form_bao_hong_dung_thu_tu_va_bo_cuc_cua_uischema() -> None:
-    spec = report_spec()
-    assert names(spec.root) == [
-        "reporter_name", "reporter_id", "reporter_phone", "reporter_email",
-        "room_id", "asset_category", "asset_id",
-        "issue_title", "issue_description", "urgency",
-        "data_processing_consent",
-    ]  # fmt: skip
-    groups = [c for c in spec.root.children if isinstance(c, Layout)]
-    assert [g.label for g in groups][0] == "1. Thông tin người báo hỏng (Bảo mật cá nhân)"
-    by_name = {f.name: f for f in spec.fields}
-    assert by_name["issue_description"].kind == "textarea" and by_name["issue_description"].rows == 4
-    assert by_name["room_id"].kind == "select" and by_name["reporter_email"].kind == "email"
-    # Trường không có trên uischema nhưng schema cho mặc định thì vẫn được gửi kèm.
-    assert spec.hidden_defaults == {"consent_notice_version": "v1.0"}
-
-
 def test_o_dong_thuan_khong_tick_san() -> None:
     consent = {f.name: f for f in report_spec().fields}["data_processing_consent"]
     assert consent.kind == "checkbox"
@@ -60,45 +43,8 @@ def test_bao_hong_hop_le_khong_loi_va_gui_kem_phien_ban_thong_bao() -> None:
     assert data["data_processing_consent"] is True and data["urgency"] == "high"
 
 
-def test_bao_hong_de_trong_bao_loi_tieng_viet_dung_tung_truong() -> None:
-    _, errors = validate_form(report_spec(), {"urgency": "normal", "data_processing_consent": False})
-    assert errors == {
-        "reporter_name": "Vui lòng nhập họ và tên người báo hỏng.",
-        "reporter_id": "Vui lòng nhập mã sinh viên hoặc mã cán bộ.",
-        "reporter_phone": "Vui lòng nhập số điện thoại liên hệ.",
-        "reporter_email": "Vui lòng nhập địa chỉ email liên hệ.",
-        "room_id": "Vui lòng chọn phòng thực hành / thí nghiệm.",
-        "asset_category": "Vui lòng chọn phân loại thiết bị sự cố.",
-        "asset_id": "Vui lòng nhập mã tài sản / thiết bị.",
-        "issue_title": "Vui lòng nhập tiêu đề tóm tắt sự cố.",
-        "issue_description": "Vui lòng nhập mô tả chi tiết sự cố.",
-        "data_processing_consent": "Bạn cần đánh dấu ô “Đồng thuận xử lý dữ liệu cá nhân” để tiếp tục.",
-    }
-
-
-def test_bao_hong_sai_rang_buoc_bao_loi_dung_truong() -> None:
-    raw = {
-        **VALID_REPORT,
-        "reporter_name": "A",
-        "reporter_phone": "abc",
-        "reporter_email": "khong-phai-email",
-        "issue_title": " abc ",
-        "issue_description": "x" * 2001,
-        "room_id": "lab-khong-co",
-    }
-    _, errors = validate_form(report_spec(), raw)
-    assert errors == {
-        "reporter_name": "Họ và tên người báo hỏng cần có ít nhất 2 ký tự (hiện có 1).",
-        "reporter_phone": "Số điện thoại liên hệ chưa đúng định dạng.",
-        "reporter_email": "Địa chỉ email liên hệ chưa hợp lệ, cần có dạng ten@ten-mien.",
-        "issue_title": "Tiêu đề tóm tắt sự cố cần có ít nhất 5 ký tự (hiện có 3).",
-        "issue_description": "Mô tả chi tiết sự cố chỉ được tối đa 2000 ký tự (hiện có 2001).",
-        "room_id": "Giá trị của phòng thực hành / thí nghiệm không nằm trong danh sách lựa chọn.",
-    }
-
-
 def test_moi_form_cua_lab_repair_dung_duoc_va_de_trong_thi_bao_loi_cho_truong_bat_buoc() -> None:
-    for step in ("report", "assessment", "confirm-need", "approval", "repair", "acceptance"):
+    for step in ("report", "assessment", "confirm-need", "approval", "repair", "acceptance", "handoff"):
         schema = load_app_json("lab-repair", f"{step}-schema.json")
         spec = build_form(schema, load_app_json("lab-repair", f"{step}-uischema.json"))
         shown = {f.name for f in spec.fields}
@@ -217,3 +163,70 @@ def test_o_danh_dau_const_khong_bao_gio_tick_san_ke_ca_khi_schema_dat_mac_dinh_t
     assert errors == {"consent": "Bạn cần đánh dấu ô “Đồng thuận” để tiếp tục."}
     data, errors = validate_form(spec, {"consent": "true"})
     assert errors == {} and data == {"consent": True}
+
+
+# Chuỗi, nhóm và giá trị mặc định: kiểm trên schema riêng của test để test không gãy mỗi khi gói ứng dụng đổi form.
+TEXT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "required": ["ho_ten", "dien_thoai", "email", "phong", "mo_ta", "dong_y"],
+    "properties": {
+        "ho_ten": {"type": "string", "title": "Họ và tên", "minLength": 2},
+        "dien_thoai": {"type": "string", "title": "Số điện thoại", "pattern": "^[0-9+]{9,15}$"},
+        "email": {"type": "string", "title": "Email", "format": "email"},
+        "phong": {"type": "string", "title": "Phòng", "enum": ["p1", "p2"]},
+        "mo_ta": {"type": "string", "title": "Mô tả", "maxLength": 10},
+        "dong_y": {"type": "boolean", "title": "Đồng thuận", "const": True},
+        "phien_ban": {"type": "string", "title": "Phiên bản", "default": "v1.0"},
+    },
+}
+TEXT_UISCHEMA: dict[str, Any] = {
+    "type": "VerticalLayout",
+    "elements": [
+        {"type": "Group", "label": "1. Người báo", "elements": [
+            {"type": "Control", "scope": "#/properties/ho_ten"},
+            {"type": "Control", "scope": "#/properties/dien_thoai"},
+            {"type": "Control", "scope": "#/properties/email"},
+        ]},
+        {"type": "Control", "scope": "#/properties/phong"},
+        {"type": "Control", "scope": "#/properties/mo_ta", "options": {"multi": True, "rows": 4}},
+        {"type": "Control", "scope": "#/properties/dong_y"},
+    ],
+}  # fmt: skip
+
+
+def test_nhom_kieu_o_nhap_va_mac_dinh_an_lay_tu_schema() -> None:
+    spec = build_form(TEXT_SCHEMA, TEXT_UISCHEMA)
+    by_name = {f.name: f for f in spec.fields}
+
+    assert [c.label for c in spec.root.children if isinstance(c, Layout)] == ["1. Người báo"]
+    assert (by_name["mo_ta"].kind, by_name["mo_ta"].rows) == ("textarea", 4)
+    assert (by_name["email"].kind, by_name["phong"].kind) == ("email", "select")
+    # Trường không có trên uischema nhưng schema có mặc định thì vẫn được gửi kèm.
+    assert spec.hidden_defaults == {"phien_ban": "v1.0"}
+    data, errors = validate_form(spec, {"ho_ten": "An", "dien_thoai": "0901234567", "email": "a@b.vn",
+                                        "phong": "p1", "mo_ta": "ngắn", "dong_y": True})
+    assert errors == {} and data["phien_ban"] == "v1.0"
+
+
+def test_de_trong_va_sai_rang_buoc_bao_loi_tieng_viet_dung_tung_truong() -> None:
+    spec = build_form(TEXT_SCHEMA, TEXT_UISCHEMA)
+
+    _, empty = validate_form(spec, {})
+    _, wrong = validate_form(spec, {"ho_ten": "A", "dien_thoai": "abc", "email": "x", "phong": "p9",
+                                    "mo_ta": "x" * 11, "dong_y": True})
+
+    assert empty == {
+        "ho_ten": "Vui lòng nhập họ và tên.",
+        "dien_thoai": "Vui lòng nhập số điện thoại.",
+        "email": "Vui lòng nhập email.",
+        "phong": "Vui lòng chọn phòng.",
+        "mo_ta": "Vui lòng nhập mô tả.",
+        "dong_y": "Bạn cần đánh dấu ô “Đồng thuận” để tiếp tục.",
+    }
+    assert wrong == {
+        "ho_ten": "Họ và tên cần có ít nhất 2 ký tự (hiện có 1).",
+        "dien_thoai": "Số điện thoại chưa đúng định dạng.",
+        "email": "Email chưa hợp lệ, cần có dạng ten@ten-mien.",
+        "phong": "Giá trị của phòng không nằm trong danh sách lựa chọn.",
+        "mo_ta": "Mô tả chỉ được tối đa 10 ký tự (hiện có 11).",
+    }
