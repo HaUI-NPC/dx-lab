@@ -14,6 +14,7 @@ from dxlab_core.config import Settings, get_settings
 from dxlab_core.db import make_engine, make_sessionmaker
 from dxlab_core.definitions.router import router as definitions_router
 from dxlab_core.documents.router import router as documents_router
+from dxlab_core.delegations.router import router as delegations_router
 from dxlab_core.errors import ErrorResponse, install_error_handlers
 from dxlab_core.health.router import router as health_router
 from dxlab_core.records.router import router as records_router
@@ -58,6 +59,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(documents_router, prefix=API_PREFIX)
     app.include_router(search_router, prefix=API_PREFIX)
     app.include_router(stats_router, prefix=API_PREFIX)
+    app.include_router(delegations_router, prefix=API_PREFIX)
     return app
 
 

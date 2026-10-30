@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from SpiffWorkflow.util.task import TaskState
 
 from dxlab_core.audit.service import events_for, record
+from dxlab_core.delegations.service import active_for
 from dxlab_core.auth.principal import Principal
 from dxlab_core.definitions.engine import form_of, task_properties
 from dxlab_core.definitions.service import files_of
@@ -60,10 +61,11 @@ def listing(session: Session, principal: Principal, limit: int, offset: int, wor
     if workflow_id:
         query = query.where(Workflow.id == workflow_id)
     visible = []
+    held = active_for(session, principal.username)
     for task, instance in session.execute(query.order_by(WorkflowTask.created_at, WorkflowTask.id)):
         _, current = _engine_task(instance, task)
         try:
-            access.authorize_task(session, principal, instance, current)
+            access.authorize_task(session, principal, instance, current, held)
         except ApiError as exc:
             if exc.status == 403:
                 continue
@@ -104,7 +106,7 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
     instance = workflows.find(session, task.workflow_id, lock=True)
     session.refresh(task)
     engine, current = _engine_task(instance, task)
-    access.authorize_task(session, principal, instance, current)
+    delegation = access.authorize_task(session, principal, instance, current)
     schema, _ = form_of(current.task_spec, files_of(instance.definition))
     submitted = workflows.validate_form(schema, data)
     metadata = json.loads(files_of(instance.definition)["process_model.json"])
@@ -119,10 +121,17 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
         amount = submitted.get("approved_amount_vnd")
         if amount is not None and (not isinstance(limit, (int, float)) or amount > limit):
             raise ApiError(403, "FORBIDDEN_AUTHORITY", "Số tiền duyệt vượt hạn mức.", {"layer": 3})
-        for key in ("approver_role", "signing_type"):
-            if key in submitted and submitted[key] != current.data.get(key):
+        # Duyệt nhờ ủy quyền thì hình thức là TUQ. và số giấy phải đúng giấy đang dùng; tự duyệt thì theo bảng luật.
+        expected = {"approver_role": current.data.get("approver_role"),
+                    "signing_type": "tuq" if delegation else current.data.get("signing_type")}
+        if delegation:
+            expected["delegation_number"] = delegation.number
+        for key, value in expected.items():
+            if key in submitted and submitted[key] != value:
                 raise ApiError(403, "FORBIDDEN_AUTHORITY", "Thông tin duyệt không khớp thẩm quyền.", {"layer": 3})
     current.data.update(submitted)
+    if delegation:
+        current.data.update({"signing_type": "tuq", "delegation_number": delegation.number})
     if "actual_cost_vnd" in submitted:
         current.data["repair_recorded"] = True
     current.run()
@@ -136,6 +145,9 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
     if task.lane == "approver":  # căn cứ thẩm quyền và hình thức ký chỉ thuộc về bước duyệt
         details |= {"authority_basis": instance.data.get("authority_basis"),
                     "signing_type": instance.data.get("signing_type")}
+        if delegation:
+            details |= {"delegator": delegation.delegator, "delegated_role": delegation.role,
+                        "delegation_id": str(delegation.id), "delegation_number": delegation.number}
     record(session, actor=principal, action="repair.approve" if task.lane == "approver" else "task.complete",
            object_type="workflow", object_id=str(instance.id), details=details)
     escalate_ready_approvals(session, instance, engine)
