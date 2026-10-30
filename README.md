@@ -167,6 +167,8 @@ Mỗi mã dùng được một lần trong 30 giây. Đưa hệ thống về d�
 scripts/reset.sh --yes
 ```
 
+`reset.sh` xóa cả cache mô hình: chạy lại `scripts/download-models.sh` để bật lại tìm theo ngữ nghĩa.
+
 ## Giấy phép
 
 | Tài sản | Giấy phép |
