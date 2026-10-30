@@ -30,6 +30,11 @@ def _mask(value: Any, schema: dict, root: dict) -> Any:
     for keyword in ("allOf", "anyOf", "oneOf"):
         for branch in schema.get(keyword, []):
             value = _mask(value, branch, root)
+    # Không đánh giá điều kiện `if`: mọi nhánh `then`/`else` đều được coi là có thể áp dụng, nên trường nào được
+    # đánh dấu cá nhân ở bất kỳ nhánh nào cũng bị che (che thừa an toàn hơn để lộ).
+    for keyword in ("then", "else"):
+        if isinstance(schema.get(keyword), dict):
+            value = _mask(value, schema[keyword], root)
     if isinstance(value, dict):
         properties = schema.get("properties", {})
         result = {}

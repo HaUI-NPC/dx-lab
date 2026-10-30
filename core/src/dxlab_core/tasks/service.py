@@ -81,6 +81,23 @@ def detail(session: Session, principal: Principal, task: WorkflowTask) -> dict:
             "data": access.data_for(session, principal, instance)}
 
 
+def escalate_ready_approvals(session: Session, instance: Workflow, engine) -> None:
+    """Leo thang (E1) cho mọi bước duyệt vừa sẵn sàng. Dùng chung cho tạo phiếu và hoàn thành bước, để quy trình
+    `report → bảng luật → duyệt` cũng chuyển lên cấp trên khi người tạo giữ đúng vai trò duyệt.
+    Phải gọi sau khi sự kiện của bước trước đã được ghi, vì xung đột được xác định từ lịch sử audit."""
+    for next_task in workflows.ready_tasks(engine):
+        if next_task.task_spec.lane != "approver":
+            continue
+        excluded = {s.strip() for s in task_properties(next_task.task_spec).get("dxlabExcludeActorsOf", "").split(",")}
+        manager_steps = set(session.scalars(select(WorkflowTask.step_id).where(
+            WorkflowTask.workflow_id == instance.id, WorkflowTask.lane == "lab_manager",
+            WorkflowTask.status == "completed")))
+        eligible_events = [e for e in events_for(session, "workflow", str(instance.id))
+                           if e.details.get("step_id") in excluded | manager_steps]
+        escalate(instance, next_task.data, eligible_events)
+        workflows.save_engine(instance, engine)
+
+
 def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: dict) -> Workflow:
     task = find(session, task_id)
     # Khóa phiếu trước khi đọc lại bước: mỗi workflow chỉ chuyển trạng thái một lần tại một thời điểm.
@@ -121,17 +138,7 @@ def complete(session: Session, principal: Principal, task_id: uuid.UUID, data: d
                     "signing_type": instance.data.get("signing_type")}
     record(session, actor=principal, action="repair.approve" if task.lane == "approver" else "task.complete",
            object_type="workflow", object_id=str(instance.id), details=details)
-    for next_task in workflows.ready_tasks(engine):
-        if next_task.task_spec.lane != "approver":
-            continue
-        excluded = {s.strip() for s in task_properties(next_task.task_spec).get("dxlabExcludeActorsOf", "").split(",")}
-        manager_steps = set(session.scalars(select(WorkflowTask.step_id).where(
-            WorkflowTask.workflow_id == instance.id, WorkflowTask.lane == "lab_manager",
-            WorkflowTask.status == "completed")))
-        eligible_events = [e for e in events_for(session, "workflow", str(instance.id))
-                           if e.details.get("step_id") in excluded | manager_steps]
-        escalate(instance, next_task.data, eligible_events)
-        workflows.save_engine(instance, engine)
+    escalate_ready_approvals(session, instance, engine)
     synchronize(session, instance, engine)
     session.flush()
     return instance

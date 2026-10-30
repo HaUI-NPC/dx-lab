@@ -5,6 +5,7 @@
 """Đọc thứ tự cấp thẩm quyền từ output của bảng DMN đã ghim theo phiếu."""
 
 import ast
+import operator
 import xml.etree.ElementTree as ET
 from typing import Any
 
@@ -12,12 +13,27 @@ from dxlab_core.auth.principal import unit_contains
 from dxlab_core.definitions.service import files_of
 
 
+_ARITHMETIC = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
+_UNARY = {ast.USub: operator.neg, ast.UAdd: operator.pos}
+
+
+def _evaluate(node: ast.AST) -> Any:
+    """Hằng số và phép tính số học đơn giản, đúng tập mà validator cho phép trong ô kết quả DMN."""
+    if isinstance(node, ast.Constant):
+        return node.value
+    if isinstance(node, ast.UnaryOp) and type(node.op) in _UNARY:
+        return _UNARY[type(node.op)](_evaluate(node.operand))
+    if isinstance(node, ast.BinOp) and type(node.op) in _ARITHMETIC:
+        return _ARITHMETIC[type(node.op)](_evaluate(node.left), _evaluate(node.right))
+    raise ValueError("biểu thức không được hỗ trợ")
+
+
 def _literal(text: str | None) -> Any:
     if text is None:
         return None
     try:
-        return ast.literal_eval(text)
-    except (ValueError, SyntaxError):
+        return _evaluate(ast.parse(text.strip(), mode="eval").body)
+    except (ValueError, SyntaxError, TypeError, ZeroDivisionError):
         return None
 
 

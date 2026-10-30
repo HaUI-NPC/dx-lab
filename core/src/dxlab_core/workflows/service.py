@@ -143,10 +143,11 @@ def create(session: Session, principal: Principal, app_id: str, data: dict[str, 
     save_engine(instance, engine)
     session.add(instance)
     session.flush()
-    from dxlab_core.tasks.service import synchronize
-    synchronize(session, instance, engine)
     record(session, actor=principal, action="report.create", object_type="workflow", object_id=str(instance.id),
            details={"step_id": task.task_spec.bpmn_id, "version": definition.version})
+    from dxlab_core.tasks.service import escalate_ready_approvals, synchronize
+    escalate_ready_approvals(session, instance, engine)
+    synchronize(session, instance, engine)
     return instance
 
 
