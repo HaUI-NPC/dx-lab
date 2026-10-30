@@ -35,6 +35,13 @@ path = "deploy/**/*.json"
 SPDX-FileCopyrightText = "2026 DX-Lab contributors"
 SPDX-License-Identifier = "Apache-2.0"
 
+# Tài liệu nộp bài và minh chứng: báo cáo, slide, log QA, kịch bản demo. Tệp PDF, PPTX, ảnh, log không chèn được
+# comment header; tệp Markdown vẫn tự mang header và header đó được ưu tiên (precedence mặc định "closest").
+[[annotations]]
+path = ["docs/report/**", "docs/slides/**", "docs/qa/**", "docs/demo/**"]
+SPDX-FileCopyrightText = "2026 DX-Lab contributors"
+SPDX-License-Identifier = "CC-BY-4.0"
+
 # Dữ liệu mẫu do đội tự tạo. Dữ liệu bên thứ ba phải có annotation riêng, đặt SAU khối này,
 # giữ đúng giấy phép gốc và ghi nguồn trong DATA_SOURCES.yml.
 [[annotations]]
