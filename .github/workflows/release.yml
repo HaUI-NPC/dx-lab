@@ -161,7 +161,10 @@ jobs:
           if [ "$PUBLISH" = "true" ]; then
             heading="${TAG#v}"
           else
-            heading="Unreleased"
+            # Chạy thử: nếu CHANGELOG đã có mục của phiên bản trong pyproject.toml (PR chuẩn bị phát hành) thì
+            # trích đúng mục đó, để lần chạy thử kiểm được ghi chú sẽ lên trang Release; chưa có thì dùng Unreleased.
+            version="$(python3 -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+            if grep -qF "## [${version}]" CHANGELOG.md; then heading="$version"; else heading="Unreleased"; fi
           fi
           # Lấy phần thân của `## [<heading>]` tới mục `## ` kế tiếp hoặc dòng định nghĩa liên kết cuối tệp.
           awk -v h="## [$heading]" '
