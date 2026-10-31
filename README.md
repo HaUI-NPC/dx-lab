@@ -121,7 +121,7 @@ Danh mục chi tiết 100% gói phụ thuộc, image, mô hình, phiên bản v�
 |---|---|
 | **Khung nguồn mở & Tuân thủ** | Đạt: Giấy phép Apache-2.0 và CC BY 4.0; tuân thủ REUSE 3.3; ký nhận DCO; CI (pytest, gitleaks, validate ứng dụng); CONTRIBUTING; SECURITY; MAINTAINERS. |
 | **Tầng 1 – Core API** | Đạt: Core headless FastAPI, xác thực JWT qua JWKS Keycloak, động cơ BPMN/DMN SpiffWorkflow, phân quyền 5 lớp (phạm vi đơn vị, thẩm quyền hạn mức, không kiêm nhiệm SoD, ký thay KT., che PII), danh mục/tài liệu provenance, tìm kiếm hybrid FTS + zvec, thống kê `/api/stats`, ủy quyền tạm thời TUQ. (`/api/delegations`). |
-| **Tầng 2 – Portal & Công cụ** | Đạt: Web portal Prefab (5 tab: Việc của tôi, Báo hỏng, Tra cứu, Dashboard, Trạng thái hệ thống), CLI `dxlab` (login device-flow, whoami, validate, publish), FastMCP server (5 tool thao tác nghiệp vụ). |
+| **Tầng 2 – Portal & Công cụ** | Đạt: Web portal Prefab (6 tab: Việc của tôi, Báo hỏng, Tra cứu, Dashboard, Sơ đồ quy trình, Trạng thái hệ thống), CLI `dxlab` (login device-flow, whoami, validate, publish), FastMCP server (5 tool thao tác nghiệp vụ). |
 | **Tầng 3 – Ứng dụng nghiệp vụ** | Đạt: `lab-repair` (báo hỏng thiết bị, 7 biểu mẫu JSON Schema, bảng luật DMN, SOP hướng dẫn, bộ 60 phiếu đánh giá); `room-booking` (mượn phòng thực hành, chứng minh không sửa Core). |
 | **Triển khai & Kiểm thử** | Đạt: Docker Compose 5 dịch vụ ghim digest SHA256; scripts `up.sh`, `seed.sh`, `reset.sh`, `download-models.sh`, `demo-e2e.sh`; 17 tài khoản demo theo `docs/AUTHZ.md`. |
 | **Lộ trình sau cuộc thi** | Chạy MCP với host mở/LLM mở (#36), che PII văn bản tự do bằng model NLP (#97), tối ưu migration documents lớn (#96). Xem mục [Lộ trình](#lộ-trình-sau-cuộc-thi). |
@@ -300,12 +300,12 @@ scripts/demo-e2e.sh
 ```
 
 **Kịch bản tự động diễn tập toàn bộ vòng đời của sự cố phòng lab:**
-1. Sinh viên `sv.an` đăng nhập và tạo phiếu báo hỏng máy chiếu phòng A1-305.
-2. Động cơ DMN tự động định tuyến sự cố về Trung tâm CNTT (`it_technician`), xếp mức ưu tiên cao.
-3. Kỹ thuật viên `ktv.cuong` nhận việc từ hộp việc (`/api/tasks`), khảo sát và lập biên bản kiểm tra tình trạng (thay bóng đèn, dự toán 3.500.000 ₫ kèm báo giá).
+1. Sinh viên `sv.an` đăng nhập và tạo phiếu báo hỏng điều hòa phòng A1-305.
+2. Bảng luật DMN tự động định tuyến sự cố về Ban CSVC (`facility_technician`) và xếp mức ưu tiên.
+3. Kỹ thuật viên `ktv.dung` nhận việc từ hộp việc (`/api/tasks`), khảo sát và lập biên bản kiểm tra tình trạng (thông tắc ống thoát nước, bổ sung gas; dự toán 3.500.000 ₫ kèm báo giá).
 4. Trưởng phòng lab `tl.giang` xác nhận nhu cầu sửa chữa.
 5. Trưởng khoa `tk.hai` phê duyệt kinh phí theo đúng hạn mức phân cấp (xác thực OTP).
-6. Kỹ thuật viên `ktv.cuong` tiến hành sửa chữa và ghi nhận hoàn thành.
+6. Kỹ thuật viên `ktv.dung` tiến hành sửa chữa và ghi nhận hoàn thành.
 7. Trưởng lab `tl.giang` nghiệm thu thiết bị hoạt động tốt; hệ thống đóng phiếu và ghi nhận lịch sử xuất xứ.
 8. Tra cứu và tìm kiếm hướng dẫn sửa chữa SOP qua API `/api/search`.
 
