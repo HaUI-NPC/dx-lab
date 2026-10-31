@@ -187,10 +187,10 @@ Core kiểm tuần tự cho mọi thao tác, **mặc định từ chối**:
 <div class="card"><div class="text-4xl font-bold text-primary">88,3%</div><div class="text-sm">mức ưu tiên đúng, 53/60 phiếu</div></div>
 <div class="card"><div class="text-4xl font-bold text-primary">83,3%</div><div class="text-sm">định tuyến đúng cả đơn vị và vai trò, 50/60</div></div>
 <div class="card"><div class="text-3xl font-bold text-primary mt-1">17/18 → 18/18</div><div class="text-sm">tìm kiếm top-1: từ khóa → kết hợp</div></div>
-<div class="card"><div class="text-3xl font-bold text-primary mt-1">0/2 → 2/2</div><div class="text-sm">câu ngoài phạm vi trả rỗng</div></div>
+<div class="card"><div class="text-3xl font-bold text-primary mt-1">0/2</div><div class="text-sm">câu ngoài phạm vi chưa trả rỗng (hạn chế đã biết)</div></div>
 </div>
 
-<div class="text-sm opacity-80 mt-4">Số đo từ <code>docs/AI.md</code>. Phiếu là dữ liệu <b>tổng hợp</b>, nhãn do agent soạn, <b>chưa có người rà</b>; mẫu nhỏ. Duyệt chi phí và nghiệm thu luôn do người có thẩm quyền.</div>
+<div class="text-sm opacity-80 mt-4">Số đo chạy thật trên v0.2.1 (<code>docs/AI.md</code>). Phiếu là dữ liệu <b>tổng hợp</b>, nhãn do agent soạn, <b>chưa có người rà</b>; mẫu nhỏ. Duyệt chi phí và nghiệm thu luôn do người có thẩm quyền.</div>
 
 <div class="abs-br m-5 text-xs opacity-60"><SlideCurrentNo /> / <SlidesTotal /></div>
 
