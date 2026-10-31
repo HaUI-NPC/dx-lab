@@ -11,8 +11,21 @@ SPDX-License-Identifier: CC-BY-4.0
 > **Mã nguồn:** <https://github.com/HaUI-NPC/dx-lab> (bản phát hành `v0.2.0`)  
 > **Tài liệu liên quan:** Phần 2 ([`BAO-CAO-PHAN-2.md`](BAO-CAO-PHAN-2.md): H-P-D-I, ứng dụng, AI, đánh giá), [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md), [`docs/AUTHZ.md`](../AUTHZ.md), [`docs/DEPENDENCIES.md`](../DEPENDENCIES.md)
 
-Mọi khẳng định trong báo cáo đều dẫn tới tệp trong repo để Hội đồng kiểm lại. Những gì chưa chạy được ở bản `v0.2.0`
-được nêu riêng ở mục 8.4, không mô tả như tính năng đã có.
+Mọi khẳng định trong báo cáo đều dẫn tới tệp trong repo để Hội đồng kiểm lại. Những gì chưa có được nêu ở mục
+[Lộ trình](../../README.md#lộ-trình-sau-cuộc-thi) của README, không mô tả như tính năng đã có.
+
+## Mục lục
+
+- [1. Bài toán và phạm vi](#1-bài-toán-và-phạm-vi)
+- [2. Kiến trúc Open-Core ba tầng](#2-kiến-trúc-open-core-ba-tầng)
+   - [2.1 Tầng 1 — Open-Core headless (`deploy/`, `core/`)](#21-tầng-1--open-core-headless-deploy-core)
+   - [2.2 Tầng 2 — Giao diện và năng lực H-P-D-I (`portal/`, `mcp/`, CLI)](#22-tầng-2--giao-diện-và-năng-lực-h-p-d-i-portal-mcp-cli)
+   - [2.3 Tầng 3 — Ứng dụng không sửa Core (`apps/`, `data/`)](#23-tầng-3--ứng-dụng-không-sửa-core-apps-data)
+- [3. Luồng gọi dịch vụ](#3-luồng-gọi-dịch-vụ)
+- [4. Quản trị thay đổi định nghĩa (`/api/definitions`)](#4-quản-trị-thay-đổi-định-nghĩa-apidefinitions)
+- [5. Phân quyền năm lớp (tóm tắt)](#5-phân-quyền-năm-lớp-tóm-tắt)
+- [6. Giấy phép và quản lý phụ thuộc](#6-giấy-phép-và-quản-lý-phụ-thuộc)
+- [7. Bằng chứng nguồn mở](#7-bằng-chứng-nguồn-mở)
 
 ---
 
@@ -185,49 +198,3 @@ Số liệu lấy ngày 01/11/2026 từ `git log` và `gh` trên `HaUI-NPC/dx-la
 | Issue, PR, review | 33 PR đã gộp và 54 issue (mọi trạng thái); mỗi thay đổi gắn issue, PR theo mẫu `.github/pull_request_template.md`, cần review của người khác tác giả, chỉ maintainer gộp bằng rebase (`CONTRIBUTING.md`, `MAINTAINERS.md`) |
 | Tái lập từ source | `uv sync --all-packages`, `uv build --all-packages`, `scripts/up.sh`; hướng dẫn ở `README.md` |
 | Tài liệu cộng đồng | `README.md`, `CHANGELOG.md` (Keep a Changelog), `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `MAINTAINERS.md` |
-
-## 8. Đối chiếu yêu cầu đề thi
-
-### 8.1 Đề mục 4.1 — Tầng 1
-
-| Yêu cầu đề | Đáp ứng | Dẫn chứng |
-|---|---|---|
-| Identity / Authentication / Authorization | Có: Keycloak, 5 lớp phân quyền | `deploy/keycloak/realm.json`, `docs/AUTHZ.md` |
-| API Gateway | Có: APISIX standalone, JWT + rate limit | `deploy/apisix/apisix.yaml` |
-| Dữ liệu cấu trúc và/hoặc phi cấu trúc | Có: PostgreSQL; tài liệu và chỉ mục vector trên volume | `core/src/dxlab_core/db`, `documents`, `search` |
-| Workflow Engine | Có: SpiffWorkflow, trạng thái, lịch sử, audit | `core/src/dxlab_core/workflows`, `audit` |
-| Tách UI khỏi Core | Có: Core không trả HTML; import bị cấm chéo | `docs/ARCHITECTURE.md` mục 1–2 |
-| Sơ đồ kiến trúc và luồng gọi | Có | Hình 1; `docs/ARCHITECTURE.md` mục 3 |
-
-### 8.2 Đề mục 5 — Nguồn mở (PoF)
-
-| Yêu cầu đề | Đáp ứng | Dẫn chứng |
-|---|---|---|
-| Repo công khai, có lịch sử commit | Có | Mục 7 |
-| LICENSE rõ; bảng dependency + license | Có | `LICENSE`, `docs/DEPENDENCIES.md` |
-| Ít nhất một release/tag | Có: `v0.2.0` | `gh release view v0.2.0` |
-| Build/install/run từ source theo README | Có | `README.md`, job build trong CI |
-| README: kiến trúc, cài đặt, cấu hình, chạy thử, API, tài khoản demo | Có | `README.md`, `docs/AUTHZ.md` mục 11 |
-| CHANGELOG, issue tracker, CONTRIBUTING | Có | `CHANGELOG.md`, `CONTRIBUTING.md` |
-| Không commit secret | Có biện pháp: `.env` ngoài git, `.env.example`, gitleaks trong CI | `.github/workflows/ci.yml` |
-| Không dùng thành phần đóng hoặc giấy phép không rõ | Mọi thành phần có giấy phép ghi trong bảng phụ thuộc | `docs/DEPENDENCIES.md` |
-| Ghi nguồn gốc, phiên bản, giấy phép, vai trò thành phần ngoài | Có | `docs/DEPENDENCIES.md` mục 2–5 |
-
-### 8.3 Đề mục 10 — Hồ sơ nộp
-
-| Hạng mục | Trạng thái |
-|---|---|
-| Repository công khai, release/tag | Có (mục 7) |
-| README, LICENSE, bảng dependency/license | Có |
-| CHANGELOG, issue tracker, CONTRIBUTING | Có |
-| Báo cáo kỹ thuật | Phần 1 (tài liệu này) và Phần 2 (`BAO-CAO-PHAN-2.md`) |
-| Slide demo (tối đa 12 slide), video 3–5 phút | Chưa có trong repo tại thời điểm viết; kịch bản demo 10 phút đang soạn ở issue #53 |
-
-### 8.4 Việc thuộc lộ trình, chưa có ở `v0.2.0`
-
-- LLM cho MCP host (issue #36) và che dữ liệu cá nhân trong văn bản tự do bằng OpenMed (issue #97): chưa có, không
-  được coi là tính năng đã chạy. Core không gọi LLM theo thiết kế.
-- Cấu hình Keycloak `start-dev` và một máy là cấu hình demo; triển khai thật cần TLS và cơ sở dữ liệu riêng
-  (`docs/ARCHITECTURE.md` mục 4).
-- Căn cứ pháp lý/quy chế mang nhãn `GĐ-…` là **giả định** của dự án, không phải quy chế thật của HaUI (`docs/AUTHZ.md`
-  mục 0).
