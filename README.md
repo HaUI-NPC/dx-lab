@@ -117,7 +117,7 @@ Danh mục chi tiết 100% gói phụ thuộc, image, mô hình, phiên bản v�
 
 ## Trạng thái
 
-| Hạng mục | Trạng thái trong bản v0.2.0 |
+| Hạng mục | Trạng thái trên nhánh `main` (bản nộp) |
 |---|---|
 | **Khung nguồn mở & Tuân thủ** | Đạt: Giấy phép Apache-2.0 và CC BY 4.0; tuân thủ REUSE 3.3; ký nhận DCO; CI (pytest, gitleaks, validate ứng dụng); CONTRIBUTING; SECURITY; MAINTAINERS. |
 | **Tầng 1 – Core API** | Đạt: Core headless FastAPI, xác thực JWT qua JWKS Keycloak, động cơ BPMN/DMN SpiffWorkflow, phân quyền 5 lớp (phạm vi đơn vị, thẩm quyền hạn mức, không kiêm nhiệm SoD, ký thay KT., che PII), danh mục/tài liệu provenance, tìm kiếm hybrid FTS + zvec, thống kê `/api/stats`, ủy quyền tạm thời TUQ. (`/api/delegations`). |
@@ -266,13 +266,13 @@ Mọi tài khoản dùng chung một mật khẩu được lưu tại biến **`
 | `ktv.cuong` | Lê Văn Cường | `it_technician` (KTV CNTT) | `/haui/tt-cntt` | — | Không |
 | `ktv.dung` | Phạm Thị Dung | `facility_technician` (KTV CSVC) | `/haui/ban-csvc` | — | Không |
 | `ktv.duc` | Đỗ Minh Đức | `lab_technician` (KTV Phòng Lab) | `/haui/sict/khmt` | — | Không |
-| `tl.giang` | Hoàng Thu Giang | `lab_manager` (Trưởng phòng Lab) | `/haui/sict/khmt/lab-a1-305` | Xác nhận nhu cầu | **Có** |
+| `tl.giang` | Hoàng Thu Giang | `lab_manager` (Trưởng phòng Lab) | `/haui/sict/khmt/lab-a1-305` | Xác nhận nhu cầu | Không |
 | `tk.hai` | Vũ Đức Hải | `faculty_head` (Trưởng khoa CNTT) | `/haui/sict/khmt` | Duyệt ≤ 5.000.000 ₫ | **Có** |
 | `ptk.hoa` | Ngô Thị Hoa | `faculty_deputy` (Phó khoa CNTT) | `/haui/sict/khmt` | Nhận ủy quyền TUQ. | **Có** |
 | `ht.khanh` | Bùi Quốc Khánh | `school_head` (Hiệu trưởng Trường CNTT&TT) | `/haui/sict` | Duyệt ≤ 20.000.000 ₫ | **Có** |
 | `tk.long` | Đặng Văn Long | `faculty_head` (Trưởng khoa Điện) | `/haui/truong-dien-dien-tu/khoa-dien` | Duyệt khoa khác (thử chéo quyền) | **Có** |
 | `csvc.lan` | Mai Thị Lan | `facility_officer`, `rule_admin` | `/haui/ban-csvc` | Quản trị luật & danh mục | **Có** |
-| `kt.oanh` | Phan Thị Oanh | `finance_officer` (Kế toán) | `/haui/ban-khtc` | Thẩm tra tài chính | **Có** |
+| `kt.oanh` | Phan Thị Oanh | `finance_officer` (Kế toán) | `/haui/ban-khtc` | Thẩm tra tài chính | Không |
 | `pgd.minh` | Trịnh Văn Minh | `vice_president`, `process_owner` | `/haui/ban-giam-doc` | Duyệt ≤ 100.000.000 ₫ (KT. Giám đốc) | **Có** |
 | `gd.nam` | Lý Thành Nam | `president` (Giám đốc Đại học) | `/haui/ban-giam-doc` | Duyệt > 100.000.000 ₫ | **Có** |
 | `ksnb.phuong`| Hồ Thị Phương | `internal_auditor` (Thanh tra) | `/haui/ban-dbcl-ksnb` | Tra cứu nhật ký audit | **Có** |
@@ -303,7 +303,7 @@ scripts/demo-e2e.sh
 1. Sinh viên `sv.an` đăng nhập và tạo phiếu báo hỏng máy chiếu phòng A1-305.
 2. Động cơ DMN tự động định tuyến sự cố về Trung tâm CNTT (`it_technician`), xếp mức ưu tiên cao.
 3. Kỹ thuật viên `ktv.cuong` nhận việc từ hộp việc (`/api/tasks`), khảo sát và lập biên bản kiểm tra tình trạng (thay bóng đèn, dự toán 3.500.000 ₫ kèm báo giá).
-4. Trưởng phòng lab `tl.giang` xác nhận nhu cầu sửa chữa (xác thực OTP).
+4. Trưởng phòng lab `tl.giang` xác nhận nhu cầu sửa chữa.
 5. Trưởng khoa `tk.hai` phê duyệt kinh phí theo đúng hạn mức phân cấp (xác thực OTP).
 6. Kỹ thuật viên `ktv.cuong` tiến hành sửa chữa và ghi nhận hoàn thành.
 7. Trưởng lab `tl.giang` nghiệm thu thiết bị hoạt động tốt; hệ thống đóng phiếu và ghi nhận lịch sử xuất xứ.
