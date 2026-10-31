@@ -4,7 +4,7 @@
 
 [project]
 name = "dxlab-portal"
-version = "0.2.1"
+version = "0.2.2"
 description = "Tầng 2/3 – giao diện H-P-D-I và ứng dụng báo hỏng thiết bị phòng lab"
 requires-python = ">=3.12"
 license = "Apache-2.0"

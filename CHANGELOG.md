@@ -13,6 +13,33 @@ và dự án tuân theo [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-01
+
+Bản tài liệu nộp bài cho Ban tổ chức. Mã nguồn và hành vi hệ thống không đổi so với 0.2.1.
+
+### Added
+
+- **Báo cáo kỹ thuật duy nhất** dạng LaTeX, kèm PDF có trang bìa và mục lục đánh số trang
+  (`docs/report/DX-Lab-v0.2.1-bao-cao-ky-thuat.pdf`, nguồn `docs/report/latex/`, biên dịch bằng Tectonic) (#123).
+- **Slide trình bày** dựng bằng Slidev, theme `seriph`, 12 trang, kèm PDF (`docs/slides/`) (#122).
+- **Kịch bản demo từng bước** cho người trình bày không chuyên (`docs/demo/kich-ban-tung-buoc.md`), đã chạy thử trên
+  bản 0.2.1.
+
+### Changed
+
+- `docs/report/BAO-CAO-PHAN-1.md` và `BAO-CAO-PHAN-2.md` thay bằng trang trỏ sang báo cáo PDF; bản nháp còn trong lịch sử git.
+
+### Fixed
+
+- `docs/AI.md`, báo cáo, slide: số đo tìm kiếm `/api/search` ghi theo kết quả chạy thật trên 0.2.1. Top-1 vẫn là 18/18,
+  nhưng hai câu ngoài phạm vi **không** trả rỗng (0/2), khác với ghi chép trước đó (2/2).
+- `docs/demo/kich-ban.md`: bỏ bước minh họa câu ngoài phạm vi trả rỗng và câu nói mã lý do hiện trên portal.
+
+### Hạn chế đã biết
+
+- Tìm kiếm chưa trả rỗng với câu hỏi ngoài phạm vi; điểm chưa đủ để đặt ngưỡng.
+- Các hạn chế khác của 0.2.1 vẫn còn.
+
 ## [0.2.1] - 2026-11-01
 
 Bản nộp bài: thêm ủy quyền TUQ., sơ đồ quy trình trên portal, bộ test 14 kịch bản phân quyền, kịch bản kiểm thử
@@ -118,6 +145,7 @@ và xử lý phiếu đầu-cuối. Không có bản 0.1.0: hai mốc kế hoạ
 - Cấu hình Compose là bản demo một máy: Keycloak chạy chế độ phát triển, không TLS; không dùng cho môi trường thật.
 - Tìm theo ngữ nghĩa cần tải mô hình trước bằng `scripts/download-models.sh`; chưa tải thì chỉ tìm toàn văn.
 
-[Unreleased]: https://github.com/HaUI-NPC/dx-lab/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/HaUI-NPC/dx-lab/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/HaUI-NPC/dx-lab/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/HaUI-NPC/dx-lab/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/HaUI-NPC/dx-lab/releases/tag/v0.2.0
