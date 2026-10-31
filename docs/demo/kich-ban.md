@@ -4,6 +4,8 @@ SPDX-FileCopyrightText: 2026 DX-Lab contributors
 SPDX-License-Identifier: CC-BY-4.0
 -->
 
+> **Người trình bày không chuyên:** dùng bản làm theo từng bước (bấm gì, gõ gì, thấy gì, nói gì) ở [`kich-ban-tung-buoc.md`](kich-ban-tung-buoc.md).
+
 # Kịch bản demo 10 phút và câu trả lời chất vấn
 
 Tài liệu cho vòng HaUI: **10 phút demo + tối đa 5 phút trả lời Hội đồng** (đề mục 9). Chuỗi demo theo đề: người dùng →
