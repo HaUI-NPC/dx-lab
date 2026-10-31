@@ -1,0 +1,26 @@
+===== 2026-11-01T00:53:54+0700 BẮT ĐẦU scripts/demo-e2e.sh
+
+[0;34m==>[0m [0;32mBước 0: Kiểm tra trạng thái hệ thống qua APISIX (Health check)[0m
+    [1;33m*[0m APISIX Gateway và Core API hoạt động bình thường: ok
+
+[0;34m==>[0m [0;32mBước 1: Sinh viên (sv.an) báo hỏng điều hòa qua APISIX[0m
+    [1;33m*[0m Phiếu tạo thành công: ID = null
+    [1;33m*[0m DMN tự động phân loại & định tuyến: Trạng thái = pending_assessment
+
+[0;34m==>[0m [0;32mBước 2: Kỹ thuật viên CSVC (ktv.dung) khảo sát hiện trạng & lập dự toán[0m
+    [0;31mERROR:[0m GET /tasks?workflow_id=null mong đợi HTTP 200 nhưng nhận 422:
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "Dữ liệu gửi lên không hợp lệ.",
+    "details": {
+      "errors": [
+        {
+          "path": "query.workflow_id",
+          "message": "Phải là UUID."
+        }
+      ]
+    },
+    "request_id": "5dd13c2e-4dd3-450f-9611-14c036e9d145"
+  }
+}
