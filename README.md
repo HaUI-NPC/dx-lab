@@ -14,7 +14,7 @@ SPDX-License-Identifier: CC-BY-4.0
 
 Sản phẩm dự thi của đội **HaUI.NPC**, khối Phần mềm nguồn mở OLP 2026, chủ đề [DX-OS Open-Core](https://vfossa.vn/tin-tuc/de-thi-phan-mem-nguon-mo-olp-2026-798.html).
 
-> **Trạng thái:** Bản **0.2.1** chạy được đầu-cuối trên một máy bằng Docker Compose với dữ liệu và tài khoản demo (tên giả, hạn mức giả định). Bảng [Trạng thái](#trạng-thái) ghi đúng những gì đã có và phần [Lộ trình](#lộ-trình-sau-cuộc-thi) ghi các tính năng phát triển tiếp theo.
+> **Trạng thái:** Bản **0.2.2** chạy được đầu-cuối trên một máy bằng Docker Compose với dữ liệu và tài khoản demo (tên giả, hạn mức giả định). Bảng [Trạng thái](#trạng-thái) ghi đúng những gì đã có và phần [Lộ trình](#lộ-trình-sau-cuộc-thi) ghi các tính năng phát triển tiếp theo.
 
 ---
 
