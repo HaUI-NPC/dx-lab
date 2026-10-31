@@ -74,38 +74,177 @@ quy ước.
 
 ## 3. Luồng gọi
 
+### 3.1 Sơ đồ tổng quan luồng dịch vụ
+
+Mọi tương tác giữa các tầng tuân thủ kiến trúc phân lớp nghiêm ngặt: client (Portal, CLI, MCP) gửi request kèm Bearer token của người dùng qua API Gateway (APISIX); APISIX xác thực sơ bộ và chuyển tiếp tới Core API; Core độc lập giải mã token, kiểm soát 5 lớp phân quyền, thực thi quy trình qua SpiffWorkflow và truy vấn dữ liệu/chỉ mục.
+
 ```mermaid
 sequenceDiagram
   autonumber
-  actor U as Người dùng
+  actor U as Người dùng / Kỹ thuật viên
   participant P as Portal (BFF)
   participant K as Keycloak
-  participant G as APISIX
-  participant C as Core
+  participant G as APISIX Gateway
+  participant C as Core API
   participant D as PostgreSQL
-  U->>P: Mở portal
-  P->>K: Chuyển hướng đăng nhập (authorization code + PKCE)
-  K-->>P: Code → đổi lấy token qua kênh nội bộ
-  Note over P: Token giữ phía server, trình duyệt chỉ có cookie phiên httpOnly
-  U->>P: Thao tác (ví dụ báo hỏng)
-  P->>G: /api/... kèm header Authorization: Bearer (token của người dùng)
-  G->>G: Kiểm chữ ký, hạn, issuer của JWT, giới hạn tần suất, gắn X-Request-Id
-  G->>C: Chuyển nguyên đường dẫn /api/...
-  C->>C: Kiểm lại JWT + 5 lớp phân quyền (AUTHZ.md)
-  C->>D: Đọc / ghi
-  C-->>P: JSON (dữ liệu cá nhân đã che theo quyền)
-  P-->>U: Trang tiếng Việt
+  participant Z as zvec (Chỉ mục vector)
+
+  U->>P: Mở portal trên trình duyệt
+  P->>K: Chuyển hướng đăng nhập (Authorization Code + PKCE)
+  K-->>P: Code → Đổi lấy access_token qua kênh nội bộ
+  Note over P: Token lưu ở server session, trình duyệt nhận cookie phiên httpOnly
+  U->>P: Thao tác nghiệp vụ (báo hỏng, xử lý việc, tra cứu)
+  P->>G: Gọi /api/... kèm header Authorization: Bearer (token người dùng)
+  G->>G: Kiểm tra JWT (JWKS), rate limit, gắn X-Request-Id
+  G->>C: Chuyển tiếp nguyên đường dẫn /api/...
+  C->>C: Tự kiểm tra JWT, xác thực danh tính & 5 lớp phân quyền (AUTHZ)
+  alt Đọc / Ghi nghiệp vụ hoặc quy trình
+    C->>D: Đọc / ghi instance quy trình, task, records, audit
+  else Tra cứu tri thức sửa chữa (RAG)
+    C->>D: Tra cứu toàn văn (FTS PostgreSQL)
+    C->>Z: Tra cứu độ tương đồng vector (cosine distance)
+  end
+  C-->>P: JSON (dữ liệu cá nhân đã được che theo quyền)
+  P-->>U: Hiển thị giao diện người dùng tiếng Việt
 ```
 
-Luật của luồng gọi:
+### 3.2 Luồng người dùng qua Web Portal (BFF & OIDC PKCE)
 
-1. **Mọi lời gọi tới core đi qua APISIX.** Cổng của core không mở ra máy chủ.
-2. **Chỉ dùng token của chính người dùng.** Không có tài khoản dịch vụ gọi nghiệp vụ thay người dùng; seed dữ liệu
-   cũng đăng nhập bằng tài khoản demo. Nhờ vậy portal, MCP và CLI không làm được gì hơn người đang dùng.
-3. **APISIX chặn sớm, core quyết định.** APISIX từ chối token sai hoặc thiếu; core vẫn tự kiểm chữ ký, `iss`, `aud`,
-   `exp` và mọi lớp phân quyền. Core không tin header nào do client hay gateway thêm, trừ `X-Request-Id` dùng để log.
-4. **Portal và MCP chỉ hiển thị.** Ẩn nút theo vai trò để dễ dùng là được, nhưng quyết định cho hay không luôn do core.
-5. Đọc PostgreSQL, volume tài liệu, chỉ mục tìm kiếm: chỉ core.
+Portal hoạt động theo mô hình BFF (Backend-for-Frontend): trình duyệt không giữ access token nhằm giảm thiểu rủi ro XSS.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor B as Trình duyệt (Người dùng)
+  participant P as Portal BFF (FastAPI)
+  participant K as Keycloak (IdP)
+  participant G as APISIX
+  participant C as Core API
+
+  B->>P: GET /login
+  P->>B: 302 Redirect tới Keycloak (/auth?response_type=code&code_challenge=...)
+  B->>K: Người dùng nhập thông tin đăng nhập (+ OTP nếu có)
+  K-->>B: 302 Redirect về Portal (/auth/callback?code=...)
+  B->>P: GET /auth/callback?code=...
+  P->>K: POST /token (đổi code + code_verifier lấy access_token & id_token)
+  K-->>P: access_token, refresh_token, id_token
+  Note over P: Lưu token vào server-side session và sinh session_id ngẫu nhiên
+  P-->>B: 302 Redirect về / kèm cookie session (httpOnly, SameSite=Lax)
+
+  B->>P: Thao tác gửi biểu mẫu (POST /report hoặc hoàn thành task)
+  P->>P: Đọc access_token từ session (tự làm mới nếu gần hết hạn)
+  P->>G: POST /api/workflows/... (Authorization: Bearer user_token)
+  G->>G: Xác thực chữ ký JWT bằng JWKS của Keycloak, kiểm tra hạn
+  G->>C: Chuyển tiếp request sang Core
+  C->>C: Kiểm tra schema form, thẩm quyền người gọi, ghi nhận DB
+  C-->>P: Phản hồi kết quả JSON
+  P-->>B: Render trang kết quả tiếng Việt
+```
+
+### 3.3 Luồng dòng lệnh (CLI `dxlab`) và Trợ lý MCP
+
+Cả CLI và MCP đều sử dụng trực tiếp danh tính người dùng và tương tác với Core qua APISIX, không dùng tài khoản dịch vụ:
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor D as Cán bộ vận hành / LLM Client
+  participant CLI as dxlab CLI / MCP Server
+  participant K as Keycloak
+  participant G as APISIX
+  participant C as Core API
+
+  Note over CLI,K: 1. Đăng nhập lưu token (chỉ làm một lần)
+  CLI->>K: POST /auth/device (Device Flow) hoặc POST /token (Direct Grant cho demo)
+  K-->>CLI: Cấp access_token & refresh_token
+  CLI->>CLI: Lưu vào ~/.config/dxlab/token.json (phân quyền tệp 0600)
+
+  Note over D,C: 2. Gọi lệnh nghiệp vụ hoặc nạp gói ứng dụng
+  D->>CLI: dxlab publish apps/lab-repair (hoặc MCP: bao_hong())
+  CLI->>CLI: Đọc access_token từ tệp token, kiểm tra hạn dùng
+  opt Trường hợp MCP gọi thao tác ghi
+    CLI->>D: Hỏi xác nhận (elicit confirmation) trước khi thực thi
+    D-->>CLI: Đồng ý xác nhận
+  end
+  CLI->>G: POST /api/definitions/... (Authorization: Bearer user_token)
+  G->>G: APISIX kiểm tra JWT, áp dụng rate-limit
+  G->>C: Chuyển nguyên trạng tới Core API
+  C->>C: Kiểm tra quyền quản trị viên / chuyên viên theo AUTHZ
+  C-->>CLI: Trả về kết quả JSON (phiên bản mới, mã phiếu, ...)
+  CLI-->>D: In kết quả ra terminal / Trả phản hồi cho LLM
+```
+
+### 3.4 Luồng thực thi quy trình BPMN & Đánh giá bảng luật DMN (SpiffWorkflow Runtime)
+
+Core nhúng bộ máy SpiffWorkflow để thực thi quy trình mà không cần dịch vụ workflow ngoài. Trạng thái và biến quy trình được lưu bền vững trong PostgreSQL:
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor U as Người dùng (Người báo / Kỹ thuật viên)
+  participant G as APISIX
+  participant C as Core API
+  participant SP as SpiffWorkflow Engine
+  participant DB as PostgreSQL
+
+  U->>G: POST /api/workflows (Tạo phiếu mới kèm dữ liệu form)
+  G->>C: Chuyển tiếp request có Bearer token
+  C->>C: Kiểm tra tính hợp lệ dữ liệu theo JSON Schema của form
+  C->>DB: Đọc định nghĩa quy trình bản active (BPMN, DMN)
+  C->>SP: Khởi tạo Workflow Instance (BpmnWorkflow)
+  SP->>SP: Chạy qua Start Event tới Service / Business Rule Task
+
+  Note over SP: Đánh giá luật tự động (DMN)
+  SP->>SP: Chạy triage.dmn (xác định mức ưu tiên P1/P2/P3 và hạn SLA)
+  SP->>SP: Chạy routing.dmn (xác định tech_unit và tech_role tiếp nhận)
+  SP->>SP: Chạy authority.dmn (nếu có chi phí: xác định thẩm quyền duyệt)
+
+  SP->>SP: Dừng tại User Task kế tiếp (ví dụ: pending_assessment)
+  C->>DB: Ghi lưu Workflow state, tạo User Task mới trong bảng tasks
+  C->>DB: Ghi sự kiện Audit Log (ai tạo, thời điểm, dữ liệu phiếu)
+  C-->>G: Trả về thông tin instance và mã phiếu
+  G-->>U: 201 Created (JSON)
+```
+
+### 3.5 Luồng tra cứu tri thức & Tìm kiếm ngữ nghĩa (RAG Hybrid)
+
+Hệ thống kết hợp tìm kiếm toàn văn tiếng Việt (FTS qua PostgreSQL) và tìm kiếm ngữ nghĩa (vector qua zvec), kèm bộ lọc phân quyền xem tài liệu:
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor U as Người dùng (Portal / MCP)
+  participant G as APISIX
+  participant C as Core API
+  participant DB as PostgreSQL
+  participant Z as zvec Index
+
+  U->>G: GET /api/search?q=máy+chiếu+báo+đèn+đỏ
+  G->>C: Chuyển tiếp request
+  C->>C: Giải mã token, lấy thông tin đơn vị và vai trò người dùng
+
+  par Tra cứu toàn văn (FTS)
+    C->>DB: SELECT documents qua to_tsvector('simple', dxlab_unaccent(:q))
+    DB-->>C: Danh sách tài liệu khớp từ khóa + rank điểm số
+  and Tra cứu vector (Semantic Embedding)
+    C->>C: Sinh vector biểu diễn của câu hỏi qua mô hình cục bộ
+    C->>Z: Query k-nearest vectors trong collection chunks (khoảng cách cosine)
+    Z-->>C: Danh sách chunk_index và điểm khoảng cách
+  end
+
+  C->>C: Kết hợp điểm (Hybrid scoring), loại trùng lặp
+  C->>DB: Lọc tài liệu theo quyền truy cập của người dùng (AUTHZ mục 7)
+  C-->>G: 200 OK (Danh sách hướng dẫn SOP kèm trích dẫn văn bản nguồn và điểm số)
+  G-->>U: Hiển thị kết quả tra cứu có dẫn chứng
+```
+
+### 3.6 Luật và ràng buộc kiến trúc của luồng gọi
+
+1. **Mọi lời gọi tới core đi qua APISIX:** Cổng của core không bind ra máy chủ (chỉ bind trong mạng nội bộ Compose). APISIX là điểm vào duy nhất (`127.0.0.1:9080`).
+2. **Chỉ dùng token của chính người dùng:** Không sử dụng tài khoản dịch vụ (service account) để gọi thay nghiệp vụ người dùng; seed dữ liệu cũng đăng nhập bằng tài khoản demo. Nhờ vậy portal, MCP và CLI bị giới hạn đúng quyền của người đang thao tác.
+3. **APISIX chặn sớm, core quyết định độc lập (Defense-in-depth):** APISIX từ chối token sai hoặc thiếu chữ ký; Core vẫn tự kiểm tra chữ ký, `iss`, `aud`, `exp` qua JWKS và thực thi đầy đủ 5 lớp phân quyền (`docs/AUTHZ.md`). Core không tin cậy header do client hoặc gateway thêm vào, ngoại trừ `X-Request-Id` phục vụ tracing.
+4. **Portal và MCP chỉ là tầng hiển thị:** Ẩn nút theo vai trò để tối ưu trải nghiệm, nhưng quyết định cho phép hay từ chối luôn do Core kiểm soát tại thời điểm gọi API.
+5. **Độc quyền truy cập tài nguyên dữ liệu:** Chỉ duy nhất Core API có quyền đọc/ghi cơ sở dữ liệu PostgreSQL, volume tài liệu và thư mục chỉ mục vector `zvec`.
 
 ## 4. Dịch vụ, cổng, URL
 

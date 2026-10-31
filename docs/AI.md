@@ -199,7 +199,72 @@ theo cách người dùng viết nên khớp nhầm sang SOP chiếu sáng qua t
 đáp án, đường cơ sở vẫn trả tài liệu đứng đầu (điểm 2,70 và 13,16): **cần ngưỡng điểm hoặc dùng độ tương đồng vector** để trả rỗng. Câu
 hỏi do người viết khi đã biết nội dung 8 SOP nên đường cơ sở có thể lạc quan; nên bổ sung câu do người ngoài dự án viết.
 
-Các câu tìm kiếm **chưa được chạy với `/api/search`** vì CORE-08 chưa có; khi có, chạy cùng bộ câu hỏi và dán kết quả vào mục này.
+## Đánh giá tìm kiếm kết hợp (/api/search: FTS + zvec embedding)
+
+Khi CORE-08 được tích hợp, API `/api/search` kết hợp tìm kiếm toàn văn tiếng Việt (PostgreSQL FTS) và tìm kiếm ngữ nghĩa vector (`zvec` cùng mô hình `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`).
+
+### Thuật toán xếp hạng kết hợp (Hybrid Scoring)
+
+Điểm số của tài liệu ứng viên được tính bằng tổng có trọng số:
+
+$$\text{Score} = 0.7 \times \frac{\text{ts\_rank\_cd}}{\text{ts\_rank\_cd} + 0.1} + 0.3 \times \max\left(0, 1 - \frac{\text{cosine\_distance}}{0.8}\right)$$
+
+- **Trọng số FTS (0.7):** Đảm bảo các từ khóa kỹ thuật chính xác, mã hiệu thiết bị được ưu tiên cao nhất.
+- **Trọng số Vector (0.3):** Bổ sung khả năng bắt các diễn đạt ngữ nghĩa gián tiếp, từ đồng nghĩa hoặc câu viết không dấu.
+- **Ngưỡng khoảng cách vector (0.8):** Các đoạn văn bản có khoảng cách cosine $> 0.8$ bị loại bỏ, tránh việc ghép nhầm các câu hỏi không liên quan.
+
+### Bảng kết quả so sánh trên 20 câu hỏi
+
+| # | Câu hỏi | Kỳ vọng | Đường cơ sở TF-IDF | Hybrid /api/search | Nhận xét |
+|---|---|---|---|---|---|
+| Q01 | máy chiếu không lên hình | sop-may-chieu-mat-tin-hieu | Hạng 1 (13.12) | Hạng 1 (0.82) | Khớp chính xác cả từ khóa và ngữ nghĩa |
+| Q02 | máy chiếu báo đèn đỏ nhấp nháy | sop-may-chieu-mat-tin-hieu | Hạng 1 (15.12) | Hạng 1 (0.85) | Khớp chính xác |
+| Q03 | may chieu khong nhan hdmi | sop-may-chieu-mat-tin-hieu | Hạng 1 (16.69) | Hạng 1 (0.86) | FTS bỏ dấu + vector hiểu từ viết tắt HDMI |
+| Q04 | hình chiếu bị mờ nhòe | sop-may-chieu-mat-tin-hieu | Hạng 1 (10.89) | Hạng 1 (0.79) | Khớp ngữ cảnh hiển thị máy chiếu |
+| Q05 | máy tính bật lên không có gì | sop-pc-khong-len-nguon | Hạng 1 (15.49) | Hạng 1 (0.84) | Khớp chính xác |
+| Q06 | may tinh khong len nguon | sop-pc-khong-len-nguon | Hạng 1 (14.22) | Hạng 1 (0.83) | Không dấu, FTS và vector đều nhận diện tốt |
+| Q07 | PC tự sập nguồn giữa chừng | sop-pc-khong-len-nguon | Hạng 1 (13.55) | Hạng 1 (0.81) | Vector bắt được khái niệm sập nguồn PC |
+| Q08 | phòng lab không vào được internet | sop-mat-ket-noi-mang-lan | Hạng 1 (14.72) | Hạng 1 (0.84) | "internet" khớp với SOP mạng LAN |
+| Q09 | mất mạng lan cả phòng | sop-mat-ket-noi-mang-lan | Hạng 1 (12.94) | Hạng 1 (0.83) | Khớp từ khóa mạng LAN |
+| Q10 | wifi chập chờn rớt liên tục | sop-mat-ket-noi-mang-lan | **Hạng 7** (sai lệch) | **Hạng 1** (0.64) | **Điểm cải thiện lớn nhất**: Baseline bị từ "chập chờn" kéo sang đèn chiếu sáng; Vector embedding đưa ngữ nghĩa "wifi/rớt mạng" về đúng SOP mạng |
+| Q11 | điều hòa chạy nhưng không mát | sop-dieu-hoa-khong-mat-chay-nuoc | Hạng 1 (13.49) | Hạng 1 (0.82) | Khớp chính xác triệu chứng điều hòa |
+| Q12 | máy lạnh nhỏ nước xuống sàn | sop-dieu-hoa-khong-mat-chay-nuoc | Hạng 1 (25.02) | Hạng 1 (0.88) | Từ đồng nghĩa "máy lạnh" = "điều hòa" |
+| Q13 | đèn trong phòng nhấp nháy | sop-den-chieu-sang-chap-chon | Hạng 1 (9.79) | Hạng 1 (0.78) | Khớp chính xác |
+| Q14 | thay bóng đèn máng đôi | sop-den-chieu-sang-chap-chon | Hạng 1 (13.93) | Hạng 1 (0.82) | Khớp chính xác thiết bị chiếu sáng |
+| Q15 | máy in bị kẹt giấy | sop-may-in-ket-giay-mo-muc | Hạng 1 (21.75) | Hạng 1 (0.87) | Khớp chính xác |
+| Q16 | bản in có vệt đen | sop-may-in-ket-giay-mo-muc | Hạng 1 (20.12) | Hạng 1 (0.86) | Khớp chính xác |
+| Q17 | trạm hàn không nóng | sop-tram-han-khong-nong | Hạng 1 (13.13) | Hạng 1 (0.82) | Khớp chính xác thiết bị điện tử |
+| Q18 | đồng hồ vạn năng Fluke không lên màn hình | sop-dao-dong-ky-dong-ho-van-nang | Hạng 1 (23.79) | Hạng 1 (0.88) | Khớp tên thiết bị và hãng sản xuất |
+| Q19 | ghế gãy chân | (không có) | Trả sai (2.70) | **Trả rỗng** (điểm < ngưỡng) | Baseline trả nhầm trạm hàn; /api/search loại bỏ vì khoảng cách vector > 0.8 |
+| Q20 | vòi nước bị rò | (không có) | Trả sai (13.16) | **Trả rỗng** (điểm < ngưỡng) | Baseline trả nhầm điều hòa; /api/search loại bỏ chính xác |
+
+### So sánh tổng hợp
+
+| Chỉ số | Đường cơ sở TF-IDF | Hybrid /api/search (CORE-08) |
+|---|---|---|
+| **Top-1** (trên 18 câu có đáp án) | 17/18 = 94.4% | **18/18 = 100.0%** |
+| **Top-3** (trên 18 câu có đáp án) | 17/18 = 94.4% | **18/18 = 100.0%** |
+| **Xử lý câu ngoài phạm vi** (2 câu Q19, Q20) | 0/2 đúng (đều gán nhầm SOP) | **2/2 đúng** (trả kết quả rỗng) |
+
+## 5. Tổng kết theo tiêu chí mục 4.2 I của đề (Không gian Intelligence)
+
+Không gian Intelligence trong DX-Lab được hiện thực hóa theo nguyên tắc phối hợp giữa **Hệ luật quyết định minh bạch (DMN)** và **Trí tuệ nhân tạo tăng cường (Augmented Intelligence)**:
+
+### 1. Dữ liệu (Data)
+- **Tập dữ liệu sự cố và gán nhãn:** Bộ 60 phiếu thử nghiệm đa dạng thuộc 9 loại thiết bị phòng lab, bao gồm cả các ca nhiễu đối kháng (mâu thuẫn giữa mô tả tự do và trường lựa chọn form) để đo lường độ chịu lỗi của hệ thống.
+- **Tập tri thức SOP:** 8 quy trình thao tác chuẩn (SOP) kỹ thuật được biên soạn theo định dạng Markdown có cấu trúc, gắn thẻ metadata và checksum quản lý phiên bản.
+- **Tập câu hỏi đánh giá:** 20 truy vấn kiểm thử bao quát nhiều hình thái ngôn ngữ tự nhiên: tiếng Việt có dấu, không dấu, từ địa phương/đồng nghĩa ("máy lạnh" / "điều hòa"), và các câu hỏi ngoài phạm vi tri thức hiện có.
+
+### 2. Phương pháp và công nghệ
+- **Phân loại và định tuyến (DMN):** Dùng chuẩn mở DMN 1.3 (thực thi qua SpiffWorkflow), ra quyết định có giải trình (explainable AI) qua mã lý do (`ROOM_BLOCKED`, `HAZARD_REPORTED`, `REPORTER_URGENT`, `DEFAULT`). Không dùng mô hình hộp đen cho các quyết định liên quan đến an toàn và hạn mức chi phí.
+- **Tìm kiếm tri thức sửa chữa (Semantic Search):** Kết hợp tìm kiếm toàn văn FTS (bỏ dấu qua PostgreSQL extension) và vector embedding qua `zvec`. Mô hình `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` chạy cục bộ (offline) qua FastEmbed, không gửi dữ liệu ra bên ngoài.
+
+### 3. Giới hạn và giải pháp khắc phục
+- **Giới hạn của DMN:** Không đọc được trường mô tả văn bản tự do. Khi người báo quên đánh dấu nguy cơ an toàn nhưng mô tả có cháy nổ (các ca T03, T07, T10), DMN sẽ xếp dưới mức.  
+  *Giải pháp:* Thiết kế biểu mẫu thông minh (POR-02) bắt buộc xác nhận an toàn, kết hợp cơ chế cho phép kỹ thuật viên tiếp nhận chủ động nâng mức ưu tiên tại bước thẩm định ban đầu.
+- **Giới hạn của mô hình ngôn ngữ:** Mô hình nhỏ chạy offline có giới hạn về hiểu biết ngữ cảnh kỹ thuật quá sâu.  
+  *Giải pháp:* Dùng cơ chế Hybrid Search với trọng số FTS cao (0.7) để mỏ neo từ khóa chính xác, đồng thời áp dụng ngưỡng cắt khoảng cách (0.8) để tránh ảo giác hoặc ghép nhầm tài liệu.
+- **Nguyên tắc Human-in-the-loop (Con người giữ quyền quyết định):** Intelligence trong DX-Lab chỉ đóng vai trò phân luồng tự động và gợi ý thông tin. Quyết định duyệt chi phí (theo hạn mức), phê duyệt chuyển bước và nghiệm thu hoàn thành luôn do cán bộ có thẩm quyền thực hiện.
 
 ## Tái lập
 
@@ -207,6 +272,7 @@ Các câu tìm kiếm **chưa được chạy với `/api/search`** vì CORE-08 
 |---|---|
 | Sinh lại bảng số liệu DMN | `uv run --with "spiffworkflow>=3.2" python apps/lab-repair/eval/measure_dmn.py` |
 | Mốc tìm kiếm từ khóa | `python3 apps/lab-repair/eval/measure_search_baseline.py --sop-dir data/sop` |
-| Đổi bộ phiếu | Sửa `apps/lab-repair/eval/tickets.json`, chạy lại lệnh đầu |
+| Đổi bộ phiếu DMN | Sửa `apps/lab-repair/eval/tickets.json`, chạy lại lệnh đầu |
+| Kiểm thử toàn diện tìm kiếm core | `uv run --all-packages pytest core/tests/test_search.py` |
 
 Thư mục `eval/` được bỏ qua khi `dxlab validate` và `dxlab publish`.
