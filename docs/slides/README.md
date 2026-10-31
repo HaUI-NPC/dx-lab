@@ -12,21 +12,27 @@ SPDX-License-Identifier: CC-BY-4.0
 Số liệu lấy từ `README.md`, `CHANGELOG.md`, `docs/AI.md` và các tài liệu trong `docs/`. Hạn mức duyệt, cơ cấu tổ chức,
 tài khoản demo là **giả định** của đội HaUI.NPC.
 
-## Xem và xuất slide
+## Theme và cách dựng
 
-Slidev (giấy phép MIT) **chỉ dùng để dựng slide**, không thuộc sản phẩm DX-Lab và không được thêm vào repo: repo không có
+Theme: [`@slidev/theme-seriph`](https://github.com/slidevjs/themes) 0.25.0 (MIT), màu chủ đạo `#1d4ed8` qua `themeConfig`,
+font Be Vietnam Pro và JetBrains Mono (Google Fonts, tải khi chạy hoặc khi xuất; cần mạng). Bố cục phụ (thanh tiêu đề, bảng,
+thẻ, nhãn) nằm trong khối `<style>` của `slides.md`; trang bìa dùng nền gradient CSS, không có ảnh ngoài.
+
+Slidev (MIT) và theme **chỉ dùng để dựng slide**, không thuộc sản phẩm DX-Lab và không được thêm vào repo: repo không có
 `package.json` hay lockfile Node. Chạy trong một thư mục tạm ngoài repo, cần Node.js:
 
 ```bash
 mkdir /tmp/slidev-build && cd /tmp/slidev-build
+npm init -y
+npm i -D @slidev/cli @slidev/theme-seriph playwright-chromium
 cp <đường-dẫn-repo>/docs/slides/slides.md .
 
 # Xem trực tiếp trong trình duyệt
-npx @slidev/cli slides.md
+npx slidev slides.md
 
-# Xuất PDF (xuất PDF cần thêm playwright-chromium)
-npm i -D @slidev/cli playwright-chromium
+# Xuất PDF
 npx slidev export slides.md --output dx-lab-slides.pdf --timeout 120000
 ```
 
-Bản PDF trong repo được dựng bằng `@slidev/cli` 53.0.0 và `playwright-chromium`. Sơ đồ Mermaid được vẽ lúc xuất.
+Bản PDF trong repo được dựng bằng `@slidev/cli` 53.0.0, `@slidev/theme-seriph` 0.25.0 và `playwright-chromium`. Sơ đồ Mermaid
+được vẽ lúc xuất.
