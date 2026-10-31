@@ -152,6 +152,17 @@ if [ "$HEALTH_CODE" -ne 200 ]; then
 fi
 log_info "APISIX Gateway và Core API hoạt động bình thường: $(echo "$HEALTH_BODY" | jq -r .status)"
 
+# task_id của bước đang chờ trong hộp việc (đã lọc theo phiếu); hộp việc trống thì dừng kịch bản.
+first_task_id() {
+  local id
+  id="$(echo "$LAST_BODY" | jq -r '.items[0].task_id // empty')"
+  if [ -z "$id" ]; then
+    log_error "Hộp việc không có bước nào của phiếu ${WORKFLOW_ID}: ${LAST_BODY}" >&2
+    exit 1
+  fi
+  echo "$id"
+}
+
 log_step "Bước 1: Sinh viên (sv.an) báo hỏng điều hòa qua APISIX"
 TOKEN_SV="$(get_token "sv.an")"
 REPORT_DATA=$(cat <<EOF
@@ -177,7 +188,11 @@ REPORT_DATA=$(cat <<EOF
 EOF
 )
 api_call "POST" "/workflows" "$TOKEN_SV" "$REPORT_DATA" 201
-WORKFLOW_ID="$(echo "$LAST_BODY" | jq -r .id)"
+WORKFLOW_ID="$(echo "$LAST_BODY" | jq -r '.workflow_id // empty')"
+if [ -z "$WORKFLOW_ID" ]; then
+  log_error "Không đọc được workflow_id từ phản hồi tạo phiếu: ${LAST_BODY}"
+  exit 1
+fi
 STATUS_1="$(echo "$LAST_BODY" | jq -r .status)"
 log_info "Phiếu tạo thành công: ID = ${WORKFLOW_ID}"
 log_info "DMN tự động phân loại & định tuyến: Trạng thái = ${STATUS_1}"
@@ -189,7 +204,7 @@ fi
 log_step "Bước 2: Kỹ thuật viên CSVC (ktv.dung) khảo sát hiện trạng & lập dự toán"
 TOKEN_KTV="$(get_token "ktv.dung")"
 api_call "GET" "/tasks?workflow_id=${WORKFLOW_ID}" "$TOKEN_KTV" "" 200
-TASK_ID_2="$(echo "$LAST_BODY" | jq -r '.items[0].id')"
+TASK_ID_2="$(first_task_id)"
 log_info "Nhận việc từ hộp việc kỹ thuật: Task ID = ${TASK_ID_2}"
 
 ASSESSMENT_DATA=$(cat <<EOF
@@ -227,7 +242,7 @@ fi
 log_step "Bước 3: Trưởng phòng lab (tl.giang) xác nhận nhu cầu sửa chữa"
 TOKEN_TL="$(get_token "tl.giang")"
 api_call "GET" "/tasks?workflow_id=${WORKFLOW_ID}" "$TOKEN_TL" "" 200
-TASK_ID_3="$(echo "$LAST_BODY" | jq -r '.items[0].id')"
+TASK_ID_3="$(first_task_id)"
 log_info "Nhận việc từ hộp việc trưởng lab: Task ID = ${TASK_ID_3}"
 
 CONFIRM_DATA=$(cat <<EOF
@@ -254,7 +269,7 @@ fi
 log_step "Bước 4: Trưởng khoa (tk.hai) phê duyệt chi phí (xác thực 2 bước OTP)"
 TOKEN_TK="$(get_token "tk.hai")"
 api_call "GET" "/tasks?workflow_id=${WORKFLOW_ID}" "$TOKEN_TK" "" 200
-TASK_ID_4="$(echo "$LAST_BODY" | jq -r '.items[0].id')"
+TASK_ID_4="$(first_task_id)"
 log_info "Nhận việc từ hộp việc cấp duyệt: Task ID = ${TASK_ID_4}"
 
 APPROVAL_DATA=$(cat <<EOF
@@ -281,7 +296,7 @@ fi
 
 log_step "Bước 5: Kỹ thuật viên (ktv.dung) thực hiện sửa chữa và báo cáo hoàn thành"
 api_call "GET" "/tasks?workflow_id=${WORKFLOW_ID}" "$TOKEN_KTV" "" 200
-TASK_ID_5="$(echo "$LAST_BODY" | jq -r '.items[0].id')"
+TASK_ID_5="$(first_task_id)"
 log_info "Nhận việc sửa chữa: Task ID = ${TASK_ID_5}"
 
 REPAIR_DATA=$(cat <<EOF
@@ -308,7 +323,7 @@ fi
 
 log_step "Bước 6: Trưởng lab (tl.giang) nghiệm thu và bàn giao thiết bị"
 api_call "GET" "/tasks?workflow_id=${WORKFLOW_ID}" "$TOKEN_TL" "" 200
-TASK_ID_6="$(echo "$LAST_BODY" | jq -r '.items[0].id')"
+TASK_ID_6="$(first_task_id)"
 log_info "Nhận việc nghiệm thu: Task ID = ${TASK_ID_6}"
 
 ACCEPTANCE_DATA=$(cat <<EOF
@@ -336,11 +351,11 @@ fi
 log_step "Bước 7: Kiểm tra Audit log & Tra cứu tri thức (/api/search)"
 api_call "GET" "/workflows/${WORKFLOW_ID}" "$TOKEN_SV" "" 200
 FINAL_STATUS="$(echo "$LAST_BODY" | jq -r .status)"
-TOTAL_STEPS="$(echo "$LAST_BODY" | jq -r '.steps | length')"
+TOTAL_STEPS="$(echo "$LAST_BODY" | jq -r '.history | length')"
 log_info "Kiểm tra phiếu ${WORKFLOW_ID}: status='${FINAL_STATUS}', số bước đã ghi nhận=${TOTAL_STEPS}"
 
 api_call "GET" "/search?q=m%C3%A1y+l%E1%BA%A1nh+nh%E1%BB%8F+n%C6%B0%E1%BB%9Bc" "$TOKEN_SV" "" 200
-SEARCH_MATCH="$(echo "$LAST_BODY" | jq -r '.items[0].title // empty')"
+SEARCH_MATCH="$(echo "$LAST_BODY" | jq -r '.items[0].document.title // empty')"
 log_info "Kết quả tra cứu SOP: '${SEARCH_MATCH}'"
 
 echo -e "\n${GREEN}================================================================${NC}"
