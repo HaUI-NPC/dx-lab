@@ -13,6 +13,10 @@ và dự án tuân theo [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0
 
 ## [Unreleased]
 
+### Added
+
+- **Portal:** tab "Sơ đồ quy trình" hiện sơ đồ Mermaid sinh từ BPMN của phiên bản `lab-repair` đang áp dụng (lấy qua `/api/definitions`), nhóm bước theo vai trò.
+
 ## [0.2.0] - 2026-10-30
 
 Bản phát hành đầu tiên chạy được: dựng toàn bộ hệ thống bằng Docker Compose, đăng nhập bằng tài khoản demo, báo hỏng

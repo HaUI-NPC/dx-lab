@@ -24,7 +24,7 @@ from prefab_ui.components import (
     Text,
 )
 
-from dxlab_portal.pages import dashboard, lookup, my_tasks, report, status
+from dxlab_portal.pages import dashboard, diagram, lookup, my_tasks, report, status
 from dxlab_portal.pages.context import PageContext
 
 
@@ -46,6 +46,7 @@ TABS: list[TabDef] = [
     TabDef("report", "Báo hỏng", report.render, report.load, report.state),
     TabDef("lookup", "Tra cứu", lookup.render, state=lookup.state),
     TabDef("dashboard", "Dashboard", dashboard.render, dashboard.load),
+    TabDef("diagram", "Sơ đồ quy trình", diagram.render, diagram.load),
     TabDef("status", "Trạng thái hệ thống", status.render, state=lambda _: status.state()),
 ]
 DEFAULT_TAB = TABS[0].id

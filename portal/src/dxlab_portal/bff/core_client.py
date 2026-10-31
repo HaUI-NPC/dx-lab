@@ -38,11 +38,12 @@ def strip_hop_by_hop(headers: httpx.Headers | dict[str, str]) -> dict[str, str]:
 
 @dataclass(frozen=True)
 class CoreResult:
-    """Kết quả một lời gọi core: HTTP status và JSON (hoặc ``None`` nếu không phải JSON)."""
+    """Kết quả một lời gọi core: HTTP status và JSON (hoặc ``None`` nếu không phải JSON, khi đó ``text`` giữ thân gốc)."""
 
     status: int
     json: Any
     request_id: str | None = None
+    text: str | None = None
 
     @property
     def ok(self) -> bool:
@@ -142,4 +143,5 @@ class CoreClient:
             body = response.json() if response.content else None
         except ValueError:
             body = None
-        return CoreResult(response.status_code, body, response.headers.get("x-request-id"))
+        text = response.text if body is None and response.content else None
+        return CoreResult(response.status_code, body, response.headers.get("x-request-id"), text)
