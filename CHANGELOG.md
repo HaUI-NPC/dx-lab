@@ -13,9 +13,40 @@ và dự án tuân theo [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-01
+
+Bản nộp bài: thêm ủy quyền TUQ., sơ đồ quy trình trên portal, bộ test 14 kịch bản phân quyền, kịch bản kiểm thử
+đầu-cuối và bộ tài liệu nộp bài (README, bảng phụ thuộc, báo cáo kỹ thuật, slide, kịch bản demo, log QA).
+
 ### Added
 
-- **Portal:** tab "Sơ đồ quy trình" hiện sơ đồ Mermaid sinh từ BPMN của phiên bản `lab-repair` đang áp dụng (lấy qua `/api/definitions`), nhóm bước theo vai trò.
+- **Ủy quyền TUQ.** (`/api/delegations`, #18): người giữ vai trò duyệt giao cho người cùng đơn vị duyệt thay tối đa
+  30 ngày, bắt buộc số giấy ủy quyền, thu hồi được bất kỳ lúc nào; không vượt vai trò và đơn vị của người ủy quyền;
+  người nhận không ủy quyền lại được; phiếu và audit ghi hình thức TUQ., người ủy quyền, số giấy.
+- **Sơ đồ quy trình trên portal** (#33): tab mới vẽ sơ đồ Mermaid từ BPMN của phiên bản ứng dụng đang áp dụng.
+- **Kiểm thử:** 14 kịch bản phân quyền của `docs/AUTHZ.md` mục 12 chạy trên gói `lab-repair` thật (#38);
+  `scripts/demo-e2e.sh` chạy trọn vòng đời phiếu qua APISIX với Keycloak thật (#39).
+- **Tài liệu:** README đầy đủ (#47), `docs/DEPENDENCIES.md` (#46), sequence luồng gọi trong `docs/ARCHITECTURE.md` và
+  đánh giá trong `docs/AI.md` (#48), báo cáo kỹ thuật hai phần `docs/report/` (#49, #50), slide `docs/slides/` (#51),
+  kịch bản demo và câu trả lời chất vấn `docs/demo/kich-ban.md` (#53), log build theo README `docs/qa/` (#41).
+
+### Changed
+
+- Tệp nhị phân trong `docs/report/`, `docs/slides/`, `docs/qa/`, `docs/demo/` được khai báo CC-BY-4.0 qua
+  `REUSE.toml` (#100).
+
+### Fixed
+
+- `scripts/demo-e2e.sh` đọc đúng `workflow_id`, `task_id`, `history` và tên tài liệu trong phản hồi của core (#118).
+
+### Hạn chế đã biết
+
+- Portal chưa có màn hình tạo hoặc thu hồi ủy quyền; dùng API (`/api/docs`).
+- Chạy MCP với host và LLM (#36), che dữ liệu cá nhân trong văn bản tự do (#97) và đo migration `0006` trên bảng
+  `documents` lớn (#96) là lộ trình sau bản này.
+- Log QA (#41) chạy trên máy của đội với bản clone và volume Docker mới, chưa chạy trên một máy khác.
+- Các hạn chế khác của 0.2.0 vẫn còn (giả định hạn mức và tổ chức, chỉ mục toàn văn 150.000 ký tự đầu, Compose là
+  bản demo một máy).
 
 ## [0.2.0] - 2026-10-30
 
@@ -87,5 +118,6 @@ và xử lý phiếu đầu-cuối. Không có bản 0.1.0: hai mốc kế hoạ
 - Cấu hình Compose là bản demo một máy: Keycloak chạy chế độ phát triển, không TLS; không dùng cho môi trường thật.
 - Tìm theo ngữ nghĩa cần tải mô hình trước bằng `scripts/download-models.sh`; chưa tải thì chỉ tìm toàn văn.
 
-[Unreleased]: https://github.com/HaUI-NPC/dx-lab/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/HaUI-NPC/dx-lab/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/HaUI-NPC/dx-lab/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/HaUI-NPC/dx-lab/releases/tag/v0.2.0
