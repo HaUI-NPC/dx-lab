@@ -1,0 +1,525 @@
+% SPDX-FileCopyrightText: 2026 DX-Lab contributors
+% SPDX-License-Identifier: CC-BY-4.0
+%
+% Báo cáo kỹ thuật DX-Lab v0.2.1. Biên dịch: tectonic -X compile dx-lab-bao-cao-ky-thuat.tex
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Menlo}[Scale=0.82]
+
+\usepackage[a4paper,left=2.5cm,right=2cm,top=2.2cm,bottom=2.2cm]{geometry}
+\usepackage{microtype}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{fancyvrb}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,fit,backgrounds,calc}
+\usepackage[hidelinks,pdftitle={DX-Lab v0.2.1: báo cáo kỹ thuật},pdfauthor={HaUI.NPC}]{hyperref}
+
+\definecolor{dxblue}{HTML}{1F4E79}
+\definecolor{dxgrey}{HTML}{F2F2F2}
+\definecolor{dxred}{HTML}{9C2B2B}
+\definecolor{t1}{HTML}{DCE9F5}
+\definecolor{t2}{HTML}{E4F1DD}
+\definecolor{t3}{HTML}{FBEFD5}
+
+\setlist{itemsep=1pt,topsep=3pt,parsep=0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2.5pt}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\emergencystretch}{2em}
+
+\titleformat{\section}{\sffamily\Large\bfseries\color{dxblue}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\sffamily\large\bfseries\color{dxblue}}{\thesubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{12pt}{4pt}
+\titlespacing*{\subsection}{0pt}{8pt}{2pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancyhead[L]{\sffamily\small DX-Lab v0.2.1 --- báo cáo kỹ thuật}
+\fancyhead[R]{\sffamily\small HaUI.NPC · OLP PMNM 2026}
+\fancyfoot[C]{\sffamily\small\thepage}
+
+\DeclareUrlCommand\codeX{\urlstyle{tt}\def\UrlBreaks{\do\/\do\_\do\.\do\-\do\,}\def\UrlBigBreaks{\do\/}\def\UrlSpecials{\do\ {\ }}}
+\newcommand{\code}{\protect\codeX}
+\newcommand{\gd}{\textit{giả định}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\tbl}[1]{\small #1}
+
+\renewcommand{\contentsname}{Mục lục}
+\renewcommand{\figurename}{Hình}
+\renewcommand{\tablename}{Bảng}
+\newcommand{\cmd}[1]{\texttt{\detokenize{#1}}}
+\setcounter{tocdepth}{1}
+\begin{document}
+
+%================ BÌA ================
+\begin{titlepage}
+\centering
+\vspace*{1.5cm}
+{\sffamily\color{dxblue}\fontsize{34}{40}\selectfont\bfseries DX-Lab\par}
+\vspace{0.4cm}
+{\sffamily\Large Trạm điều hành số trên nền tảng\\DX-OS Open-Core\par}
+\vspace{0.8cm}
+{\sffamily\Huge\bfseries Báo cáo kỹ thuật\par}
+\vspace{1.2cm}
+\rule{0.6\textwidth}{0.6pt}\par\vspace{0.8cm}
+{\large
+\begin{tabular}{rl}
+Đội thi: & \textbf{HaUI.NPC}\\
+Cuộc thi: & Olympic Tin học Sinh viên Việt Nam 2026, khối Phần mềm nguồn mở\\
+Chủ đề: & DX-OS Open-Core\\
+Phiên bản: & \textbf{v0.2.1} (tag \code{v0.2.1}, commit \code{3b06a1e})\\
+Ngày phát hành: & 01/11/2026 (giờ Việt Nam)\\
+\end{tabular}}\par
+\vspace{1.2cm}
+\begin{tabular}{rl}
+Mã nguồn: & \url{https://github.com/HaUI-NPC/dx-lab}\\
+Bản phát hành: & \url{https://github.com/HaUI-NPC/dx-lab/releases/tag/v0.2.1}\\
+\end{tabular}\par
+\vfill
+\begin{minipage}{0.85\textwidth}\small\centering
+Giấy phép: mã nguồn Apache-2.0, tài liệu (gồm báo cáo này) CC BY 4.0.\\
+Mọi khẳng định dẫn tới tệp trong repo để kiểm lại. Những gì chưa có được nêu riêng ở mục~\ref{sec:lotrinh}.
+\end{minipage}
+\end{titlepage}
+
+%================ TÓM TẮT + MỤC LỤC ================
+\section*{Tóm tắt}
+\addcontentsline{toc}{section}{Tóm tắt}
+DX-Lab số hóa quy trình xử lý sự cố thiết bị phòng thực hành, từ báo hỏng, định tuyến và xếp mức ưu tiên, kiểm tra,
+duyệt chi phí theo hạn mức, sửa chữa tới nghiệm thu. Dự án trả lời yêu cầu ``Open-Core trước, ứng dụng sau'' của đề thi
+bằng cách tách hai việc. \textbf{Tầng 1} là nền tảng headless dùng chung (Keycloak, Apache APISIX, PostgreSQL, Core API
+FastAPI nhúng SpiffWorkflow) không biết ứng dụng nào đang chạy. \textbf{Tầng 3} là các ứng dụng (\code{lab-repair},
+\code{room-booking}) chỉ gồm tệp BPMN, DMN và JSON Schema nạp qua API. Giữa hai tầng, \textbf{Tầng 2} cung cấp cổng web
+(portal), máy chủ MCP và CLI \code{dxlab}, đều gọi Core bằng token của chính người dùng. Core kiểm quyền theo năm lớp,
+mặc định từ chối, hỗ trợ ủy quyền có thời hạn (TUQ.). Phần trí tuệ nhân tạo gồm bảng luật DMN có mã lý do và tìm kiếm
+kết hợp toàn văn với embedding chạy cục bộ; số đo thật: \code{tech_unit} đúng 57/60, mức ưu tiên đúng 53/60, tìm kiếm
+top-1 đúng 18/18 trên bộ câu hỏi tự soạn. Bản \code{v0.2.1} đã gắn tag, kèm SBOM và \code{SHA256SUMS}. Các giới hạn
+(dữ liệu đánh giá tổng hợp, hạn mức và tổ chức là giả định, chưa có LLM, chưa có màn hình tạo ủy quyền) được nêu rõ.
+
+\tableofcontents
+\newpage
+
+%================ 1 ================
+\section{Bài toán và phạm vi}
+Sinh viên và giảng viên phát hiện thiết bị phòng lab hỏng nhưng thường báo qua tin nhắn hoặc lời nói. Yêu cầu dễ thất
+lạc, không ai theo dõi được ai đang xử lý, chi phí sửa chữa không đi qua đúng cấp duyệt, còn tri thức sửa chữa nằm trong
+đầu một vài cán bộ kỹ thuật (\code{README.md}, mục ``Bài toán'').
+
+Đề thi yêu cầu \textbf{Open-Core trước, ứng dụng sau}: không dừng ở một ứng dụng web có dashboard hoặc AI. Vì vậy
+DX-Lab tách \emph{nền tảng dùng chung} (định danh/SSO, cổng API, dữ liệu, bộ máy quy trình) khỏi \emph{ứng dụng minh họa}
+(\code{lab-repair}: sáu bước từ báo hỏng tới nghiệm thu; \code{room-booking}: mượn phòng thực hành). Phạm vi bản
+\code{v0.2.1} theo \code{README.md} (mục ``Trạng thái'') và \code{CHANGELOG.md} (mục \code{[0.2.1]}): chạy đầu-cuối trên
+một máy bằng Docker Compose với dữ liệu và tài khoản demo.
+
+\section{Kiến trúc Open-Core ba tầng}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily\footnotesize,
+  box/.style={draw,rounded corners=2pt,minimum height=0.8cm,align=center,inner sep=3pt},
+  tier/.style={draw,rounded corners=4pt,inner sep=7pt},
+  arr/.style={-{Stealth[length=2.2mm]},thick,dxblue},
+  darr/.style={-{Stealth[length=2mm]},dashed,gray}]
+% Tầng 3
+\node[box,fill=white,text width=3.6cm] (lr) {\textbf{lab-repair}\\BPMN, 4 DMN, 7 form};
+\node[box,fill=white,text width=3.6cm,right=0.6cm of lr] (rb) {\textbf{room-booking}\\BPMN, DMN, form};
+\begin{scope}[on background layer]
+\node[tier,fill=t3,fit=(lr)(rb),label={[anchor=south west,inner sep=2pt]north west:\bfseries Tầng 3. Ứng dụng}] (T3) {};
+\end{scope}
+% Tầng 2
+\node[box,fill=white,text width=2.4cm,below=1.5cm of lr,xshift=-0.9cm] (por) {\textbf{Portal}\\Prefab UI + BFF};
+\node[box,fill=white,text width=2.4cm,right=0.5cm of por] (mcp) {\textbf{MCP server}\\5 công cụ, stdio};
+\node[box,fill=white,text width=2.4cm,right=0.5cm of mcp] (cli) {\textbf{CLI dxlab}\\login, validate, publish};
+\begin{scope}[on background layer]
+\node[tier,fill=t2,fit=(por)(mcp)(cli),label={[anchor=south west,inner sep=2pt]north west:\bfseries Tầng 2. H-P-D-I}] (T2) {};
+\end{scope}
+% Tầng 1
+\node[box,fill=white,text width=2.4cm,below=1.7cm of mcp] (gw) {\textbf{APISIX}\\JWT, rate limit};
+\node[box,fill=white,text width=2.4cm,right=0.9cm of gw] (core) {\textbf{Core API}\\FastAPI + SpiffWorkflow};
+\node[box,fill=white,text width=2.4cm,left=0.9cm of gw] (kc) {\textbf{Keycloak}\\SSO, OIDC, OTP};
+\node[box,fill=white,text width=2.4cm,below=0.7cm of core] (pg) {\textbf{PostgreSQL}\\dữ liệu, FTS};
+\begin{scope}[on background layer]
+\node[tier,fill=t1,fit=(kc)(gw)(core)(pg),label={[anchor=south west,inner sep=2pt]north west:\bfseries Tầng 1. Open-Core headless}] (T1) {};
+\end{scope}
+\draw[darr] ($(T3.south)+(3.5,0)$) -- node[right,font=\sffamily\scriptsize]{dxlab publish} ($(T2.north)+(3.5,0)$);
+\draw[arr] (T2.south -| gw) -- node[right,font=\sffamily\scriptsize,pos=0.3]{Bearer token người dùng} (gw.north);
+\draw[arr] (gw) -- (core);
+\draw[arr] (core) -- (pg);
+\draw[darr] (kc) -- node[above,font=\sffamily\scriptsize]{JWKS} (gw);
+\end{tikzpicture}
+\caption{Ba tầng và hướng phụ thuộc (thư mục \code{apps/}, \code{data/}; \code{portal/}, \code{mcp/}, \code{core/}; \code{deploy/}, \code{core/}), rút gọn từ \code{docs/ARCHITECTURE.md} mục 1. Mũi tên liền là lời gọi chạy; nét đứt là nạp định nghĩa hoặc khóa công khai.}
+\end{figure}
+
+\subsection{Tầng 1: Open-Core headless}
+\begin{center}\tbl
+\begin{tabularx}{\textwidth}{@{}L{2.6cm}L{3.6cm}Y@{}}
+\toprule
+Dịch vụ chung & Thành phần (giấy phép) & Vai trò \\
+\midrule
+Identity / SSO & Keycloak 26.8.1 (Apache-2.0) & Đăng nhập, nhóm theo cây tổ chức, OTP cho vai trò duyệt, cấp JWT \\
+API Gateway & Apache APISIX 3.19.0 (Apache-2.0) & Cửa duy nhất vào Core: kiểm JWT bằng JWKS, giới hạn tốc độ, gắn \code{X-Request-Id} \\
+Dữ liệu & PostgreSQL 17.11 (PostgreSQL License) & Phiếu, bước, danh mục, audit, tìm kiếm toàn văn \\
+Workflow & SpiffWorkflow nhúng trong Core (LGPL-3.0) & Chạy BPMN 2.0, đánh giá DMN 1.3, lưu trạng thái bền vững \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Bốn điểm kiến trúc then chốt (\code{docs/ARCHITECTURE.md} mục 1--3): (1) Core không trả HTML, không biết tên ứng dụng,
+không gọi LLM; (2) chỉ Core đọc/ghi PostgreSQL, cổng của Core không bind ra máy chủ, APISIX là điểm vào duy nhất
+\code{127.0.0.1:9080}; (3) ranh giới import được giữ bằng khai báo phụ thuộc riêng của từng gói (\code{dxlab-core} không
+import \code{dxlab_portal}, \code{prefab_ui}, \code{fastmcp}; \code{dxlab-portal} không import \code{dxlab_core},
+\code{SpiffWorkflow}, \code{sqlalchemy}); (4) API công bố bằng OpenAPI tại \code{/api/openapi.json}.
+
+\subsection{Tầng 3: ứng dụng không sửa Core}
+\code{apps/lab-repair/} gồm \code{lab-repair.bpmn}, các bảng luật \code{triage.dmn}, \code{routing.dmn},
+\code{authority.dmn}, \code{overrun.dmn}, bảy cặp \code{*-schema.json}/\code{*-uischema.json} và bản ghi danh mục.
+\code{apps/room-booking/} có \code{room-booking.bpmn}, \code{conflict.dmn} và form. Thư mục \code{apps/} chỉ chứa
+\code{.bpmn}, \code{.dmn}, \code{.json}, \code{.md}; validator từ chối gói có script. Ứng dụng thứ hai được nạp qua
+\code{/api/definitions} mà không đổi \code{core/} hay \code{portal/} (\code{apps/room-booking/README.md}). Đổi ứng dụng thì
+Core không đổi, trừ khi cần một năng lực nền tảng mới dùng chung.
+
+\subsection{Luồng gọi dịch vụ}
+Mọi thao tác nghiệp vụ là một lời gọi \code{/api/...} qua APISIX. Ví dụ báo hỏng từ portal
+(\code{docs/ARCHITECTURE.md} mục 3.1--3.5):
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize,
+  life/.style={draw,rounded corners=2pt,fill=dxgrey,minimum width=2.1cm,minimum height=0.6cm},
+  m/.style={-{Stealth[length=2mm]},thick,dxblue},
+  r/.style={-{Stealth[length=2mm]},dashed,gray},
+  lb/.style={fill=white,inner sep=1pt,midway,above=1.5pt}]
+\node[life] (u) at (0,0) {Người dùng};
+\node[life] (p) at (2.6,0) {Portal};
+\node[life] (k) at (5.2,0) {Keycloak};
+\node[life] (g) at (7.8,0) {APISIX};
+\node[life] (c) at (10.4,0) {Core};
+\node[life] (d) at (13.0,0) {PostgreSQL};
+\foreach \n in {u,p,k,g,c,d} \draw[gray,dotted] (\n.south) -- ++(0,-7.5);
+\draw[m] (0,-1.0) -- node[lb]{1. mở portal, đăng nhập} (2.6,-1.0);
+\draw[m] (2.6,-1.7) -- node[lb]{2. Authorization Code + PKCE} (5.2,-1.7);
+\draw[r] (5.2,-2.3) -- node[lb]{token (giữ phía máy chủ)} (2.6,-2.3);
+\draw[m] (2.6,-3.0) -- node[lb]{3. POST /api/workflows + Bearer} (7.8,-3.0);
+\node[draw,fill=white,rounded corners=2pt,align=center] at (7.8,-3.75) {4. kiểm JWT (JWKS),\\giới hạn tốc độ};
+\draw[m] (7.8,-4.5) -- node[lb]{5. chuyển tiếp} (10.4,-4.5);
+\node[draw,fill=white,rounded corners=2pt,align=center] at (10.4,-5.25) {6. iss/aud/exp, 5 lớp quyền,\\JSON Schema, chạy DMN};
+\draw[m] (10.4,-6.25) -- node[lb]{7. lưu phiếu, việc, audit} (13.0,-6.25);
+\draw[r] (10.4,-7.0) -- node[lb]{8. JSON đã che dữ liệu cá nhân} (2.6,-7.0);
+\end{tikzpicture}
+\caption{Luồng báo hỏng từ portal tới cơ sở dữ liệu.}
+\end{figure}
+
+APISIX chặn sớm, Core quyết định độc lập: gateway cấu hình sai cũng không mở được quyền mà Core không cho. Portal và MCP
+chỉ ẩn nút theo vai trò để thuận tiện; quyết định cho phép hay từ chối luôn ở Core.
+
+%================ 3 ================
+\section{Không gian H-P-D-I}
+Bốn trục của DX-OS gắn với nhau qua một API REST duy nhất, bảo vệ bởi APISIX và Keycloak.
+\begin{description}[leftmargin=0pt,labelsep=0.5em]
+\item[\textbf{H} Con người] Portal tiếng Việt (Prefab UI qua BFF; token OAuth2 ở phiên phía máy chủ, trình duyệt chỉ giữ cookie \code{httpOnly}),
+sáu tab gồm Việc của tôi, Báo hỏng, Tra cứu, Dashboard, Sơ đồ quy trình, Trạng thái hệ thống. Máy chủ MCP (stdio) có năm
+công cụ \code{bao_hong}, \code{viec_cua_toi}, \code{tra_cuu_phieu}, \code{tim_huong_dan}, \code{hoan_thanh_viec}; thao tác ghi
+bắt buộc hỏi xác nhận. CLI \code{dxlab}: \code{login} (device flow), \code{whoami}, \code{validate}, \code{publish},
+\code{logout}. OTP (TOTP) bắt buộc cho vai trò duyệt và quản trị.
+\item[\textbf{P} Quy trình] BPMN 2.0 chạy bằng SpiffWorkflow nhúng trong Core; hộp việc \cmd{GET /api/tasks} theo vai trò và phạm vi đơn vị; luật không
+kiêm nhiệm SoD-1 đến SoD-5; quản trị thay đổi định nghĩa (mục~\ref{sec:def}).
+\item[\textbf{D} Dữ liệu] PostgreSQL là kho duy nhất, chỉ Core kết nối. Form theo JSON Schema; Core từ chối trường lạ ngoài schema. Trường dữ liệu cá nhân
+gắn \code{x-personal-data} và bị che khi người xem không có quyền. Nhật ký audit ghi thời điểm, người làm, vai trò, hành động,
+căn cứ thẩm quyền.
+\item[\textbf{I} Trí tuệ] Bảng luật DMN 1.3 có mã lý do (không hộp đen) và tìm kiếm kết hợp FTS tiếng Việt với embedding cục bộ (mục~\ref{sec:ai}). Quyết
+định cuối thuộc người có thẩm quyền.
+\end{description}
+
+\subsection{Quản trị thay đổi định nghĩa}\label{sec:def}
+Quy trình, luật và form là dữ liệu, nên thay đổi chúng được kiểm soát như thay đổi mã
+(\code{core/src/dxlab_core/definitions/router.py}, \code{CHANGELOG.md} mục \code{[0.2.0]}):
+\begin{enumerate}
+\item \textbf{Nạp}: \cmd{POST /api/definitions/{app_id}/versions} hoặc \cmd{dxlab publish apps/<app>}. Validator từ chối
+script, trả \code{DEFINITION_REJECTED}; mỗi lần nạp là một phiên bản mới.
+\item \textbf{Phân quyền nạp}: \code{rule_admin} chỉ nạp thay đổi \code{.dmn}; thay đổi khác cần \code{process_admin}.
+\item \textbf{Duyệt}: \code{.../versions/{n}/activate} do \code{process_owner} làm và phải là người khác người nạp (SoD-5).
+\item \textbf{Áp dụng}: phiếu mới dùng phiên bản mới, phiếu cũ giữ luật của phiên bản đã tạo ra nó.
+\end{enumerate}
+
+%================ 4 ================
+\section{Ứng dụng nghiệp vụ}
+\subsection{lab-repair: sáu bước từ báo hỏng tới nghiệm thu}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize,
+  st/.style={draw,rounded corners=3pt,fill=t3,minimum width=2.7cm,minimum height=1.0cm,align=center,text width=2.6cm,inner sep=2pt},
+  dm/.style={draw,rounded corners=3pt,fill=t1,minimum width=2.45cm,align=center,font=\sffamily\tiny},
+  a/.style={-{Stealth[length=2mm]},thick,dxblue}]
+\node[st] (s1) at (0,0) {1. Báo hỏng\\\emph{report}};
+\node[st] (s2) at (3.2,0) {2. Kiểm tra, biên bản\\{\tiny\emph{pending\_assessment}}};
+\node[st] (s3) at (6.4,0) {3. Xác nhận nhu cầu\\{\tiny\emph{awaiting\_endorsement}}};
+\node[st] (s4) at (9.6,0) {4. Duyệt chi phí\\{\tiny\emph{awaiting\_approval}}};
+\node[st] (s5) at (9.6,-2.3) {5. Sửa chữa\\\emph{repairing}};
+\node[st] (s6) at (6.4,-2.3) {6. Nghiệm thu\\{\tiny\emph{awaiting\_acceptance}}};
+\node[st,fill=t2] (done) at (3.2,-2.3) {Hoàn tất\\\emph{completed}};
+\draw[a] (s1)--(s2); \draw[a] (s2)--(s3); \draw[a] (s3)--(s4); \draw[a] (s4)--(s5); \draw[a] (s5)--(s6); \draw[a] (s6)--(done);
+\node[dm] (d1) at (0,-1.55) {triage.dmn: P1/P2/P3\\routing.dmn: đơn vị, vai trò};
+\node[dm] (d4) at (7.9,1.45) {authority.dmn: ai duyệt, bao nhiêu báo giá\\overrun.dmn: vượt chi phí thì duyệt lại};
+\draw[dashed,gray] (s1) -- (d1); \draw[dashed,gray] (s4) -- (d4);
+\draw[a,dashed] (s2.south) -- (3.2,-1.0) -- (3.2,-3.6) -- (9.6,-3.6) -- (s5.south);
+\node[font=\sffamily\tiny,fill=white] at (6.4,-3.6) {không cần duyệt (chi phí bằng 0): sang sửa chữa};
+\end{tikzpicture}
+\caption{Sáu bước của \code{lab-repair}, tên trạng thái theo \code{lab-repair.bpmn}. Khi không cần duyệt, phiếu đi thẳng từ kiểm tra sang sửa chữa; nghiệm thu không đạt thì quay lại sửa.}
+\end{figure}
+
+Bước 1 kích hoạt \code{triage.dmn} và \code{routing.dmn}, rồi phiếu dừng ở \code{pending_assessment}. Bước 2: kỹ thuật viên
+đơn vị được định tuyến kiểm tra và lập biên bản. Kết quả có bốn hướng: sửa không tốn chi phí, sửa có chi phí, không sửa được
+(chuyển Ban CSVC lập đề nghị mua thay) hoặc báo nhầm (đóng phiếu). Sau biên bản, \code{authority.dmn} xác định có cần duyệt,
+ai duyệt và cần mấy báo giá; thiếu báo giá thì phiếu quay về kiểm tra. Nếu cần duyệt, bước 3 là trưởng phòng lab xác nhận nhu
+cầu (không cần sửa thì đóng), bước 4 là người có thẩm quyền duyệt (bảng~\ref{tab:auth}). Bước 5 sửa và ghi chi phí thực tế;
+\code{overrun.dmn} yêu cầu duyệt lại nếu chi phí thực tế vượt số đã duyệt quá 10\% hoặc vượt hạn mức người đã duyệt. Bước 6:
+người khác người sửa nghiệm thu (SoD-2); không đạt thì phiếu quay lại sửa.
+
+\textbf{Các bảng luật.}
+\code{triage.dmn} nhận \code{safety_hazard}, \code{impact}, \code{urgency} và trả \code{priority}, \code{priority_reason},
+hạn kiểm tra và hạn hoàn tất: P1 (nguy cơ an toàn, hoặc cả phòng không dùng được) kiểm tra trong 4 giờ, hoàn tất trong 24 giờ;
+P2 trong 24/72 giờ; P3 trong 48/120 giờ. Mã lý do gồm \code{SAFETY_RISK}, \code{ROOM_BLOCKED}, \code{SESSION_PARTIAL},
+\code{REPORTER_URGENT}, \code{DEFAULT}. \code{routing.dmn} ánh xạ loại thiết bị sang đơn vị: CNTT (\code{computer},
+\code{projector}, \code{network}) tới \code{/haui/tt-cntt}; điện, điều hòa, chiếu sáng, nước, nội thất tới
+\code{/haui/ban-csvc}; thiết bị chuyên dụng \code{lab_equipment} tới khoa sở hữu phòng; loại khác về Ban CSVC để phân loại
+thủ công. Mọi con số SLA là \gd{} của đội.
+
+\begin{table}[ht]
+\centering\tbl
+\caption{Thẩm quyền duyệt sửa chữa (\code{authority.dmn}, \code{docs/AUTHZ.md} mục 5). Hạn mức và mã căn cứ \code{GĐ-...} là giả định, không phải quy chế thật của HaUI.}\label{tab:auth}
+\begin{tabularx}{\textwidth}{@{}L{3.4cm}L{3.6cm}L{2.6cm}Y@{}}
+\toprule
+Chi phí dự kiến (đồng) & Người duyệt & Báo giá tối thiểu & Hình thức \\
+\midrule
+0 & không cần duyệt & --- & --- \\
+$\le 5\,000\,000$ & \code{faculty_head} (khoa sở hữu phòng) & 1 (hoặc ước tính) & theo phân cấp \\
+trên 5 triệu đến $20\,000\,000$ & \code{school_head} (trường thành viên) & 1 (dưới 20 triệu), 3 (đúng 20 triệu) & theo phân cấp \\
+trên 20 triệu đến $100\,000\,000$ & \code{vice_president} & 3 & KT. Giám đốc \\
+$> 100\,000\,000$ & \code{president} & 3 & trực tiếp \\
+mua thay thế, cải tạo & ngoài hệ thống (phiếu đề nghị gửi Ban CSVC) & --- & --- \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{room-booking}
+Gói dữ liệu mượn phòng thực hành dùng danh mục phòng của \code{lab-repair} qua \code{record_bindings}. Người đề nghị khai báo
+\code{schedule_conflict}; ứng dụng \emph{không} tự kiểm tra lịch hay chặn đặt trùng. Quyết định duyệt hoặc từ chối đều bắt buộc
+ghi lý do. Điểm cần chứng minh là ứng dụng này nạp bằng \cmd{dxlab publish} mà không đổi một dòng mã Core.
+
+%================ 5 ================
+\section{Phân quyền năm lớp và ủy quyền TUQ.}
+Core kiểm theo thứ tự, mặc định từ chối (chi tiết, căn cứ và nhãn ``giả định'' ở \code{docs/AUTHZ.md}).
+\begin{center}\tbl
+\begin{tabularx}{\textwidth}{@{}L{2.6cm}L{4.3cm}L{3.9cm}Y@{}}
+\toprule
+Lớp & Câu hỏi & Nguồn dữ liệu & Mã lỗi \\
+\midrule
+1. Ai là ai & Token hợp lệ không, vai trò gì ở đơn vị nào? & nhóm Keycloak & \code{UNAUTHENTICATED}, \code{FORBIDDEN_ROLE} \\
+2. Phạm vi & Đối tượng thuộc đơn vị của người làm (kể cả đơn vị con)? & cây đơn vị trong Core & \code{FORBIDDEN_SCOPE} \\
+3. Thẩm quyền & Hạn mức đủ không, hoặc có ủy quyền còn hạn? & \code{authority.dmn}, \code{/api/delegations} & \code{FORBIDDEN_AUTHORITY} \\
+4. Không kiêm nhiệm & Có đang tự duyệt hay tự nghiệm thu việc mình làm? & \code{dxlabExcludeActorsOf} trên bước BPMN & \code{FORBIDDEN_SOD} \\
+5. Dữ liệu cá nhân & Có được thấy liên hệ người báo? & \code{x-personal-data} trong schema & trường bị che \\
+\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{TUQ.} (\code{/api/delegations}, issue \#18): người giữ vai trò duyệt giao cho người cùng đơn vị duyệt thay tối đa
+30 ngày, bắt buộc số giấy ủy quyền, thu hồi được bất kỳ lúc nào; không vượt vai trò và hạn mức của người ủy quyền; người nhận
+không ủy quyền lại được; phiếu và audit ghi hình thức TUQ., người ủy quyền và số giấy. Kịch bản kiểm thử số 7 của
+\code{docs/AUTHZ.md} mục 12: \code{ptk.hoa} duyệt được 3.500.000 đồng theo TUQ. của \code{tk.hai}, duyệt 12.000.000 đồng bị
+từ chối vì vượt hạn mức người ủy quyền, và sau hạn cũng bị từ chối. Mười bốn kịch bản phân quyền này chạy trên gói
+\code{lab-repair} thật. \emph{Hiện trạng}: chưa có màn hình tạo hay thu hồi ủy quyền trên portal; dùng API
+(\code{/api/docs}).
+
+\section{Luồng dữ liệu}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[font=\sffamily\scriptsize,
+  p/.style={draw,rounded corners=3pt,fill=t1,minimum width=2.6cm,minimum height=0.9cm,align=center},
+  s/.style={draw,fill=t3,minimum width=2.6cm,minimum height=0.9cm,align=center},
+  a/.style={-{Stealth[length=2mm]},thick,dxblue}]
+\node[p] (ng) at (0,0) {Người dùng\\form + Bearer JWT};
+\node[p] (gw) at (3.9,0) {APISIX\\kiểm JWT, giới hạn tốc độ};
+\node[p] (v) at (7.8,0) {Core: kiểm schema\\và 5 lớp quyền};
+\node[p] (w) at (7.8,-1.8) {SpiffWorkflow\\BPMN + DMN};
+\node[s] (pg) at (3.9,-1.8) {PostgreSQL\\phiếu, việc, audit, FTS};
+\node[s] (zv) at (3.9,-3.4) {Chỉ mục vector zvec\\384 chiều (volume)};
+\draw[a] (ng)--(gw); \draw[a] (gw)--(v); \draw[a] (v)--(w); \draw[a] (w)--(pg);
+\draw[a] (pg)--(zv);
+\draw[a,gray,dashed] (v.north) to[bend right=18] node[above,font=\sffamily\tiny]{JSON đã che dữ liệu cá nhân} (ng.north);
+\end{tikzpicture}
+\caption{Đường đi của dữ liệu một phiếu. Chỉ mục vector chỉ dùng cho tìm kiếm SOP.}
+\end{figure}
+Dữ liệu vào Core phải khớp JSON Schema của bước; trường lạ bị từ chối nên client không ghi được biến nội bộ của quy trình.
+Trạng thái quy trình, phiếu, việc và audit nằm trong PostgreSQL; tài liệu SOP và chỉ mục vector nằm trên volume do Core quản lý.
+Phản hồi cho người xem luôn đi qua bước che dữ liệu cá nhân theo quyền của người đó (Nghị định 13/2023/NĐ-CP là căn cứ
+thiết kế; \code{docs/AUTHZ.md}).
+
+%================ 7 AI ================
+\section{Trí tuệ nhân tạo và học máy}\label{sec:ai}
+\textbf{Nguyên tắc}: quyết định liên quan an toàn, hạn mức và nghiệm thu dùng luật DMN có mã lý do, không dùng mô hình hộp
+đen; phần học máy chỉ gợi ý tri thức. Quyền quyết định luôn thuộc người có thẩm quyền.
+
+\textbf{Mô hình}: \code{sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2} (Apache-2.0, ONNX, 384 chiều, khoảng
+470 MB), nạp offline bằng \code{scripts/download-models.sh}, chạy qua \code{fastembed}, lưu vector bằng thư viện \code{zvec}.
+Không dữ liệu nào gửi ra ngoài. Bỏ bước tải mô hình thì \code{/api/search} tự lùi về toàn văn FTS.
+
+\textbf{Xếp hạng kết hợp}: điểm $= 0{,}7\cdot\dfrac{r}{r+0{,}1} + 0{,}3\cdot\max\!\bigl(0,\,1-\dfrac{d}{0{,}8}\bigr)$,
+với $r$ là \code{ts_rank_cd} của PostgreSQL FTS (có bỏ dấu tiếng Việt) và $d$ là khoảng cách cosine; đoạn có $d>0{,}8$ bị loại
+để câu hỏi ngoài phạm vi trả rỗng.
+
+\textbf{Dữ liệu đánh giá} (\code{apps/lab-repair/eval/}, \code{docs/AI.md}): 60 phiếu \emph{tổng hợp} gán nhãn tay (P1 11,
+P2 21, P3 28) và 20 câu hỏi tìm kiếm trên 8 SOP của \code{data/sop/} (18 câu có đáp án, 2 câu ngoài phạm vi).
+
+\begin{table}[ht]
+\centering\tbl
+\caption{Số đo thật (\code{docs/AI.md}); lệnh tái lập ở phụ lục~\ref{sec:chay}.}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Chỉ số & Đúng/Tổng & Tỷ lệ \\
+\midrule
+Mức ưu tiên (\code{triage.dmn}) & 53/60 & 88,3\% \\
+Đơn vị kỹ thuật (\code{routing.dmn}, \code{tech_unit}) & 57/60 & 95,0\% \\
+Vai trò xử lý (\code{tech_role}) & 50/60 & 83,3\% \\
+Định tuyến đúng cả đơn vị và vai trò & 50/60 & 83,3\% \\
+Tìm kiếm TF-IDF, top-1 (18 câu có đáp án) & 17/18 & 94,4\% \\
+Tìm kiếm kết hợp \code{/api/search}, top-1 và top-3 & 18/18 & 100\% \\
+Câu ngoài phạm vi trả rỗng: TF-IDF / kết hợp & 0/2 / 2/2 & 0\% / 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Ma trận nhầm lẫn mức ưu tiên (hàng là nhãn tay, cột là DMN): P1 $\to$ (8, 1, 2); P2 $\to$ (1, 19, 1); P3 $\to$ (0, 2, 26).
+Câu cải thiện rõ nhất là ``wifi chập chờn rớt liên tục'': TF-IDF xếp SOP đúng ở hạng 7 vì từ ``chập chờn'' kéo sang SOP chiếu
+sáng, tìm kiếm kết hợp xếp hạng 1.
+
+\textbf{Giới hạn} (nêu trước hết ở \code{docs/AI.md}):
+\begin{itemize}
+\item Nhãn do một agent soạn hộ, \emph{chưa có người rà}; phiếu là dữ liệu tổng hợp, không phải phiếu thật của HaUI.
+\item Nhãn định tuyến và \code{routing.dmn} cùng nguồn (\code{docs/AUTHZ.md} mục 6), nên 95\% chủ yếu đo \emph{đầu vào người
+báo chọn} chứ không đo độ ``thông minh'' của luật. 60 phiếu là mẫu nhỏ: một phiếu sai đổi 1,7 điểm phần trăm.
+\item Sai nghiêm trọng nhất (T03, T07, T10): người báo không đánh dấu nguy cơ an toàn dù mô tả có khói hoặc lộ dây điện, DMN
+không đọc được văn bản tự do nên xếp dưới mức; cần form bắt buộc xác nhận an toàn hoặc kỹ thuật viên nâng mức ở bước kiểm
+tra, chưa phải việc \code{triage.dmn} tự giải được.
+\item 20 câu hỏi do người đã biết nội dung SOP viết, nên mốc so sánh có thể lạc quan; chưa có câu do người ngoài dự án soạn.
+\end{itemize}
+
+%================ 8 LICENSE ================
+\section{Giấy phép và phụ thuộc}
+\begin{center}\tbl
+\begin{tabularx}{\textwidth}{@{}L{4.3cm}L{3.5cm}Y@{}}
+\toprule
+Tài sản & Giấy phép & Cách khai báo \\
+\midrule
+Mã nguồn, script, cấu hình build & Apache-2.0 & header SPDX trong tệp \\
+Tài liệu (README, CHANGELOG, báo cáo) & CC BY 4.0 & header SPDX trong tệp \\
+Tệp không chứa được comment (\code{.bpmn}, \code{.dmn}, \code{.json}, \code{uv.lock}, PDF) & theo loại tệp & chú thích tập trung trong \code{REUSE.toml} \\
+Dữ liệu bên thứ ba & giữ giấy phép gốc & \code{DATA_SOURCES.yml} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+Repo tuân thủ REUSE 3.3 (\cmd{reuse lint} xanh, và là một job CI bắt buộc). Bảng đầy đủ ở \code{docs/DEPENDENCIES.md}: mục 2
+là năm image container ghim theo digest \code{sha256} (PostgreSQL, Keycloak, APISIX, image nền Python 3.12, \code{uv}); mục 3 là
+mô hình embedding (Apache-2.0); mục 4 là khai báo thành phần đóng gói sẵn theo quy ước Fedora cho bộ giao diện của
+\code{prefab-ui==0.21.1} (Apache-2.0); mục 5 là toàn bộ gói Python lấy từ \code{uv.lock}, có phiên bản và giấy phép. SpiffWorkflow
+(LGPL-3.0) được dùng như thư viện, không sửa mã. Không commit thư viện chép tay. Cấu hình mẫu ở \code{.env.example};
+\code{.env} không commit, \code{scripts/up.sh} sinh ngẫu nhiên các secret để trống và job gitleaks quét secret trên mỗi PR.
+
+%================ 9 BẰNG CHỨNG ================
+\section{Bằng chứng nguồn mở}
+Số liệu lấy ngày 01/11/2026 từ \code{git} và \code{gh}; các số tăng theo thời gian.
+\begin{center}\tbl
+\begin{tabularx}{\textwidth}{@{}L{3.3cm}Y@{}}
+\toprule
+Bằng chứng & Số liệu, vị trí kiểm \\
+\midrule
+Repo công khai, lịch sử thật & 115 commit tới tag \code{v0.2.1}; commit đầu \code{5d15b80} ngày 27/10/2026 (\cmd{git log}) \\
+Release có phiên bản & \code{v0.2.0} (30/10/2026) và \textbf{\code{v0.2.1}} (01/11/2026, giờ Việt Nam). Tệp kèm \code{v0.2.1}:
+\code{dx-lab-v0.2.1.tar.gz}, \code{SHA256SUMS}, SBOM CycloneDX \code{dx-lab-v0.2.1.cdx.json} và SPDX \code{dx-lab-v0.2.1.spdx.json}
+(syft 1.55.0); kiểm bằng \cmd{sha256sum -c SHA256SUMS}; \cmd{gh release view v0.2.1} \\
+Quy trình phát hành & \code{.github/workflows/release.yml}; \code{CHANGELOG.md} theo Keep a Changelog \\
+CI bắt buộc & Năm job trong \code{ci.yml}: REUSE; build wheel/sdist, cài sạch và import ngoài cây mã; DCO
+(\code{Signed-off-by} từng commit); gitleaks; pytest toàn workspace cùng \cmd{dxlab validate apps/} \\
+Issue, PR, review & 43 PR đã gộp, 57 issue (mọi trạng thái, đếm bằng \code{gh} ngày 01/11/2026). Mỗi thay đổi gắn issue, PR theo
+mẫu, review của người khác tác giả, chỉ maintainer gộp bằng rebase (\code{CONTRIBUTING.md}) \\
+Tái lập từ source & \cmd{uv sync --all-packages}, \cmd{uv build --all-packages}, \code{scripts/up.sh} (\code{README.md}) \\
+QA-01 (\code{docs/qa/QA-01.md}) & Dựng từ \cmd{git clone} theo README rồi chạy \code{demo-e2e.sh}: lần 1 lỗi ở bước 2 (script đọc sai tên trường,
+issue \#118, sửa ở PR \#119); lần 2 đạt, phiếu tới \code{completed}. \textbf{Chạy trên máy của mentor} (macOS 27.2, Apple Silicon,
+Docker 29.8.2), sau khi xóa container, volume, image và build cache của dự án; \emph{chưa} chạy trên máy khác hay Linux/WSL2 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Đánh giá và hạn chế}
+\textbf{Đã đạt.} Core headless tách khỏi giao diện và ứng dụng; ứng dụng thứ hai nạp không sửa Core; phân quyền năm lớp kèm
+TUQ. được kiểm bằng 14 kịch bản trên gói thật; vòng đời phiếu chạy đầu-cuối qua APISIX với Keycloak thật (\code{scripts/demo-e2e.sh});
+repo tuân thủ REUSE, có release, SBOM và checksum.
+
+\textbf{Hạn chế đã biết} (\code{CHANGELOG.md} mục \code{[0.2.1]}):
+\begin{itemize}
+\item Hạn mức, cơ cấu tổ chức, SLA, tài khoản demo và các căn cứ \code{GĐ-...} là \emph{giả định} của đội, không phải quy chế thật của HaUI.
+\item Dữ liệu đánh giá AI là tổng hợp, nhãn chưa có người rà (mục~\ref{sec:ai}).
+\item Chỉ mục toàn văn lấy 150.000 ký tự đầu của tài liệu.
+\item Docker Compose là bản demo một máy; Keycloak chạy \code{start-dev}; triển khai thật cần TLS và cơ sở dữ liệu riêng
+(\code{docs/ARCHITECTURE.md} mục 4).
+\item Portal chưa có màn hình tạo hoặc thu hồi ủy quyền.
+\item QA-01 chỉ chạy trên một máy (máy mentor).
+\end{itemize}
+
+\section{Lộ trình}\label{sec:lotrinh}
+Các mục sau \emph{chưa có} trong \code{v0.2.1}, không được coi là tính năng đã chạy; Core không gọi LLM theo thiết kế.
+\begin{itemize}
+\item Chạy MCP với host và LLM mở (issue \#36).
+\item Che dữ liệu cá nhân trong văn bản tự do bằng mô hình NLP OpenMed (issue \#97).
+\item Đo và tối ưu migration \code{0006} trên bảng \code{documents} lớn (issue \#96).
+\item Màn hình tạo và thu hồi ủy quyền trên portal; rà nhãn bộ 60 phiếu bởi người am hiểu phòng lab; QA trên máy thứ hai.
+\end{itemize}
+
+%================ PHỤ LỤC ================
+\appendix
+\section{Chạy nhanh}\label{sec:chay}
+Yêu cầu: Linux, macOS hoặc Windows (WSL2); Docker với Compose v2; \code{git}, \code{curl}, \code{openssl}, \code{bash}.
+\begin{Verbatim}[fontsize=\small,frame=single,framesep=2mm,rulecolor=\color{gray}]
+git clone https://github.com/HaUI-NPC/dx-lab.git && cd dx-lab
+scripts/up.sh
+scripts/download-models.sh
+scripts/seed.sh
+\end{Verbatim}
+\code{up.sh} tạo \code{.env}, build, chạy 5 dịch vụ và chờ healthy; \code{download-models.sh} (tùy chọn) tải mô hình embedding; \code{seed.sh} nạp \code{lab-repair}, danh mục, SOP và phiếu mẫu. Sau đó: portal \url{http://localhost:8000}, Swagger \url{http://localhost:9080/api/docs}, Keycloak \url{http://localhost:8180}.
+Kiểm đầu-cuối bằng \code{scripts/demo-e2e.sh}; đặt lại bằng \cmd{scripts/reset.sh --yes}. Tái lập số đo AI:
+\begin{Verbatim}[fontsize=\small,frame=single,framesep=2mm,rulecolor=\color{gray}]
+uv run --with "spiffworkflow>=3.2" python apps/lab-repair/eval/measure_dmn.py
+python3 apps/lab-repair/eval/measure_search_baseline.py --sop-dir data/sop
+\end{Verbatim}
+
+\section{Tài khoản demo (giả định)}
+Toàn bộ tài khoản, tên và hạn mức dưới đây là \textbf{giả định} của đội phục vụ chạy thử, không phải cán bộ thật của HaUI.
+README có đủ 17 tài khoản; mật khẩu chung nằm ở \code{DXLAB_DEMO_PASSWORD} trong \code{.env}, khóa OTP ở
+\code{DXLAB_DEMO_OTP_SECRET}.
+\begin{center}\tbl
+\begin{tabularx}{\textwidth}{@{}L{2.2cm}L{4.8cm}Y L{1.1cm}@{}}
+\toprule
+Tài khoản & Vai trò & Việc dùng trong kịch bản & OTP \\
+\midrule
+\code{sv.an} & \code{reporter} (sinh viên) & báo hỏng & không \\
+\code{ktv.dung} & \code{facility_technician} & lập biên bản, sửa chữa & không \\
+\code{tl.giang} & \code{lab_manager} & xác nhận nhu cầu, nghiệm thu & không \\
+\code{tk.hai} & \code{faculty_head} & duyệt đến 5.000.000 đ & có \\
+\code{ptk.hoa} & \code{faculty_deputy} & nhận ủy quyền TUQ. & có \\
+\code{ht.khanh} & \code{school_head} & duyệt đến 20.000.000 đ & có \\
+\code{pgd.minh} & \code{vice_president}, \code{process_owner} & duyệt đến 100.000.000 đ, duyệt phiên bản & có \\
+\code{qt.son} & \code{process_admin} & nạp ứng dụng qua CLI & có \\
+\code{admin.dx} & \code{system_admin} & không làm được việc nghiệp vụ (SoD-4) & có \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\end{document}
