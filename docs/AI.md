@@ -211,40 +211,50 @@ $$\text{Score} = 0.7 \times \frac{\text{ts\_rank\_cd}}{\text{ts\_rank\_cd} + 0.1
 
 - **Trọng số FTS (0.7):** Đảm bảo các từ khóa kỹ thuật chính xác, mã hiệu thiết bị được ưu tiên cao nhất.
 - **Trọng số Vector (0.3):** Bổ sung khả năng bắt các diễn đạt ngữ nghĩa gián tiếp, từ đồng nghĩa hoặc câu viết không dấu.
-- **Ngưỡng khoảng cách vector (0.8):** Các đoạn văn bản có khoảng cách cosine $> 0.8$ bị loại bỏ, tránh việc ghép nhầm các câu hỏi không liên quan.
+- **Ngưỡng khoảng cách vector (0.8):** chỉ áp cho nhánh vector: đoạn có khoảng cách cosine $> 0.8$ không được cộng điểm vector.
+  Nhánh toàn văn thử khớp mọi từ trước; không có kết quả thì nới thành khớp **một trong các từ**
+  (`core/src/dxlab_core/search/service.py`). Vì vậy câu hỏi có một từ trùng với SOP vẫn nhận kết quả, kể cả khi không liên quan.
 
-### Bảng kết quả so sánh trên 20 câu hỏi
+### Bảng kết quả trên 20 câu hỏi (đo thật)
+
+Đo ngày 01/11/2026 trên stack Compose dựng từ `dx-lab-v0.2.1.tar.gz` (đã `seed.sh` và `download-models.sh`, `/api/search`
+trả `mode: hybrid`), gọi qua APISIX bằng tài khoản `sv.an` với 20 câu trong `apps/lab-repair/eval/queries.json`. Cột
+"Hybrid" ghi hạng của SOP kỳ vọng và điểm của kết quả đứng đầu. Cột TF-IDF lấy từ mục trên.
 
 | # | Câu hỏi | Kỳ vọng | Đường cơ sở TF-IDF | Hybrid /api/search | Nhận xét |
 |---|---|---|---|---|---|
-| Q01 | máy chiếu không lên hình | sop-may-chieu-mat-tin-hieu | Hạng 1 (13.12) | Hạng 1 (0.82) | Khớp chính xác cả từ khóa và ngữ nghĩa |
-| Q02 | máy chiếu báo đèn đỏ nhấp nháy | sop-may-chieu-mat-tin-hieu | Hạng 1 (15.12) | Hạng 1 (0.85) | Khớp chính xác |
-| Q03 | may chieu khong nhan hdmi | sop-may-chieu-mat-tin-hieu | Hạng 1 (16.69) | Hạng 1 (0.86) | FTS bỏ dấu + vector hiểu từ viết tắt HDMI |
-| Q04 | hình chiếu bị mờ nhòe | sop-may-chieu-mat-tin-hieu | Hạng 1 (10.89) | Hạng 1 (0.79) | Khớp ngữ cảnh hiển thị máy chiếu |
-| Q05 | máy tính bật lên không có gì | sop-pc-khong-len-nguon | Hạng 1 (15.49) | Hạng 1 (0.84) | Khớp chính xác |
-| Q06 | may tinh khong len nguon | sop-pc-khong-len-nguon | Hạng 1 (14.22) | Hạng 1 (0.83) | Không dấu, FTS và vector đều nhận diện tốt |
-| Q07 | PC tự sập nguồn giữa chừng | sop-pc-khong-len-nguon | Hạng 1 (13.55) | Hạng 1 (0.81) | Vector bắt được khái niệm sập nguồn PC |
-| Q08 | phòng lab không vào được internet | sop-mat-ket-noi-mang-lan | Hạng 1 (14.72) | Hạng 1 (0.84) | "internet" khớp với SOP mạng LAN |
-| Q09 | mất mạng lan cả phòng | sop-mat-ket-noi-mang-lan | Hạng 1 (12.94) | Hạng 1 (0.83) | Khớp từ khóa mạng LAN |
-| Q10 | wifi chập chờn rớt liên tục | sop-mat-ket-noi-mang-lan | **Hạng 7** (sai lệch) | **Hạng 1** (0.64) | **Điểm cải thiện lớn nhất**: Baseline bị từ "chập chờn" kéo sang đèn chiếu sáng; Vector embedding đưa ngữ nghĩa "wifi/rớt mạng" về đúng SOP mạng |
-| Q11 | điều hòa chạy nhưng không mát | sop-dieu-hoa-khong-mat-chay-nuoc | Hạng 1 (13.49) | Hạng 1 (0.82) | Khớp chính xác triệu chứng điều hòa |
-| Q12 | máy lạnh nhỏ nước xuống sàn | sop-dieu-hoa-khong-mat-chay-nuoc | Hạng 1 (25.02) | Hạng 1 (0.88) | Từ đồng nghĩa "máy lạnh" = "điều hòa" |
-| Q13 | đèn trong phòng nhấp nháy | sop-den-chieu-sang-chap-chon | Hạng 1 (9.79) | Hạng 1 (0.78) | Khớp chính xác |
-| Q14 | thay bóng đèn máng đôi | sop-den-chieu-sang-chap-chon | Hạng 1 (13.93) | Hạng 1 (0.82) | Khớp chính xác thiết bị chiếu sáng |
-| Q15 | máy in bị kẹt giấy | sop-may-in-ket-giay-mo-muc | Hạng 1 (21.75) | Hạng 1 (0.87) | Khớp chính xác |
-| Q16 | bản in có vệt đen | sop-may-in-ket-giay-mo-muc | Hạng 1 (20.12) | Hạng 1 (0.86) | Khớp chính xác |
-| Q17 | trạm hàn không nóng | sop-tram-han-khong-nong | Hạng 1 (13.13) | Hạng 1 (0.82) | Khớp chính xác thiết bị điện tử |
-| Q18 | đồng hồ vạn năng Fluke không lên màn hình | sop-dao-dong-ky-dong-ho-van-nang | Hạng 1 (23.79) | Hạng 1 (0.88) | Khớp tên thiết bị và hãng sản xuất |
-| Q19 | ghế gãy chân | (không có) | Trả sai (2.70) | **Trả rỗng** (điểm < ngưỡng) | Baseline trả nhầm trạm hàn; /api/search loại bỏ vì khoảng cách vector > 0.8 |
-| Q20 | vòi nước bị rò | (không có) | Trả sai (13.16) | **Trả rỗng** (điểm < ngưỡng) | Baseline trả nhầm điều hòa; /api/search loại bỏ chính xác |
+| Q01 | máy chiếu không lên hình | sop-may-chieu-mat-tin-hieu | Hạng 1 (13.12) | Hạng 1 (0,700) | |
+| Q02 | máy chiếu báo đèn đỏ nhấp nháy | sop-may-chieu-mat-tin-hieu | Hạng 1 (15.12) | Hạng 1 (0,682) | |
+| Q03 | may chieu khong nhan hdmi | sop-may-chieu-mat-tin-hieu | Hạng 1 (16.69) | Hạng 1 (0,617) | Viết không dấu |
+| Q04 | hình chiếu bị mờ nhòe | sop-may-chieu-mat-tin-hieu | Hạng 1 (10.89) | Hạng 1 (0,533) | |
+| Q05 | máy tính bật lên không có gì | sop-pc-khong-len-nguon | Hạng 1 (15.49) | Hạng 1 (0,843) | |
+| Q06 | may tinh khong len nguon | sop-pc-khong-len-nguon | Hạng 1 (14.22) | Hạng 1 (0,671) | Viết không dấu |
+| Q07 | PC tự sập nguồn giữa chừng | sop-pc-khong-len-nguon | Hạng 1 (13.55) | Hạng 1 (0,809) | |
+| Q08 | phòng lab không vào được internet | sop-mat-ket-noi-mang-lan | Hạng 1 (14.72) | Hạng 1 (0,286) | |
+| Q09 | mất mạng lan cả phòng | sop-mat-ket-noi-mang-lan | Hạng 1 (12.94) | Hạng 1 (0,102) | |
+| Q10 | wifi chập chờn rớt liên tục | sop-mat-ket-noi-mang-lan | **Sai** (đứng đầu là SOP chiếu sáng) | **Hạng 1** (0,736) | Câu duy nhất đường cơ sở sai mà kết hợp đúng |
+| Q11 | điều hòa chạy nhưng không mát | sop-dieu-hoa-khong-mat-chay-nuoc | Hạng 1 (13.49) | Hạng 1 (0,275) | |
+| Q12 | máy lạnh nhỏ nước xuống sàn | sop-dieu-hoa-khong-mat-chay-nuoc | Hạng 1 (25.02) | Hạng 1 (0,369) | "máy lạnh" = "điều hòa" |
+| Q13 | đèn trong phòng nhấp nháy | sop-den-chieu-sang-chap-chon | Hạng 1 (9.79) | Hạng 1 (0,374) | |
+| Q14 | thay bóng đèn máng đôi | sop-den-chieu-sang-chap-chon | Hạng 1 (13.93) | Hạng 1 (0,361) | |
+| Q15 | máy in bị kẹt giấy | sop-may-in-ket-giay-mo-muc | Hạng 1 (21.75) | Hạng 1 (0,871) | |
+| Q16 | bản in có vệt đen | sop-may-in-ket-giay-mo-muc | Hạng 1 (20.12) | Hạng 1 (0,670) | |
+| Q17 | trạm hàn không nóng | sop-tram-han-khong-nong | Hạng 1 (13.13) | Hạng 1 (0,708) | |
+| Q18 | đồng hồ vạn năng Fluke không lên màn hình | sop-dao-dong-ky-dong-ho-van-nang | Hạng 1 (23.79) | Hạng 1 (0,278) | |
+| Q19 | ghế gãy chân | (không có) | Trả sai (2.70) | **Trả sai**: 8 kết quả, đứng đầu `sop-tram-han-khong-nong` (0,735) | Toàn văn nới thành khớp một từ |
+| Q20 | vòi nước bị rò | (không có) | Trả sai (13.16) | **Trả sai**: 8 kết quả, đứng đầu `sop-dieu-hoa-khong-mat-chay-nuoc` (0,155) | Như trên |
 
 ### So sánh tổng hợp
 
-| Chỉ số | Đường cơ sở TF-IDF | Hybrid /api/search (CORE-08) |
+| Chỉ số | Đường cơ sở TF-IDF | Hybrid /api/search (đo thật trên v0.2.1) |
 |---|---|---|
-| **Top-1** (trên 18 câu có đáp án) | 17/18 = 94.4% | **18/18 = 100.0%** |
-| **Top-3** (trên 18 câu có đáp án) | 17/18 = 94.4% | **18/18 = 100.0%** |
-| **Xử lý câu ngoài phạm vi** (2 câu Q19, Q20) | 0/2 đúng (đều gán nhầm SOP) | **2/2 đúng** (trả kết quả rỗng) |
+| **Top-1** (18 câu có đáp án) | 17/18 = 94,4% | **18/18 = 100%** |
+| **Top-3** (18 câu có đáp án) | 17/18 = 94,4% | **18/18 = 100%** |
+| **Câu ngoài phạm vi trả rỗng** (Q19, Q20) | 0/2 | **0/2** |
+
+Giới hạn của phép đo: 20 câu do người trong đội viết khi đã biết nội dung 8 SOP, nên kết quả có thể lạc quan. Điểm của
+kết quả đứng đầu không so được giữa các câu (Q09 đúng với điểm 0,102, Q19 sai với điểm 0,735), nên **chưa có ngưỡng điểm
+nào tách được câu ngoài phạm vi**; đây là việc cần làm tiếp (ví dụ chỉ trả kết quả khi nhánh vector cũng khớp).
 
 ## 5. Tổng kết theo tiêu chí mục 4.2 I của đề (Không gian Intelligence)
 
@@ -263,7 +273,9 @@ Không gian Intelligence trong DX-Lab được hiện thực hóa theo nguyên t
 - **Giới hạn của DMN:** Không đọc được trường mô tả văn bản tự do. Khi người báo quên đánh dấu nguy cơ an toàn nhưng mô tả có cháy nổ (các ca T03, T07, T10), DMN sẽ xếp dưới mức.  
   *Giải pháp:* Thiết kế biểu mẫu thông minh (POR-02) bắt buộc xác nhận an toàn, kết hợp cơ chế cho phép kỹ thuật viên tiếp nhận chủ động nâng mức ưu tiên tại bước thẩm định ban đầu.
 - **Giới hạn của mô hình ngôn ngữ:** Mô hình nhỏ chạy offline có giới hạn về hiểu biết ngữ cảnh kỹ thuật quá sâu.  
-  *Giải pháp:* Dùng cơ chế Hybrid Search với trọng số FTS cao (0.7) để mỏ neo từ khóa chính xác, đồng thời áp dụng ngưỡng cắt khoảng cách (0.8) để tránh ảo giác hoặc ghép nhầm tài liệu.
+  *Giải pháp hiện có:* tìm kiếm kết hợp với trọng số toàn văn cao (0.7) để giữ khớp từ khóa chính xác, và loại vector
+  xa hơn 0.8. *Chưa giải quyết:* câu hỏi ngoài phạm vi vẫn nhận kết quả (Q19, Q20 ở trên); người dùng phải tự đánh giá
+  hướng dẫn trả về.
 - **Nguyên tắc Human-in-the-loop (Con người giữ quyền quyết định):** Intelligence trong DX-Lab chỉ đóng vai trò phân luồng tự động và gợi ý thông tin. Quyết định duyệt chi phí (theo hạn mức), phê duyệt chuyển bước và nghiệm thu hoàn thành luôn do cán bộ có thẩm quyền thực hiện.
 
 ## Tái lập

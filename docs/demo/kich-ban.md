@@ -178,10 +178,11 @@ Phân vai cụ thể (ai nói, ai gõ) quyết định khi tổng duyệt.
   1. **(0:30)** Nhập "máy lạnh nhỏ nước xuống sàn" (không dấu cũng được: "may lanh nho nuoc"): kết quả là hướng dẫn về điều
      hòa dù câu hỏi dùng chữ "máy lạnh", có đoạn trích và nguồn; chỉ ra chế độ hiển thị là `hybrid` (không phải `fts`). Đây là tìm kiếm
      **hybrid**: toàn văn PostgreSQL + vector (`fastembed` + `zvec`).
-  2. **(0:30)** Nhập "ghế gãy chân": kết quả rỗng vì chưa có hướng dẫn nào liên quan (ngưỡng khoảng cách). Quay lại phiếu
-     đã tạo ở đoạn C: chỉ mức ưu tiên, hạn xử lý và **mã lý do** của `triage.dmn`; mọi quyết định có thể truy ngược dòng luật.
+  2. **(0:30)** Không demo câu ngoài phạm vi: "ghế gãy chân" hiện vẫn trả kết quả không liên quan (`docs/AI.md`, Q19).
+     Mức ưu tiên và **mã lý do** của `triage.dmn` không hiện trên portal; nếu cần, nói và chỉ bảng luật trong
+     `apps/lab-repair/triage.dmn`.
 - **Nói:** Intelligence ở đây gồm luật DMN giải thích được và tìm kiếm ngữ nghĩa cục bộ, không gọi dịch vụ ngoài. Con
-  người vẫn là người quyết định cuối (`docs/AI.md`, `docs/report/BAO-CAO-PHAN-2.md`).
+  người vẫn là người quyết định cuối (`docs/AI.md`, báo cáo `docs/report/DX-Lab-v0.2.1-bao-cao-ky-thuat.pdf`).
 - **Thuộc:** **I – Intelligence** (Tầng 2) chạy bằng bộ máy DMN và `/api/search` của **Tầng 1**.
 
 ### G. Chi phí vượt và nghiệm thu: kết quả (1:30)
@@ -241,7 +242,7 @@ Mỗi câu trả lời ngắn, có dẫn tệp để Hội đồng kiểm.
    (`docs/ARCHITECTURE.md` mục 3.6).
 5. **Điểm nào là H-P-D-I chứ không chỉ dashboard CRUD?** Quy trình có trạng thái, người xử lý, thời gian, lịch sử
    (P); tài khoản, nhóm, vai trò, ủy quyền, hộp việc theo vai trò (H); schema, che dữ liệu cá nhân, audit, thống kê qua REST (D);
-   luật DMN có mã lý do và tìm kiếm hybrid (I). Dashboard chỉ là một tab. `docs/report/BAO-CAO-PHAN-2.md` chương 1.
+   luật DMN có mã lý do và tìm kiếm hybrid (I). Dashboard chỉ là một tab. Xem báo cáo `docs/report/DX-Lab-v0.2.1-bao-cao-ky-thuat.pdf`.
 6. **AI/ML dùng ở đâu? Đầu vào, mô hình, đánh giá, giới hạn?** (a) DMN `triage`, `routing`, `authority`: luật có mã lý do, không học máy; (b)
    tìm kiếm hybrid dùng `paraphrase-multilingual-MiniLM-L12-v2` (Apache-2.0) cùng toàn văn PostgreSQL, trên hướng dẫn sửa chữa do
    đội soạn. Đánh giá bằng 60 phiếu tổng hợp và 20 câu hỏi ở `apps/lab-repair/eval/`; **nhãn do agent soạn, chưa có người
