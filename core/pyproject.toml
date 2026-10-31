@@ -4,7 +4,7 @@
 
 [project]
 name = "dxlab-core"
-version = "0.2.0"
+version = "0.2.1"
 description = "Tầng 1 – DX-OS Open-Core headless: định danh, dữ liệu, workflow qua REST API"
 requires-python = ">=3.12"
 license = "Apache-2.0"
