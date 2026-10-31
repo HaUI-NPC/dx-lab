@@ -6,8 +6,9 @@ SPDX-License-Identifier: CC-BY-4.0
 
 # Báo cáo kỹ thuật dạng LaTeX
 
-Nguồn của `docs/report/DX-Lab-v0.2.1-bao-cao-ky-thuat.pdf` (9 trang A4, gồm trang bìa). Nội dung biên tập từ
-`BAO-CAO-PHAN-1.md` và `BAO-CAO-PHAN-2.md`, cập nhật theo bản `v0.2.1`.
+Nguồn của `docs/report/DX-Lab-v0.2.1-bao-cao-ky-thuat.pdf` (gồm trang bìa, mục lục có số trang). Đây là **báo cáo kỹ thuật
+duy nhất** của dự án. Nội dung biên tập từ hai bản nháp Markdown Phần 1 và Phần 2 (xem lịch sử git của `docs/report/`),
+cập nhật theo bản `v0.2.1` và số đo chạy thật trong `docs/AI.md`.
 
 ## Biên dịch
 

@@ -373,8 +373,8 @@ thiết kế; \code{docs/AUTHZ.md}).
 Không dữ liệu nào gửi ra ngoài. Bỏ bước tải mô hình thì \code{/api/search} tự lùi về toàn văn FTS.
 
 \textbf{Xếp hạng kết hợp}: điểm $= 0{,}7\cdot\dfrac{r}{r+0{,}1} + 0{,}3\cdot\max\!\bigl(0,\,1-\dfrac{d}{0{,}8}\bigr)$,
-với $r$ là \code{ts_rank_cd} của PostgreSQL FTS (có bỏ dấu tiếng Việt) và $d$ là khoảng cách cosine; đoạn có $d>0{,}8$ bị loại
-để câu hỏi ngoài phạm vi trả rỗng.
+với $r$ là \code{ts_rank_cd} của PostgreSQL FTS (có bỏ dấu tiếng Việt) và $d$ là khoảng cách cosine; vector có $d>0{,}8$ không
+được cộng điểm. Nhánh toàn văn không khớp đủ các từ thì nới thành khớp một từ, nên câu hỏi ngoài phạm vi vẫn nhận kết quả.
 
 \textbf{Dữ liệu đánh giá} (\code{apps/lab-repair/eval/}, \code{docs/AI.md}): 60 phiếu \emph{tổng hợp} gán nhãn tay (P1 11,
 P2 21, P3 28) và 20 câu hỏi tìm kiếm trên 8 SOP của \code{data/sop/} (18 câu có đáp án, 2 câu ngoài phạm vi).
@@ -392,7 +392,7 @@ Vai trò xử lý (\code{tech_role}) & 50/60 & 83,3\% \\
 Định tuyến đúng cả đơn vị và vai trò & 50/60 & 83,3\% \\
 Tìm kiếm TF-IDF, top-1 (18 câu có đáp án) & 17/18 & 94,4\% \\
 Tìm kiếm kết hợp \code{/api/search}, top-1 và top-3 & 18/18 & 100\% \\
-Câu ngoài phạm vi trả rỗng: TF-IDF / kết hợp & 0/2 / 2/2 & 0\% / 100\% \\
+Câu ngoài phạm vi trả rỗng: TF-IDF / kết hợp & 0/2 / 0/2 & 0\% / 0\% \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -468,6 +468,7 @@ repo tuân thủ REUSE, có release, SBOM và checksum.
 \item Hạn mức, cơ cấu tổ chức, SLA, tài khoản demo và các căn cứ \code{GĐ-...} là \emph{giả định} của đội, không phải quy chế thật của HaUI.
 \item Dữ liệu đánh giá AI là tổng hợp, nhãn chưa có người rà (mục~\ref{sec:ai}).
 \item Chỉ mục toàn văn lấy 150.000 ký tự đầu của tài liệu.
+\item Tìm kiếm chưa trả rỗng với câu hỏi ngoài phạm vi (``ghế gãy chân'' vẫn ra 8 hướng dẫn không liên quan); điểm không đủ để đặt ngưỡng.
 \item Docker Compose là bản demo một máy; Keycloak chạy \code{start-dev}; triển khai thật cần TLS và cơ sở dữ liệu riêng
 (\code{docs/ARCHITECTURE.md} mục 4).
 \item Portal chưa có màn hình tạo hoặc thu hồi ủy quyền.
