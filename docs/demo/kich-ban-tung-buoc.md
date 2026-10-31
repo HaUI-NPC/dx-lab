@@ -225,6 +225,42 @@ Sau đó bấm **Hoàn thành** → phải thấy **Hoàn tất**.
 
 ## Phụ lục — chỉ dành cho người chuẩn bị kỹ thuật
 
+### Cài lần đầu trên máy demo (chỉ làm một lần)
+
+Cần: Docker có Compose v2, `git`, `curl`, `openssl`, `bash`; thêm `jq`, `python3` cho cửa sổ Lệnh. Máy cần Internet ở lần
+đầu để tải image và mô hình.
+
+1. Lấy mã nguồn bản nộp (một trong hai cách):
+
+   ```bash
+   git clone --branch v0.2.2 https://github.com/HaUI-NPC/dx-lab.git && cd dx-lab
+   # hoặc tải dx-lab-v0.2.2.tar.gz ở trang Release, giải nén: tar -xzf dx-lab-v0.2.2.tar.gz && cd dx-lab-v0.2.2
+   ```
+
+2. **Chọn mật khẩu demo trước khi khởi động lần đầu** (nên làm, để khỏi phải tra mật khẩu ngẫu nhiên):
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Mở `.env`, điền dòng `DXLAB_DEMO_PASSWORD=` (ví dụ một mật khẩu dễ gõ cho buổi demo). **Bỏ qua bước này** thì
+   `scripts/up.sh` tự sinh mật khẩu ngẫu nhiên vào `.env`; khi đó xem bằng
+   `grep '^DXLAB_DEMO_PASSWORD=' .env | cut -d= -f2-`. Các secret còn để trống trong `.env` (mật khẩu cơ sở dữ liệu, khóa
+   OTP…) vẫn được `up.sh` sinh tự động. Không commit `.env`.
+
+3. Khởi động, tải mô hình tìm kiếm, nạp dữ liệu mẫu:
+
+   ```bash
+   bash scripts/up.sh
+   bash scripts/download-models.sh
+   bash scripts/seed.sh
+   ```
+
+   `up.sh` chờ tới khi 5 dịch vụ chạy ổn định. Lần đầu mất vài phút vì phải tải image.
+
+Từ lần sau chỉ cần làm phần "Chuẩn bị và bàn giao" bên dưới. Đổi mật khẩu sau khi đã cài: sửa `DXLAB_DEMO_PASSWORD`
+trong `.env` rồi chạy `bash scripts/reset.sh --yes` (reset xóa dữ liệu và nạp lại tài khoản với mật khẩu mới).
+
 ### Chuẩn bị và bàn giao trước giờ demo ít nhất 15 phút
 
 **Chỉ làm trên máy demo. Lệnh reset xóa toàn bộ dữ liệu cũ; không chạy giữa buổi trình bày.**
