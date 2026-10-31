@@ -1,0 +1,740 @@
+===== 2026-11-01T01:07:33+0700 BẮT ĐẦU scripts/up.sh
+Đã tạo .env từ .env.example.
+Đã sinh secret ngẫu nhiên cho POSTGRES_PASSWORD.
+Đã sinh secret ngẫu nhiên cho KC_BOOTSTRAP_ADMIN_PASSWORD.
+Đã sinh secret ngẫu nhiên cho DXLAB_PORTAL_CLIENT_SECRET.
+Đã sinh secret ngẫu nhiên cho DXLAB_DEMO_PASSWORD.
+Đã sinh secret ngẫu nhiên cho DXLAB_DEMO_OTP_SECRET.
+Đã sinh secret ngẫu nhiên cho DXLAB_PORTAL_SESSION_SECRET.
+ Image quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b Pulling 
+ Image apache/apisix:3.19.0-debian@sha256:9a7e45dc943fbf10ec916d1232bae4cda9302ae28a4696cfb83c2da01d261141 Pulling 
+ Image postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b Pulling 
+ Image postgres:17.11-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b Pulled 
+ 333125b5cee9 Pulling fs layer 0B
+ 46a2f6dfc0c2 Pulling fs layer 0B
+ ae6885d70942 Pulling fs layer 0B
+ b5c870178313 Pulling fs layer 0B
+ 52f46b5c7ef8 Pulling fs layer 0B
+ 4f4fb700ef54 Pulling fs layer 0B
+ af3a16d14252 Pulling fs layer 0B
+ 48e6012d2c15 Pulling fs layer 0B
+ a03464e341ce Pulling fs layer 0B
+ 4f4fb700ef54 Waiting 0B
+ af3a16d14252 Waiting 0B
+ 48e6012d2c15 Waiting 0B
+ a03464e341ce Waiting 0B
+ b5c870178313 Waiting 0B
+ 52f46b5c7ef8 Waiting 0B
+ 50ad43601eec Pulling fs layer 0B
+ 76b2211405dd Pulling fs layer 0B
+ 70afd26399b4 Pulling fs layer 0B
+ 28204199bacc Pulling fs layer 0B
+ 50ad43601eec Waiting 0B
+ 76b2211405dd Waiting 0B
+ 70afd26399b4 Waiting 0B
+ 28204199bacc Waiting 0B
+ 333125b5cee9 Downloading 289.6kB
+ 333125b5cee9 Downloading 5.151MB
+ 333125b5cee9 Downloading 10.82MB
+ 333125b5cee9 Downloading 14.83MB
+ ae6885d70942 Downloading 588B
+ ae6885d70942 Verifying Checksum 0B
+ ae6885d70942 Download complete 0B
+ 333125b5cee9 Downloading 20.32MB
+ 333125b5cee9 Downloading 26.1MB
+ 333125b5cee9 Download complete 0B
+ 46a2f6dfc0c2 Downloading 539.6kB
+ 333125b5cee9 Extracting 294.9kB
+ b5c870178313 Downloading 15.32kB
+ b5c870178313 Downloading 998.4kB
+ b5c870178313 Verifying Checksum 0B
+ b5c870178313 Download complete 0B
+ 333125b5cee9 Extracting 8.552MB
+ 46a2f6dfc0c2 Downloading 2.687MB
+ 333125b5cee9 Extracting 11.5MB
+ 46a2f6dfc0c2 Downloading 5.914MB
+ 333125b5cee9 Extracting 18.28MB
+ 52f46b5c7ef8 Downloading 16.38kB
+ 4f4fb700ef54 Downloading 32B
+ 4f4fb700ef54 Verifying Checksum 0B
+ 4f4fb700ef54 Download complete 0B
+ 52f46b5c7ef8 Downloading 82.89kB
+ 52f46b5c7ef8 Verifying Checksum 0B
+ 52f46b5c7ef8 Download complete 0B
+ 46a2f6dfc0c2 Downloading 10.76MB
+ 46a2f6dfc0c2 Downloading 16.06MB
+ 333125b5cee9 Extracting 23.3MB
+ 46a2f6dfc0c2 Downloading 21.94MB
+ 333125b5cee9 Extracting 26.84MB
+ af3a16d14252 Downloading 127.9kB
+ 46a2f6dfc0c2 Downloading 26.2MB
+ 48e6012d2c15 Downloading 237B
+ 48e6012d2c15 Download complete 0B
+ 333125b5cee9 Extracting 27.43MB
+ af3a16d14252 Downloading 2.173MB
+ 46a2f6dfc0c2 Downloading 26.73MB
+ 333125b5cee9 Extracting 28.12MB
+ af3a16d14252 Downloading 4.862MB
+ 333125b5cee9 Pull complete 0B
+ 46a2f6dfc0c2 Downloading 29.93MB
+ af3a16d14252 Downloading 7.531MB
+ a03464e341ce Downloading 1.045kB
+ a03464e341ce Verifying Checksum 0B
+ a03464e341ce Download complete 0B
+ 46a2f6dfc0c2 Downloading 33.13MB
+ af3a16d14252 Downloading 9.829MB
+ 46a2f6dfc0c2 Downloading 37.39MB
+ af3a16d14252 Verifying Checksum 0B
+ af3a16d14252 Download complete 0B
+ 46a2f6dfc0c2 Downloading 41.64MB
+ 46a2f6dfc0c2 Downloading 45.93MB
+ 46a2f6dfc0c2 Downloading 50.22MB
+ 46a2f6dfc0c2 Downloading 54.99MB
+ 46a2f6dfc0c2 Downloading 59.78MB
+ 46a2f6dfc0c2 Downloading 64.59MB
+ 46a2f6dfc0c2 Downloading 69.9MB
+ 46a2f6dfc0c2 Downloading 74.74MB
+ 46a2f6dfc0c2 Downloading 80.59MB
+ 50ad43601eec Downloading 74.1kB
+ 46a2f6dfc0c2 Downloading 82.18MB
+ 50ad43601eec Downloading 155.6kB
+ 46a2f6dfc0c2 Downloading 87.52MB
+ 50ad43601eec Downloading 444.7kB
+ 46a2f6dfc0c2 Downloading 92.87MB
+ 76b2211405dd Downloading 540.6kB
+ 50ad43601eec Downloading 750.1kB
+ 46a2f6dfc0c2 Downloading 98.17MB
+ 46a2f6dfc0c2 Verifying Checksum 0B
+ 46a2f6dfc0c2 Download complete 0B
+ 76b2211405dd Downloading 2.13MB
+ 50ad43601eec Downloading 1.055MB
+ 46a2f6dfc0c2 Extracting 557.1kB
+ 76b2211405dd Downloading 4.775MB
+ 50ad43601eec Downloading 1.133MB
+ 46a2f6dfc0c2 Extracting 8.913MB
+ 76b2211405dd Downloading 10.07MB
+ 46a2f6dfc0c2 Extracting 17.27MB
+ 50ad43601eec Downloading 1.438MB
+ 76b2211405dd Downloading 15.36MB
+ 46a2f6dfc0c2 Extracting 25.62MB
+ 50ad43601eec Downloading 1.744MB
+ 46a2f6dfc0c2 Extracting 28.41MB
+ 76b2211405dd Downloading 21.19MB
+ 50ad43601eec Downloading 2.049MB
+ 46a2f6dfc0c2 Extracting 28.97MB
+ 76b2211405dd Downloading 26.48MB
+ 76b2211405dd Downloading 27.54MB
+ 46a2f6dfc0c2 Extracting 29.52MB
+ 50ad43601eec Downloading 2.277MB
+ 46a2f6dfc0c2 Extracting 30.64MB
+ 76b2211405dd Downloading 31.78MB
+ 70afd26399b4 Downloading 540.4kB
+ 50ad43601eec Downloading 2.582MB
+ 46a2f6dfc0c2 Extracting 33.42MB
+ 76b2211405dd Downloading 36.01MB
+ 50ad43601eec Downloading 2.819MB
+ 70afd26399b4 Downloading 1.074MB
+ 46a2f6dfc0c2 Extracting 35.65MB
+ 76b2211405dd Downloading 40.78MB
+ 50ad43601eec Downloading 3.047MB
+ 70afd26399b4 Downloading 1.599MB
+ 46a2f6dfc0c2 Extracting 43.45MB
+ 50ad43601eec Downloading 3.193MB
+ 76b2211405dd Downloading 45.01MB
+ 46a2f6dfc0c2 Extracting 52.92MB
+ 70afd26399b4 Downloading 2.13MB
+ 50ad43601eec Downloading 3.43MB
+ 76b2211405dd Downloading 49.25MB
+ 46a2f6dfc0c2 Extracting 60.72MB
+ 70afd26399b4 Downloading 2.662MB
+ 76b2211405dd Downloading 54.01MB
+ 46a2f6dfc0c2 Extracting 68.52MB
+ 50ad43601eec Downloading 3.735MB
+ 46a2f6dfc0c2 Extracting 77.99MB
+ 76b2211405dd Downloading 58.78MB
+ 50ad43601eec Downloading 4.04MB
+ 76b2211405dd Downloading 63.01MB
+ 46a2f6dfc0c2 Extracting 83.56MB
+ 70afd26399b4 Downloading 3.721MB
+ 76b2211405dd Downloading 63.54MB
+ 46a2f6dfc0c2 Extracting 94.7MB
+ 50ad43601eec Downloading 4.268MB
+ 70afd26399b4 Downloading 4.25MB
+ 76b2211405dd Downloading 66.71MB
+ 46a2f6dfc0c2 Extracting 99.22MB
+ 50ad43601eec Downloading 4.492MB
+ 46a2f6dfc0c2 Pull complete 0B
+ ae6885d70942 Extracting 588B
+ ae6885d70942 Extracting 588B
+ ae6885d70942 Pull complete 0B
+ b5c870178313 Extracting 32.77kB
+ b5c870178313 Extracting 998.4kB
+ b5c870178313 Extracting 998.4kB
+ 76b2211405dd Downloading 73.07MB
+ b5c870178313 Pull complete 0B
+ 52f46b5c7ef8 Extracting 32.77kB
+ 52f46b5c7ef8 Extracting 82.89kB
+ 50ad43601eec Downloading 4.72MB
+ 70afd26399b4 Downloading 5.309MB
+ 52f46b5c7ef8 Pull complete 0B
+ 4f4fb700ef54 Extracting 32B
+ 4f4fb700ef54 Extracting 32B
+ 4f4fb700ef54 Pull complete 0B
+ af3a16d14252 Extracting 131.1kB
+ 76b2211405dd Downloading 77.3MB
+ 70afd26399b4 Downloading 5.838MB
+ 50ad43601eec Downloading 5.026MB
+ af3a16d14252 Extracting 2.884MB
+ af3a16d14252 Extracting 3.67MB
+ 76b2211405dd Downloading 81.01MB
+ 50ad43601eec Downloading 5.185MB
+ 70afd26399b4 Downloading 6.364MB
+ 76b2211405dd Verifying Checksum 0B
+ 76b2211405dd Download complete 0B
+ af3a16d14252 Extracting 4.456MB
+ 50ad43601eec Downloading 5.49MB
+ 70afd26399b4 Downloading 7.426MB
+ af3a16d14252 Extracting 5.374MB
+ 50ad43601eec Downloading 5.873MB
+ 70afd26399b4 Downloading 8.485MB
+ af3a16d14252 Extracting 7.209MB
+ 50ad43601eec Downloading 6.247MB
+ af3a16d14252 Extracting 9.83MB
+ 70afd26399b4 Downloading 10.07MB
+ af3a16d14252 Extracting 11.64MB
+ af3a16d14252 Pull complete 0B
+ 48e6012d2c15 Extracting 237B
+ 48e6012d2c15 Extracting 237B
+ 48e6012d2c15 Pull complete 0B
+ a03464e341ce Extracting 1.045kB
+ a03464e341ce Extracting 1.045kB
+ a03464e341ce Pull complete 0B
+ Image apache/apisix:3.19.0-debian@sha256:9a7e45dc943fbf10ec916d1232bae4cda9302ae28a4696cfb83c2da01d261141 Pulled 
+ 50ad43601eec Downloading 6.63MB
+ 50ad43601eec Verifying Checksum 0B
+ 50ad43601eec Download complete 0B
+ 50ad43601eec Extracting 98.3kB
+ 70afd26399b4 Downloading 10.6MB
+ 70afd26399b4 Downloading 12.72MB
+ 50ad43601eec Extracting 5.898MB
+ 50ad43601eec Extracting 6.644MB
+ 50ad43601eec Pull complete 0B
+ 70afd26399b4 Downloading 15.36MB
+ 76b2211405dd Extracting 557.1kB
+ 28204199bacc Downloading 550B
+ 28204199bacc Verifying Checksum 0B
+ 28204199bacc Download complete 0B
+ 76b2211405dd Extracting 2.228MB
+ 70afd26399b4 Downloading 19.07MB
+ 76b2211405dd Extracting 11.14MB
+ 70afd26399b4 Downloading 22.77MB
+ 76b2211405dd Extracting 21.73MB
+ 70afd26399b4 Downloading 25.95MB
+ 76b2211405dd Extracting 29.52MB
+ 70afd26399b4 Downloading 29.13MB
+ 76b2211405dd Extracting 40.11MB
+ 70afd26399b4 Downloading 32.84MB
+ 76b2211405dd Extracting 50.14MB
+ 70afd26399b4 Downloading 37.07MB
+ 76b2211405dd Extracting 58.49MB
+ 70afd26399b4 Downloading 38.13MB
+ 76b2211405dd Extracting 69.07MB
+ 76b2211405dd Extracting 76.32MB
+ 70afd26399b4 Downloading 42.89MB
+ 70afd26399b4 Downloading 48.19MB
+ 76b2211405dd Extracting 80.22MB
+ 70afd26399b4 Downloading 53.48MB
+ 70afd26399b4 Downloading 58.78MB
+ 76b2211405dd Extracting 81.33MB
+ 76b2211405dd Extracting 83.37MB
+ 70afd26399b4 Downloading 59.3MB
+ 70afd26399b4 Downloading 64.6MB
+ 70afd26399b4 Downloading 69.36MB
+ 70afd26399b4 Downloading 76.24MB
+ 70afd26399b4 Downloading 81.01MB
+ 76b2211405dd Pull complete 0B
+ 70afd26399b4 Downloading 82.06MB
+ 70afd26399b4 Downloading 87.36MB
+ 70afd26399b4 Downloading 93.72MB
+ 70afd26399b4 Downloading 99.54MB
+ 70afd26399b4 Downloading 105.4MB
+ 70afd26399b4 Downloading 111.2MB
+ 70afd26399b4 Downloading 117MB
+ 70afd26399b4 Downloading 121.8MB
+ 70afd26399b4 Downloading 127.1MB
+ 70afd26399b4 Downloading 128.1MB
+ 70afd26399b4 Downloading 133.9MB
+ 70afd26399b4 Downloading 139.8MB
+ 70afd26399b4 Downloading 144MB
+ 70afd26399b4 Downloading 150.9MB
+ 70afd26399b4 Downloading 151.9MB
+ 70afd26399b4 Downloading 157.2MB
+ 70afd26399b4 Downloading 162.5MB
+ 70afd26399b4 Downloading 168.4MB
+ 70afd26399b4 Verifying Checksum 0B
+ 70afd26399b4 Download complete 0B
+ 70afd26399b4 Extracting 557.1kB
+ 70afd26399b4 Extracting 20.61MB
+ 70afd26399b4 Extracting 45.68MB
+ 70afd26399b4 Extracting 70.75MB
+ 70afd26399b4 Extracting 94.14MB
+ 70afd26399b4 Extracting 112MB
+ 70afd26399b4 Extracting 138.1MB
+ 70afd26399b4 Extracting 166.6MB
+ 70afd26399b4 Extracting 173.8MB
+ 70afd26399b4 Pull complete 0B
+ 28204199bacc Extracting 550B
+ 28204199bacc Extracting 550B
+ 28204199bacc Pull complete 0B
+ Image quay.io/keycloak/keycloak:26.8.1@sha256:a78d6b79572168cb25886b80a8b5b8d4ed4390743e3eecb810538683e209dd6b Pulled 
+ Image dxlab-portal Building 
+ Image dxlab-core Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 913B done
+#1 DONE 0.0s
+
+#2 [portal internal] load build definition from Dockerfile
+#2 transferring dockerfile:
+#2 transferring dockerfile: 1.67kB done
+#2 DONE 0.4s
+
+#3 [core internal] load build definition from Dockerfile
+#3 transferring dockerfile: 1.80kB done
+#3 DONE 0.4s
+
+#4 [portal internal] load metadata for ghcr.io/astral-sh/uv:0.13.6@sha256:af22a52f5eafef3d78e551599d405c02df61919d18028f0cea8eda93bc9986d0
+#4 DONE 0.0s
+
+#5 [portal internal] load metadata for docker.io/library/python:3.12-slim-bookworm@sha256:e697c81897302a4c4333bade000d98038fbb21eb064f8ee1fd42d02ebcd9d337
+#5 DONE 0.0s
+
+#6 [portal internal] load .dockerignore
+#6 transferring context:
+#6 transferring context: 249B done
+#6 DONE 0.2s
+
+#7 [core build  1/11] FROM docker.io/library/python:3.12-slim-bookworm@sha256:e697c81897302a4c4333bade000d98038fbb21eb064f8ee1fd42d02ebcd9d337
+#7 ...
+
+#8 [portal internal] load build context
+#8 transferring context: 698.23kB 0.0s done
+#8 DONE 0.7s
+
+#9 [core internal] load build context
+#9 transferring context: 995.01kB 0.0s done
+#9 DONE 0.7s
+
+#10 [portal uv 1/1] FROM ghcr.io/astral-sh/uv:0.13.6@sha256:af22a52f5eafef3d78e551599d405c02df61919d18028f0cea8eda93bc9986d0
+#10 DONE 0.8s
+
+#7 [core build  1/11] FROM docker.io/library/python:3.12-slim-bookworm@sha256:e697c81897302a4c4333bade000d98038fbb21eb064f8ee1fd42d02ebcd9d337
+#7 DONE 2.0s
+
+#11 [portal stage-2 2/5] RUN useradd --system --uid 10001 --home-dir /app dxlab
+#11 ...
+
+#12 [portal build  2/11] COPY --from=uv /uv /usr/local/bin/uv
+#12 DONE 0.4s
+
+#11 [portal stage-2 2/5] RUN useradd --system --uid 10001 --home-dir /app dxlab
+#11 0.757 useradd warning: dxlab's uid 10001 is greater than SYS_UID_MAX 999
+#11 DONE 0.9s
+
+#13 [core stage-2 2/5] RUN useradd --system --uid 10001 --home-dir /app dxlab && mkdir -p /data /models && chown dxlab /data /models
+#13 0.759 useradd warning: dxlab's uid 10001 is greater than SYS_UID_MAX 999
+#13 DONE 1.0s
+
+#14 [core build  3/11] WORKDIR /src
+#14 DONE 0.1s
+
+#15 [portal build  4/11] COPY pyproject.toml uv.lock README.md ./
+#15 DONE 0.1s
+
+#16 [core build  5/11] COPY core/pyproject.toml core/pyproject.toml
+#16 DONE 0.1s
+
+#17 [portal build  6/11] COPY portal/pyproject.toml portal/pyproject.toml
+#17 DONE 0.2s
+
+#18 [portal build  4/11] COPY pyproject.toml uv.lock README.md ./
+#18 CACHED
+
+#19 [portal build  5/11] COPY core/pyproject.toml core/pyproject.toml
+#19 CACHED
+
+#20 [portal build  6/11] COPY portal/pyproject.toml portal/pyproject.toml
+#20 CACHED
+
+#21 [core build  7/11] RUN uv sync --frozen --no-dev --package dxlab-core --no-install-workspace
+#21 0.371 Using CPython 3.12.16 interpreter at: /usr/local/bin/python3
+#21 0.371 Creating virtual environment at: /app/.venv
+#21 0.761 Downloading psycopg-binary (6.5MiB)
+#21 0.762 Downloading cryptography (4.5MiB)
+#21 0.768 Downloading sqlalchemy (4.5MiB)
+#21 0.768 Downloading numpy (15.0MiB)
+#21 0.770 Downloading pillow (6.2MiB)
+#21 0.770 Downloading zvec (15.3MiB)
+#21 0.771 Downloading onnxruntime (20.4MiB)
+#21 0.772 Downloading hf-xet (3.8MiB)
+#21 0.773 Downloading pydantic-core (2.0MiB)
+#21 0.773 Downloading tokenizers (3.4MiB)
+#21 0.773 Downloading lxml (4.8MiB)
+#21 1.989  Downloaded pydantic-core
+#21 2.537  Downloaded tokenizers
+#21 2.639  Downloaded hf-xet
+#21 2.983  Downloaded sqlalchemy
+#21 2.984  Downloaded cryptography
+#21 3.033  Downloaded lxml
+#21 3.524  Downloaded pillow
+#21 3.546  Downloaded psycopg-binary
+#21 5.208  Downloaded numpy
+#21 5.533  Downloaded zvec
+#21 6.054  Downloaded onnxruntime
+#21 6.054 Prepared 58 packages in 5.68s
+#21 6.291 Installed 58 packages in 236ms
+#21 ...
+
+#22 [portal build  7/11] RUN uv sync --frozen --no-dev --package dxlab-portal --no-install-workspace
+#22 0.527 Using CPython 3.12.16 interpreter at: /usr/local/bin/python3
+#22 0.527 Creating virtual environment at: /app/.venv
+#22 0.918 Downloading cryptography (4.5MiB)
+#22 0.923 Downloading pygments (1.2MiB)
+#22 0.923 Downloading prefab-ui (1.9MiB)
+#22 0.926 Downloading pydantic-core (2.0MiB)
+#22 2.593  Downloaded pygments
+#22 3.423  Downloaded prefab-ui
+#22 3.440  Downloaded pydantic-core
+#22 4.185  Downloaded cryptography
+#22 4.185 Prepared 34 packages in 3.65s
+#22 4.377 Installed 34 packages in 191ms
+#22 4.999 Bytecode compiled 1609 files in 621ms
+#22 4.999  + annotated-doc==0.0.5
+#22 5.000  + annotated-types==0.8.0
+#22 5.001  + anyio==4.15.1
+#22 5.001  + attrs==26.1.0
+#22 5.001  + authlib==1.9.1
+#22 5.001  + certifi==2026.10.23
+#22 5.001  + cffi==2.1.1
+#22 5.001  + click==8.5.0
+#22 5.001  + cryptography==50.0.2
+#22 5.001  + cyclopts==5.3.1
+#22 5.001  + docstring-parser==0.18.0
+#22 5.001  + fastapi==0.162.0
+#22 5.001  + h11==0.16.0
+#22 5.001  + httpcore==1.0.9
+#22 5.001  + httpx==0.28.1
+#22 5.001  + idna==3.20
+#22 5.001  + itsdangerous==2.2.0
+#22 5.001  + joserfc==1.7.7
+#22 5.001  + markdown-it-py==4.2.0
+#22 5.001  + mdurl==0.1.2
+#22 5.001  + opentelemetry-api==1.45.1
+#22 5.001  + prefab-ui==0.21.1
+#22 5.001  + pycparser==3.12
+#22 5.001  + pydantic==2.14.1
+#22 5.001  + pydantic-core==2.50.1
+#22 5.001  + pydantic-settings==2.16.2
+#22 5.001  + pygments==2.21.0
+#22 5.001  + python-dotenv==1.2.4
+#22 5.001  + rich==15.0.0
+#22 5.001  + rich-rst==2.2.0
+#22 5.001  + starlette==1.10.0
+#22 5.001  + typing-extensions==4.16.0
+#22 5.001  + typing-inspection==0.4.4
+#22 5.001  + uvicorn==0.54.0
+#22 DONE 6.6s
+
+#23 [portal build  8/11] COPY LICENSE ./
+#23 ...
+
+#21 [core build  7/11] RUN uv sync --frozen --no-dev --package dxlab-core --no-install-workspace
+#21 7.478 Bytecode compiled 2719 files in 1.18s
+#21 7.478  + alembic==1.20.1
+#21 7.478  + annotated-doc==0.0.5
+#21 7.478  + annotated-types==0.8.0
+#21 7.478  + anyio==4.15.1
+#21 7.478  + attrs==26.1.0
+#21 7.478  + certifi==2026.10.23
+#21 7.478  + cffi==2.1.1
+#21 7.478  + charset-normalizer==3.5.2
+#21 7.478  + click==8.5.0
+#21 7.478  + cryptography==50.0.2
+#21 7.478  + fastapi==0.162.0
+#21 7.478  + fastembed==0.9.1
+#21 7.478  + filelock==4.2.4
+#21 7.478  + flatbuffers==25.12.19
+#21 7.478  + fsspec==2026.9.0
+#21 7.478  + h11==0.16.0
+#21 7.478  + hf-xet==1.7.1
+#21 7.478  + httpcore==1.0.9
+#21 7.478  + httpx==0.28.1
+#21 7.478  + huggingface-hub==1.33.0
+#21 7.478  + idna==3.20
+#21 7.478  + jsonschema==4.26.0
+#21 7.479  + jsonschema-specifications==2025.9.1
+#21 7.479  + loguru==0.7.3
+#21 7.479  + lxml==6.1.3
+#21 7.479  + mako==1.4.3
+#21 7.479  + markupsafe==3.0.4
+#21 7.479  + mmh3==5.3.1
+#21 7.479  + numpy==2.5.4
+#21 7.479  + onnxruntime==1.31.1
+#21 7.479  + opentelemetry-api==1.45.1
+#21 7.479  + packaging==26.3
+#21 7.479  + pillow==13.0.0
+#21 7.479  + protobuf==7.36.2
+#21 7.479  + psycopg==3.3.6
+#21 7.479  + psycopg-binary==3.3.6
+#21 7.479  + py-rust-stemmers==0.1.8
+#21 7.479  + pycparser==3.12
+#21 7.479  + pydantic==2.14.1
+#21 7.479  + pydantic-core==2.50.1
+#21 7.479  + pydantic-settings==2.16.2
+#21 7.479  + pyjwt==2.15.1
+#21 7.479  + python-dotenv==1.2.4
+#21 7.479  + python-multipart==0.0.32
+#21 7.479  + pyyaml==6.0.3
+#21 7.479  + referencing==0.37.0
+#21 7.479  + requests==2.34.2
+#21 7.479  + rpds-py==2026.9.1
+#21 7.479  + spiffworkflow==3.2.0
+#21 7.479  + sqlalchemy==2.1.6
+#21 7.479  + starlette==1.10.0
+#21 7.479  + tokenizers==0.23.3
+#21 7.479  + tqdm==4.70.1
+#21 7.479  + typing-extensions==4.16.0
+#21 7.479  + typing-inspection==0.4.4
+#21 7.479  + urllib3==2.8.0
+#21 7.479  + uvicorn==0.54.0
+#21 7.479  + zvec==0.8.0
+#21 DONE 7.7s
+
+#23 [portal build  8/11] COPY LICENSE ./
+#23 DONE 1.1s
+
+#24 [core build  8/11] COPY LICENSE ./
+#24 DONE 0.7s
+
+#25 [portal build  9/11] COPY LICENSES LICENSES
+#25 DONE 0.7s
+
+#26 [core build  9/11] COPY LICENSES LICENSES
+#26 DONE 0.7s
+
+#27 [portal build 10/11] COPY portal/src portal/src
+#27 DONE 0.8s
+
+#28 [portal build 11/11] RUN uv sync --frozen --no-dev --package dxlab-portal --no-editable
+#28 ...
+
+#29 [core build 10/11] COPY core core
+#29 DONE 0.5s
+
+#30 [core build 11/11] RUN uv sync --frozen --no-dev --package dxlab-core --no-editable
+#30 0.279    Building dxlab-core @ file:///src/core
+#30 1.624       Built dxlab-core @ file:///src/core
+#30 1.639 Prepared 1 package in 1.36s
+#30 1.652 Installed 1 package in 12ms
+#30 1.764 Bytecode compiled 2807 files in 111ms
+#30 1.764  + dxlab-core==0.2.0 (from file:///src/core)
+#30 DONE 1.9s
+
+#28 [portal build 11/11] RUN uv sync --frozen --no-dev --package dxlab-portal --no-editable
+#28 0.617    Building dxlab-portal @ file:///src/portal
+#28 2.002       Built dxlab-portal @ file:///src/portal
+#28 2.006 Prepared 1 package in 1.38s
+#28 2.008 Installed 1 package in 2ms
+#28 2.074 Bytecode compiled 1638 files in 65ms
+#28 2.074  + dxlab-portal==0.2.0 (from file:///src/portal)
+#28 DONE 2.2s
+
+#31 [portal stage-2 3/5] COPY --from=build /app/.venv /app/.venv
+#31 DONE 0.7s
+
+#32 [core stage-2 3/5] COPY --from=build /app/.venv /app/.venv
+#32 DONE 0.7s
+
+#33 [portal stage-2 4/5] COPY --from=build /src/LICENSE /src/LICENSES /usr/share/doc/dx-lab/
+#33 DONE 0.5s
+
+#34 [portal stage-2 5/5] WORKDIR /app
+#34 ...
+
+#35 [core stage-2 4/5] COPY --from=build /src/LICENSE /src/LICENSES /usr/share/doc/dx-lab/
+#35 DONE 0.8s
+
+#34 [portal stage-2 5/5] WORKDIR /app
+#34 DONE 0.7s
+
+#36 [portal] exporting to image
+#36 exporting layers
+#36 ...
+
+#37 [core stage-2 5/5] WORKDIR /app
+#37 DONE 0.7s
+
+#36 [portal] exporting to image
+#36 exporting layers 0.7s done
+#36 writing image sha256:146879a7808f50536923eaaa247fe0c55fdd3f02695a06a12ca905246c91009a done
+#36 naming to docker.io/library/dxlab-portal done
+#36 DONE 0.7s
+
+#38 [core] exporting to image
+#38 ...
+
+#39 [portal] resolving provenance for metadata file
+#39 DONE 0.0s
+
+#38 [core] exporting to image
+#38 exporting layers 1.0s done
+#38 writing image sha256:64ddace209010c38c32c4b093dcd452f79b80b4c7ac75b87fc4ac524c2460820 done
+#38 naming to docker.io/library/dxlab-core done
+#38 DONE 1.0s
+
+#40 [core] resolving provenance for metadata file
+#40 DONE 0.0s
+ Image dxlab-core Built 
+ Image dxlab-portal Built 
+ Network dxlab_default Creating 
+ Volume dxlab_keycloak-data Creating 
+ Volume dxlab_pgdata Creating 
+ Volume dxlab_pgdata Creating 
+ Volume dxlab_models Creating 
+ Volume dxlab_models Creating 
+ Network dxlab_default Creating 
+ Volume dxlab_core-data Creating 
+ Volume dxlab_core-data Creating 
+ Volume dxlab_keycloak-data Creating 
+ Volume dxlab_pgdata Created 
+ Volume dxlab_pgdata Created 
+ Volume dxlab_models Created 
+ Volume dxlab_models Created 
+ Network dxlab_default Created 
+ Network dxlab_default Created 
+ Container dxlab-postgres-1 Creating 
+ Volume dxlab_keycloak-data Created 
+ Volume dxlab_keycloak-data Created 
+ Container dxlab-keycloak-1 Creating 
+ Volume dxlab_core-data Created 
+ Volume dxlab_core-data Created 
+ Container dxlab-keycloak-1 Created 
+ Container dxlab-postgres-1 Created 
+ Container dxlab-core-1 Creating 
+ Container dxlab-core-1 Created 
+ Container dxlab-apisix-1 Creating 
+ Container dxlab-apisix-1 Created 
+ Container dxlab-portal-1 Creating 
+ Container dxlab-portal-1 Created 
+ Container dxlab-keycloak-1 Starting 
+ Container dxlab-postgres-1 Starting 
+ Container dxlab-keycloak-1 Started 
+ Container dxlab-postgres-1 Started 
+ Container dxlab-postgres-1 Waiting 
+ Container dxlab-postgres-1 Healthy 
+ Container dxlab-core-1 Starting 
+ Container dxlab-core-1 Started 
+ Container dxlab-core-1 Waiting 
+ Container dxlab-core-1 Healthy 
+ Container dxlab-apisix-1 Starting 
+ Container dxlab-apisix-1 Started 
+ Container dxlab-apisix-1 Waiting 
+ Container dxlab-keycloak-1 Waiting 
+ Container dxlab-keycloak-1 Healthy 
+ Container dxlab-apisix-1 Healthy 
+ Container dxlab-portal-1 Starting 
+ Container dxlab-portal-1 Started 
+ Container dxlab-keycloak-1 Waiting 
+ Container dxlab-core-1 Waiting 
+ Container dxlab-apisix-1 Waiting 
+ Container dxlab-portal-1 Waiting 
+ Container dxlab-postgres-1 Waiting 
+ Container dxlab-apisix-1 Healthy 
+ Container dxlab-postgres-1 Healthy 
+ Container dxlab-core-1 Healthy 
+ Container dxlab-keycloak-1 Healthy 
+ Container dxlab-portal-1 Healthy 
+
+DX-Lab đã chạy (mọi service healthy):
+  Portal    http://localhost:8000
+  API       http://localhost:9080/api
+  Keycloak  http://localhost:8180
+===== 2026-11-01T01:08:38+0700 KẾT THÚC scripts/up.sh exit=0 thời gian=65s
+===== 2026-11-01T01:08:38+0700 BẮT ĐẦU scripts/download-models.sh
+ Container dxlab-core-run-678bf3114afc Creating 
+ Container dxlab-core-run-678bf3114afc Created 
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 5 files:  20%|██        | 1/5 [00:00<00:01,  3.16it/s]Fetching 5 files:  80%|████████  | 4/5 [00:03<00:00,  1.18it/s]Fetching 5 files: 100%|██████████| 5/5 [00:09<00:00,  2.26s/it]Fetching 5 files: 100%|██████████| 5/5 [00:09<00:00,  1.83s/it]
+Đã tải và kiểm tra offline sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 trong /models.
+===== 2026-11-01T01:08:52+0700 KẾT THÚC scripts/download-models.sh exit=0 thời gian=14s
+===== 2026-11-01T01:08:52+0700 BẮT ĐẦU scripts/seed.sh
+Seed qua http://localhost:9080/api (không ghi thẳng database)
+[1/4] Nạp và duyệt áp dụng ứng dụng lab-repair
+    phiên bản 1: chờ duyệt
+    pgd.minh duyệt: phiên bản 1 đang áp dụng
+[2/4] Nạp danh mục phòng, tài sản và SOP
+    data/rooms.json: 4 bản ghi `room` (mới 4, cập nhật 0, giữ nguyên 0)
+    data/assets.json: 12 bản ghi `asset` (mới 12, cập nhật 0, giữ nguyên 0)
+    data/sop: 8 SOP (tải lên 8, đã có 0)
+[3/4] Tạo phiếu mẫu (AUTHZ mục 12)
+    ca-1 (kịch bản 1): sv.an tạo phiếu 1d8355d4-ff0d-462c-aa22-6b0e1a74a1cb
+    ca-2 (kịch bản 2): gv.binh tạo phiếu cce882c3-7eb1-489c-85c7-a3d4687715bb
+        ktv.cuong: pending_assessment → awaiting_endorsement
+    ca-3 (kịch bản 3): sv.an tạo phiếu d58c5db9-86a7-4e53-9cb3-c23a25a0e1f0
+        ktv.cuong: pending_assessment → awaiting_endorsement
+        tl.giang: awaiting_endorsement → awaiting_approval
+    ca-12 (kịch bản 12): gv.binh tạo phiếu 03740d38-0c33-4068-812c-2b939f93b0c0
+        ktv.cuong: pending_assessment → awaiting_handoff
+        tl.giang: awaiting_handoff → handed_off
+    ca-hoan-tat (ca hoàn tất): gv.binh tạo phiếu be6df71c-450a-4079-b178-aaeac1fa7dcb
+        ktv.dung: pending_assessment → awaiting_endorsement
+        tl.giang: awaiting_endorsement → awaiting_approval
+        tk.hai: awaiting_approval → repairing
+        ktv.dung: repairing → awaiting_acceptance
+        tl.giang: awaiting_acceptance → completed
+[4/4] Kết quả
+    ca-1         1d8355d4-ff0d-462c-aa22-6b0e1a74a1cb  pending_assessment
+    ca-2         cce882c3-7eb1-489c-85c7-a3d4687715bb  awaiting_endorsement
+    ca-3         d58c5db9-86a7-4e53-9cb3-c23a25a0e1f0  awaiting_approval
+    ca-12        03740d38-0c33-4068-812c-2b939f93b0c0  handed_off
+    ca-hoan-tat  be6df71c-450a-4079-b178-aaeac1fa7dcb  completed
+
+Seed xong.
+===== 2026-11-01T01:08:59+0700 KẾT THÚC scripts/seed.sh exit=0 thời gian=7s
+===== 2026-11-01T01:08:59+0700 BẮT ĐẦU scripts/demo-e2e.sh
+
+[0;34m==>[0m [0;32mBước 0: Kiểm tra trạng thái hệ thống qua APISIX (Health check)[0m
+    [1;33m*[0m APISIX Gateway và Core API hoạt động bình thường: ok
+
+[0;34m==>[0m [0;32mBước 1: Sinh viên (sv.an) báo hỏng điều hòa qua APISIX[0m
+    [1;33m*[0m Phiếu tạo thành công: ID = 7e4abe4e-12a2-48fd-a477-6bcad4a54e32
+    [1;33m*[0m DMN tự động phân loại & định tuyến: Trạng thái = pending_assessment
+
+[0;34m==>[0m [0;32mBước 2: Kỹ thuật viên CSVC (ktv.dung) khảo sát hiện trạng & lập dự toán[0m
+    [1;33m*[0m Nhận việc từ hộp việc kỹ thuật: Task ID = 364ff40a-704b-437f-a414-20a65988b0fb
+    [1;33m*[0m Khảo sát hoàn tất: Trạng thái chuyển sang 'awaiting_endorsement'
+
+[0;34m==>[0m [0;32mBước 3: Trưởng phòng lab (tl.giang) xác nhận nhu cầu sửa chữa[0m
+    [1;33m*[0m Nhận việc từ hộp việc trưởng lab: Task ID = 5efbfdeb-8e2e-4ba8-9543-c4f242752ab4
+    [1;33m*[0m Xác nhận nhu cầu thành công: Trạng thái chuyển sang 'awaiting_approval'
+
+[0;34m==>[0m [0;32mBước 4: Trưởng khoa (tk.hai) phê duyệt chi phí (xác thực 2 bước OTP)[0m
+    [1;33m*[0m Nhận việc từ hộp việc cấp duyệt: Task ID = da63244d-b303-4503-a076-9995a3e6e0a0
+    [1;33m*[0m Phê duyệt thành công: Trạng thái chuyển sang 'repairing'
+
+[0;34m==>[0m [0;32mBước 5: Kỹ thuật viên (ktv.dung) thực hiện sửa chữa và báo cáo hoàn thành[0m
+    [1;33m*[0m Nhận việc sửa chữa: Task ID = a13b5234-60fa-461e-99cd-161843daffd7
+    [1;33m*[0m Sửa chữa hoàn tất: Trạng thái chuyển sang 'awaiting_acceptance'
+
+[0;34m==>[0m [0;32mBước 6: Trưởng lab (tl.giang) nghiệm thu và bàn giao thiết bị[0m
+    [1;33m*[0m Nhận việc nghiệm thu: Task ID = 65b4d9e9-f882-40b9-8209-fcac511c393d
+    [1;33m*[0m Nghiệm thu hoàn tất: Trạng thái kết thúc = 'completed'
+
+[0;34m==>[0m [0;32mBước 7: Kiểm tra Audit log & Tra cứu tri thức (/api/search)[0m
+    [1;33m*[0m Kiểm tra phiếu 7e4abe4e-12a2-48fd-a477-6bcad4a54e32: status='completed', số bước đã ghi nhận=6
+    [1;33m*[0m Kết quả tra cứu SOP: 'SOP-FAC-01: Xử lý sự cố điều hòa không mát hoặc chảy nước'
+
+[0;32m================================================================[0m
+[0;32m✔ KỊCH BẢN E2E THÀNH CÔNG: Hoàn thành đầu-cuối qua APISIX Gateway[0m
+[0;32m================================================================[0m
+
+===== 2026-11-01T01:09:05+0700 KẾT THÚC scripts/demo-e2e.sh exit=0 thời gian=6s
